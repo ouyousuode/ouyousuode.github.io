@@ -1,7 +1,7 @@
 ---
-title: 从学习一段代码说起 
----
+layout: default
 
+---
 ## 从学习一段代码说起
 [浏览网页](https://www.raywenderlich.com/902/sqlite-tutorial-for-ios-creating-and-scripting)时发现一份来自2000年10月1日以来破产银行的名单，就以csv格式将其下载到本地，打开文件发现数据包含成行的由逗号隔开的内容，格式如Desert Hills Bank,Phonenix,A2,57060,26-Mar-10,26-Mar-10。得到数据后，我们想将其保存在SQLit e数据库中，以便其他应用访问。
 ```
