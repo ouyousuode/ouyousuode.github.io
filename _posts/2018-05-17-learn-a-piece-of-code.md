@@ -1,17 +1,18 @@
 ---
 layout: default
-
+title: 从学习一段代码说起
 ---
-## 从学习一段代码说起
+{{page.title}}
+===================
 [浏览网页](https://www.raywenderlich.com/902/sqlite-tutorial-for-ios-creating-and-scripting)时发现一份来自2000年10月1日以来破产银行的名单，就以csv格式将其下载到本地，打开文件发现数据包含成行的由逗号隔开的内容，格式如Desert Hills Bank,Phonenix,A2,57060,26-Mar-10,26-Mar-10。得到数据后，我们想将其保存在SQLit e数据库中，以便其他应用访问。
-```
+``` python
 create table failed_banks(name text,city text,stcode text,zip integer,close_date,update_date text)
 ```
 
 然后将此csv文件导入，但不幸的是，通观整份名单，我们发现有些行的格式为"La Jolla Bank,FSB",La Jolla,CA,32423,19-Feb-10,24-Feb-10。"La Jolla Bank,FSB"的双引号意味着引号内的全部字符构成银行的名字。
 
 可以用Python编码向数据库插入数据，Python有一个很简洁的称为string.split()的方法，可在split()中指定一个分界符，比如
-```
+``` python
 a = "Unity National Bank,Cartersville,GA,34678,26-Mar-10,26-Mar-10"
 a.split(",")
 #结果为
@@ -19,7 +20,7 @@ a.split(",")
 ```
 然后将数组中的每项放进数据库表中对应的列内。但是，问题来了，如何处理"La Jolla Bank,FSB",La Jolla,CA,32423,19-Feb-10,24-Feb-10这种情况呢？特殊之处在于""内有逗号。正如前文所述，此双引号内的内容为一整体，不可分拆。文中的处理方式为
 
-```
+``` python
 def mySplit(string):
     quote = False
     returnValue = [] # 数组
@@ -39,6 +40,7 @@ def mySplit(string):
     returnValue.append(current)
     return returnValue
 ```
+
 其代码逻辑是什么呢？
 * 首先，双引号不作为提取的部分
 * 其次，检测到左引号后，就要想着还有右引号，此双引号间的内容是不可分割的整体
