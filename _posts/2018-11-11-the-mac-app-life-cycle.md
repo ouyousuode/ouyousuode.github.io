@@ -1,6 +1,6 @@
 ---
 layout: default
-title: macOS App生命周期
+title: macOS App的生命周期
 ---
 {{page.title}}
 ===================
@@ -20,11 +20,11 @@ int main(int argc, const char * argv[]) {
 ```
 NSApplicationMain函数初始化app并筹备其运行。作为初始化过程的一部分，此函数得做几件事：
 
-* 创建NSApplication类的一个实例。可用sharedApplication类方法在app内任意处访问此对象。
-* 加载Info.plist文件中键为NSMainNibFile的nib文件并实例化此文件内的全部对象。这是应用的主nib文件，它应当包含应用delegate及其它任何必须在启动周期早期加载的关键对象。在启动期不需要的对象应放置在单独的nib文件中且稍后加载。
-* 调用application对象的run方法来完成启动并且开始处理事件。
+- 创建NSApplication类的一个实例。可用sharedApplication类方法在app内任意处访问此对象。
+- 加载Info.plist文件中键为NSMainNibFile的nib文件并实例化此文件内的全部对象。这是应用的主nib文件，它应当包含应用delegate及其它任何必须在启动周期早期加载的关键对象。在启动期不需要的对象应放置在单独的nib文件中且稍后加载。
+- 调用application对象的run方法来完成启动并且开始处理事件。
 
-直到run方法被调用，应用的主要对象被夹在进入内存，但是app仍未完全启动。run方法告知应用程序delegate应用即将启动，显示应用程序菜单栏，打开传给应用的任何文件，做一些框架管理工作，然后开启事件处理循环。所有这些工作发生在应用主线程内。如果对应NSDocument对象的canConcurrentlyReadDocumentsOfType:类方法返回值为YES，文件可被打开于第二个线程。
+直到run方法被调用，应用的主要对象被加载进内存，但是app仍未完全启动。run方法告知应用程序delegate应用即将启动，显示应用程序菜单栏，打开传给应用的任何文件，做一些框架管理工作，然后开启事件处理循环。所有这些工作发生在应用主线程内。如果对应NSDocument对象的canConcurrentlyReadDocumentsOfType:类方法返回值为YES，文件可被打开于第二个线程。
 
 如果应用在启动周期间保留了用户界面，Cocoa会在启动期加载任何被保留的数据并用它来重建最后一次打开的窗口。
 ### 应用的Main Event Loop驱动交互
