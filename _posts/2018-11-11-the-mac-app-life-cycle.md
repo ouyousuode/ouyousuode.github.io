@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title: macOS App的生命周期
 ---
 {{page.title}}
@@ -11,13 +11,8 @@ App生命周期是它从启动到终止的过程。App可通过用户或系统�
 
 ### main函数是应用入口点
 像任意基于C语言的应用一样，启动时Mac App的主要入口点是main函数。在Mac App内，main函数仅被最低限度地使用。它的主要任务是交控制权予AppKit框架。任意在Xcode中创建的新工程都附带一个默认如下所示的main函数。一般来说，你勿需改变其实现。
-```Objective-C
-#import <Cocoa/Cocoa.h>
 
-int main(int argc, const char * argv[]) {
-    return NSApplicationMain(argc, argv);
-}
-```
+<img src="/images/posts/2018-11-11/main.jpg">
 NSApplicationMain函数初始化app并筹备其运行。作为初始化过程的一部分，此函数得做几件事：
 
 - 创建NSApplication类的一个实例。可用sharedApplication类方法在app内任意处访问此对象。
