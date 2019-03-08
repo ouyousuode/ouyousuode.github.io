@@ -24,14 +24,13 @@ NSApplicationMain函数初始化app并筹备其运行。作为初始化过程的
 如果应用在启动周期间保留了用户界面，Cocoa会在启动期加载任何被保留的数据并用它来重建最后一次打开的窗口。
 ### 应用的Main Event Loop驱动交互
 随着用户与App交互，应用的main event loop处理到来的事件并把它们分发给合适的对象以处理。当NSApplication对象初次创建时，它建立一个与系统窗口服务器的连接，窗口服务器收到来自底层硬件的事件后将其转发给App。App也会建立一个FIFO的事件队列来存储发自窗口服务器的事件。此main event loop随即负责出队及处理队列中正等待的事件，如下图所示。
+<img src="/images/posts/2018-11-11/Cocoa_Small.jpg">
 <img src="/images/posts/2018-11-11/main event loop.png">
 NSApplication对象的run方法是main event loop的主力。在一个封闭的循环中，此方法执行以下步骤直至App终止：
 
-1.提供window-update通知的服务，此会引起任何标记为dirty的窗口的重绘。
-
-2.利用nextEventMatchingMask:untilDate:inMode:dequeue:方法出队来自内部event queue中的事件，并将事件数据转化为NSEvent对象。
-
-3.利用NSApplication对象的sendEvent:方法把事件分发给合适的目标对象。
+- 提供window-update通知的服务，此会引起任何标记为dirty的窗口的重绘。
+- 利用nextEventMatchingMask:untilDate:inMode:dequeue:方法出队来自内部event queue中的事件，并将事件数据转化为NSEvent对象。
+- 利用NSApplication对象的sendEvent:方法把事件分发给合适的目标对象。
 
 当app分发事件时，sendEvent:方法利用利用事件的类型来决定合适的目标。总体来说，主要有两大类输入事件，即key events和mouse events。key事件被发送给key window，即当前正接受key按压的窗口。mouse事件被分发给事件发生的窗口。
 
