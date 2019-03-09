@@ -73,8 +73,69 @@ fork()制作一份当前运行进程的拷贝，并且它是很少的可返回�
 
 注意上述极简程序中前有下划线的exit()方法。它行为如exit(),关闭文件描述符，做些一般性的清理工作，但是它不会冲刷文件流缓冲期，因此你不必担心它会为你冲刷带有复制数据的缓冲器。在此程序实例中，printf()中的新行(newline)为我们冲刷缓冲器。
 
-也请注意在退出前父进程小睡了一会儿。当子进程记录信息时，这提高了它仍未子进程的父亲角色的可能性。在子进程写信息前，如果父进程退出了，那此子进程的父亲将为进程1。删除sleep()行，重新编译运行后，你可以观察到这种行为。由于输出以来竞争条件，所以有可能运行几次后才能看到这种情况。
+也请注意在退出前父进程小睡了一会儿。当子进程记录信息时，这提高了它仍未子进程的父亲角色的可能性。在子进程写信息前，如果父进程退出了，那此子进程的父亲将为进程1。删除sleep()行，重新编译运行后，你可以观察到这种行为。由于输出依赖竞争条件，所以有可能运行几次后才能看到这种情况。
 ### 父子进程的生命周期
+由于fork()的天性，每个进程都确有一个父进程，然而一个父进程可以有多个子进程(每个儿子都有父亲，然而父亲却可能有多个儿子)。Unix更是强化了这一规则：尽管任一进程可能有或没有子进程，每个进程都有一个父进程。在子进程退出前，如果其父进程已然退出，那么此子进程就被进程1收养了。在大部分Unix系统下，此为init进程；在macOS下，则是多面手的launchd。
+
+当子进程退出时，这并非是它生命的尽头。在一个进程终止后，操作系统仍将保留与它相关的一些信息，比如退出码以及系统资源使用量统计。只有在这些信息都传递给了此子进程的父亲后，此子进程才被允许死亡。对这些身后信息的索取称为收割子进程。你可利用一个wait()系统调用来收割进程。
+``` Objective-C
+pid_t wait(int *status);
+pid_t waitpid(pid_t wpid,int *status,int options);
+pid_t wait3(int *status,int options,struct rusage *rusage);
+pid_t wait4(pid_t wpid,int *status,int options,struct rusage *rusage);
+```
+调用这些wait函数中的任一个均可收集来自子进程的结果码。wait()会阻塞至有子进程等待被收割。如果多个子进程都在等着被收割，wait()会返回一个任意值。如果你想等一个指定的子进程，那就用waitpid()。waitpid()，wait3()和wait4()都用到的options是：
+- WNOHANG  不要阻塞着等待子进程。如果没有退出的子进程，立即返回。
+- WUNTRACED 报告子进程身上的任务控制动作(像被停止或者后台运行)。
+
+wait3()像wait(),wait4()似waitpid()。前者等待任意的一个子进程，后者等待一个特定的子进程。wait3()和wait4()也会填充一个数据结构，它描述了被子进程耗费的资源。你可以在/usr/include/sys/resource.h中找到完整的struct rusage。这个结构体内比较有趣的元素是：
+``` Objective-C
+struct rusage {
+	struct timeval ru_utime;   // user time used
+	struct timeval ru_stime;   // system time used
+	long	      ru_maxrss;   // max resident set size
+}
+```
+这些告诉你子进程耗费了多少CPU时间以及内存使用的“水位线”。从子进程得到的返回值被编码在所有wait函数返回的状态结果中。用这些宏可以取出你感兴趣的项目：
+- WIFEXITED()	 如果进程正常终止于对exit()的调用，则返回true。
+- WEXITSTATUAS() 如果WIFEXITED(status)结果为真，返回子进程传递给exit()的参数中的low-order字节。自main()处的返回值作为exit()的参数。
+- WIFSIGNALED()  如果进程由于收到了信号而终止，则返回true。
+- WTERMSIG       如果WIFSIGNALED(status)为真，则返回引起进程终止的信号数字。
+- WCOREDUMP      如果WIFSIGNALED(status)为真，并且如果进程终止伴随着core dump的产生，则返回true。
+- WIFSTOPPED     如果进程未被终止，只是被停止，则返回true，比如在shell中的任务控制(像，Control-Z会挂起进程)。
+- WSTOPSIG       如果WIFSTOPPED(status)为真，则返回引发进程停止的信号数字。
+
+接着展示这些运行中的宏：
+
+<img src="/images/posts/2018-06-23/codeOfStatus_0.png">
+<img src="/images/posts/2018-06-23/codeOfStatus_1.png">
+./status 运行后，结果为：
+
+<img src="/images/posts/2018-06-23/resultOfStatus.png">
+在子进程的exit()和父进程的wait()中间，内核需要在某处存储子进程的状态和资源信息。它要立即处理子进程的大部分资源(内存、文件等等)，但是保留它的进程表入口，此包含需要提供给副进程的信息。进程亡了，但它的进程表入口仍继续存在：如此未死透的子进程以僵尸进程著称，不要与Objective-C的NSZombieEnabled内存调试功能混为一谈。Zombies(僵尸)显示在ps命令输出信息的括号内：
+
+<img src="/images/posts/2018-06-23/ps.png">
+偶尔的僵尸进程是不足为虑的。当它的父进程退出后，子进程重认进程1为父进程，此进程负责收割它。只有一种糟心的情形下，僵尸变得危险起来：如果一个程序持续地制造僵尸且不退出，那它就会填满整个进程表进而使机器变得无用。更可能的状况是，它会耗尽某个用户的进程限制，使此进程用户的帐户变得无用而并不影响他人。
+
+你怎知何时去调用wait()呢？当子进程退出后，系统发送一个SIGCHLD信号给它的父进程。此信号被默认忽略，但是，你可以设置一个handler并利用它设置一个子进程需要被等的标志。需要注意的是，父进程无法计数收到的每个SIGCHLD信号。因为当进程正在内核的run queue排队时，若干个子进程可能已然退出了。
+
+像在idle进程期间，你可能像继续忽略SIGCHLD信号并周期性地替代wait()。或者，你可用kqueue来监测进程的终止和SIGCHLD信号。通过传给ps的o选项ppid关键字，你可以看到父进程的进程ID：
+
+<img src="/images/posts/2018-06-23/ppid.png">
+
+在这，你能看到一些将/sbin/launched/作为父进程的守护进程。也有一个登录进程(父进程pid 397是Terminal.app)，还有其它像shell和emacs这样的程序。
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
