@@ -49,10 +49,11 @@ def mySplit(string):
 这段代码是为解决实际问题而写，日后碰到此类问题复用即可，节省时间。从实现过程看，编程是一件特别考验逻辑思维的脑力劳动，不仅要求编程人员有从大处着眼的大局观，而且要求有从小处入手的实现力。碰到此类未处理过的问题时，由于大脑数据库中没有现成的解决方案，慌乱之心自然而生，情况属于失控状态。所以，才有“事缓则圆”之说。
 
 先让自己慢下来，把问题写清楚；当然要想写清楚，首先要想清楚。可参考的步骤：
-- ask clarifying questions 理清问题边界条件、假设，尽量预期所有的use case。
-- high level discussion,list approached 列出可能的方法，讨论优缺点，分析具体case的不同。
-- choose solution and start coding 选择最优的方案写代码，code with examples in mind。
-- self test and discuss performance 逐行检查代码，套用没种case测试代码，发现并解决bug，讨论时间空间复杂性。
+>
+- ask clarifying questions 理清问题边界条件、假设，尽量预期所有的用例。
+- high level discussion,list approached 列出可能的方法，讨论优缺点，分析具体用例的不同。
+- choose solution and start coding 选择最优的方案写代码。
+- self test and discuss performance 逐行检查代码，套用每种用例测试代码，发现并解决bug，讨论时间空间复杂性。
 
 以买卖房子为例，当前以100万购入房子一套，首付三成，以基准利率纯商业贷款25年，选择等额本息（支付利息逐年递减）的月供方式，2年后以120万卖出，盈利是20万吗？或者说期望利用此房两年内盈利20万，卖出价格应为多少？主要需考虑两方面的因素：
 - 若不买此房，利用30万投资理财（保守如余额宝），年化利率以百分之4计，两年的收益约为2.4万。此为少挣的。
