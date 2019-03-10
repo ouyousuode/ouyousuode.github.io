@@ -116,10 +116,9 @@ Unix系统有一个称之为sort的应用程序，它读取标准输入的数据
 
 在这部分，我们创建一个运行traceroute的task。traceroute发送packets来发现你的机器与其它主机间的路由器。来自路由器的响应有时会花一小会儿时间才返回。我们在后台读取此数据并把它附加到text view中。
 
-创建的通知是一个NSFileHandleReadCompleteNotification。为启动等待数据的file handle，需给它发送-readInBackgroundAndNotify消息。每次收到此通知，你便利用NSFileHandle的-availableData方法读取数据。然后，再次调用-readInBackgroundAndNotify以重启对数据的等待。
+创建的通知是一个NSFileHandleReadCompleteNotification。为启动等待数据的file handle，需给它发送-readInBackgroundAndNotify消息。每次收到此通知，你便利用NSFileHandle的-availableData方法读取数据。然后，再次调用-readInBackgroundAndNotify以重启对数据的等待。运行中的应用展示如下：
 
-运行中的应用展示如下：
-
+<img src="/images/posts/2018-07-16/traceRouteApplication.png">
 ### 创建头文件及编辑xib文件
 创建一个类型为Cocoa App的新工程，将之命名为TraceRoute。编辑ViewConroller.h文件：
 <img src="/images/posts/2018-07-16/viewControllerHeaderTraceRoute.jpg">
