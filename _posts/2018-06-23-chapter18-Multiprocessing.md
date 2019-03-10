@@ -6,7 +6,7 @@ title: 多进程
 ====================
 
 所有的现代操作系统都是多进程的，这意味着多个独立的应用可同时运行并且共享系统的资源。遍布于可运行程序间的操作系统时间片，将可用的CPU时间划分给这些可运行程序。
-### 进程调度
+## 进程调度
 调度器是操作系统的一部分，它标出下一步哪个进程应获取使用CPU的权限。它经常参考一些信息来做这个决定，这些信息包括进程优先级、该进程以前获得的CPU时间量以及它是否刚刚完成一个I/O操作。
 
 每个进程都有一个影响优先级的相关美好程度值。此值被指定为-20到20间的一个整数。默认情况下，进程有一个为0的美好程度值。美好程度值越大，进程的优先级越低；越美好的进程越不太需要多少CPU时间。
@@ -22,7 +22,7 @@ title: 多进程
 <img src="/images/posts/2018-06-23/uptime.png">
 
 macOS的load average只是报告run queue的深度。它并不包括阻塞在硬盘I/O上的时间，其它某些Unix类系统(包括Linux)会报告此时间。
-### 一些便利的函数
+## 一些便利的函数
 开启新进程是编程库中一件强劲的工具。Unix附带有很多轻型命令行工具，它们可以执行有用的功能。有时，充分利用这些工具比重新实现它们相同的功能更有意义。举例来说，你可能有一个移除HTML内标签的Perl脚本文件。与利用Objective-C实现正则表达式代码相比较，启动一个Perl脚本再喂给它Html文件，容易得多。
 
 启动其它程序的最简单方式是使用system()函数。它启动程序，等它结束，并随后返回结果代码(result code)。实际上，system()传递控制权给了一个新shell，/bin/sh，因此你可以使用重定向这样的shell功能。
@@ -42,7 +42,7 @@ int pclose(FILE *stream);
 <img src="/images/posts/2018-06-23/resultOfPcal_Small.png">
 
 popen手册指出它用了一个双向pipe，所以你可以指定一个读写模式(r+)以替代仅仅的一个r或者w。不幸的是，在实践中使用返回的stream既读又写可能无效果，因为它需要被popen的进程的合作。Use of a bidirectional stream can easily run afoul of the buffering done under the hood by the stream I/O functions.它也会引起死锁的诡异现象：your process could block writing data to the child process while it blocks wirting already-processed data back.进程既不会得到排干满缓冲器的机会，也不能不阻塞其它操作。如果你需要对子进程既读又写，那么你最好的选择是，要么重定向输出到一个文件，随后处理之；要么自己创建一个子进程，用两个pipe，一个用来读，另一个用来写。
-### fork
+## fork
 在Unix中创建一个新进程，你必须先制作当前进程的一份拷贝。此拷贝可继续执行原进程的代码，或者可开始执行其它程序。系统调用fork()执行拷贝的过程：
 ``` Objective-C
 pid_t fork(void);
@@ -74,7 +74,7 @@ fork()制作一份当前运行进程的拷贝，并且它是很少的可返回�
 注意上述极简程序中前有下划线的exit()方法。它行为如exit(),关闭文件描述符，做些一般性的清理工作，但是它不会冲刷文件流缓冲期，因此你不必担心它会为你冲刷带有复制数据的缓冲器。在此程序实例中，printf()中的新行(newline)为我们冲刷缓冲器。
 
 也请注意在退出前父进程小睡了一会儿。当子进程记录信息时，这提高了它仍未子进程的父亲角色的可能性。在子进程写信息前，如果父进程退出了，那此子进程的父亲将为进程1。删除sleep()行，重新编译运行后，你可以观察到这种行为。由于输出依赖竞争条件，所以有可能运行几次后才能看到这种情况。
-### 父子进程的生命周期
+## 父子进程的生命周期
 由于fork()的天性，每个进程都确有一个父进程，然而一个父进程可以有多个子进程(每个儿子都有父亲，然而父亲却可能有多个儿子)。Unix更是强化了这一规则：尽管任一进程可能有或没有子进程，每个进程都有一个父进程。在子进程退出前，如果其父进程已然退出，那么此子进程就被进程1收养了。在大部分Unix系统下，此为init进程；在macOS下，则是多面手的launchd。
 
 当子进程退出时，这并非是它生命的尽头。在一个进程终止后，操作系统仍将保留与它相关的一些信息，比如退出码以及系统资源使用量统计。只有在这些信息都传递给了此子进程的父亲后，此子进程才被允许死亡。对这些身后信息的索取称为收割子进程。你可利用一个wait()系统调用来收割进程。
@@ -124,8 +124,58 @@ struct rusage {
 <img src="/images/posts/2018-06-23/ppid.png">
 
 在这，你能看到一些将/sbin/launched/作为父进程的守护进程。也有一个登录进程(父进程pid 397是Terminal.app)，还有其它像shell和emacs这样的程序。
+## exec
+fork后的大多数情况是，你只是想运行其它程序。exec()函数族用一个新进程替换当前正在运行的进程。你经常听到别人一起说fork()和exec()，由于它们俩很少分开使用。
+
+这里有几个exec()的变种，它们随具体情形而定，例如，你如何指定要运行的文件，如何指定程序参数，以及如何指定新程序的环境变量。
+
+<img src="/images/posts/2018-06-23/execVariants_Small.jpg">
+如何解读这些名称:
+- p  如果给定文件名包含斜杠，则它被用作路径。否则，此调用使用PATH环境变量来做shell式的程序查找。
+- P  像p一样，但是使用提供的"/sbin:/bin:/usr/sbin:/usr/bin"这样的字符串而非PATH环境变量。
+- v  程序参数是一个包含字符串的数组。
+- l  程序参数是一个list of separate arguments in the exec() command。
+- e  环境变量是“VARIABLE=value”形式的字符串数组。
+- No e 环境变量通过environ变量继承自父进程。
+
+如果你不用exec(),全局变量environ会被用来构建新进程的环境。execve()函数是其它版本函数基于的实际系统调用，可说是exec的根本系统调用。你被期待着传递可执行文件名字或路径作为第一个参数。参数列表，参数向量以及环境向量都必须以NULL指针作结尾：
+``` Objective-C
+char *envp[] = {"PATH=/usr/bin","EDITOR=/usr/bin/vim",NULL};
+char *argv[] = {"/usr/bin/true",NULL};
+```
+经过exec()调用，一些属性就被子进程继承下来了，包括：
+- 打开的文件
+- 进程ID，父进程的进程ID,进程组ID
+- 访问的群组，控制终端，资源使用量
+- 当前工作目录
+- 信号掩码
 
 
+## Pipes
+打开的文件经exec()被继承下来，除非你明确告诉fd关掉exec！此行为形成了构建程序间管道的基础。在fork()前，进程调用pipe()来创建一个通信管道：
+``` Objective-C
+int pipe(int fildes[2]);
+```
+pipe()用两个连接在一起的文件描述符(fd)来填充files数组，写入fildes[1]的数据可从fildes[0]读出来。如果你想fork()及exec()一个命令，并且读取此命令的输出，那可以作以下步骤：
+- 创建pipe
+- fork()
+- 子进程使用dup2()把filedes[1]转向到标准输出
+- 子进程exec()一段程序
+- 父进程从filedes[0]读取此程序的输出。在子进程退出后，它的文件描述符被关闭，一旦缓存的数据被排干了，从filedes[0]读取就能返回文件的结尾。
+- 最后，父进程wait()子进程终止以收割之。
+
+<img src="/images/posts/2018-06-23/pipeAndFork.png">
+可使用多个pipe把多个程序的输入和输出链接到一起。根据此原理，我们可以编写一个等同于如下功能的程序：
+grep -i mail /usr/share/dict/words | tr '[:lower:]' '[:upper:]'。
+什么意思呢？是将从/usr/share/dict/words获得的包含mail的单词转换成大写形式。
+
+<img src="/images/posts/2018-06-23/pipeLine_0.png">
+<img src="/images/posts/2018-06-23/pipeLine_1.png">
+<img src="/images/posts/2018-06-23/pipeLine_2.png">
+
+运行./pipeline，结果为：
+
+<img src="/images/posts/2018-06-23/resultOfPipeLine.png">
 
 
 
