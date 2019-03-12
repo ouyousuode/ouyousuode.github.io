@@ -38,6 +38,100 @@ Dispatch队列是GCD的基础数据结构。一个队列就是包含work项的�
 
 全局队列以FIFO的顺序处理工作，但是它不能保证工作完成的顺序。实际的工作块(work block)运行在GCD维护的一个线程池内，并且它们会受到来自OS内核的系统级均衡。这有不同优先级(高/high，默认/default，低/low)的三个全局队列。全局队列有高效且无限制的快读。而所谓宽度，即可同时运行的work项。很显然，串行队列的宽度为1.
 
+记住这三个全局队列是仅有的并发运行队列是非常重要的。串行队列以FIFO方式来分派及完成任务，而全局队列只是以FIFO的方式分派它们。每个串行队列都需要一个目标队列，这个目标队列是工作最终得到调度以运行的地方。可以让串行队列靶定(target)其它的串行队列。只要队列链条到达了全局队列，分派的工作就能得以完成。像下图展示的这般：
+
+<img src="/images/posts/2018-12-09/dispatchQueueArchitecture.jpg">
+一个串行队列的优先级取决于它的目标队列的优先级。通过靶定一个串行队列到默认优先级全局队列上，它的work项就终以调度在默认优先级队列的工作队列中。重新靶定串行队列到高优先级全局队列将导致任意已入队却还未以默认优先级调度的work项运行在高优先级全局队列中(这句太长了)！
+
+串行队列是非常轻量级的数据结构，其体积以比特计而非几KB。但凡对设计有益，可创建任意多有专门用途的队，因为无须担心对其数据结构的管理工作。线程却没这么让人省心，它属于相当重量级的数据结构。那就是说，除非你有理由非得要串行运行work项，比如确保同一时间仅有单独一个线程操纵资源；否则，你应当直接将work项入队到一个全局队列中。
+## 面向对象设计
+虽然GCD纯以C语言实现，但是它是一个面向对象库。基本的GCD类型是指向不透明(opaque)数据结构的指针，然而也涉及到一个继承模型。dispatch对象的基类是dispatch_object_t。你从不会直接创建一个dispatch_object_t对象；相反，你创建比如队列(source)、源(source)及组(group)这样具体的对象。这也有几个类似dispatch_time_t、dispatch_once_t这样的类型，它们并非对象却属于半透明的标量类型。
+
+<img src="/images/posts/2018-12-09/dispatchClassesAndFunctions.jpg">
+现在可以一窥相关的Dispatch API了。
+## API之队列
+在你可以在队列上调度任务前，你需要掌握一个队列。可以利用
+``` Objective-C
+dispatch_queue_t dispatch_get_main_queue(void);
+```
+得到主队列。可利用此队列在主线程上调度任务。这是一个串行队列，所以工作的处理及完成均以FIFO顺序进行。
+``` Objective-C
+dispatch_queue_t dispatch_get_global_queue(long priority,unsigned long flags);
+```
+会给你全局并发队列中的一个，它的优先级是DISPATCH_QUEUE_PRIORITY_LOW、DEFAULT及HIGH三者中其一。给flag传一个0UL；此值现在被忽略，作为将来的一个可扩展点。这个优先级指的是哪个队列得到对block的调度权。只有高优先级队列为空时，默认优先级队列中的block才能在线程中运行。类似地，只有高优先级和默认优先级队列上没有待处理(挂起)的block，低优先级队列才会处理block给线程！
+
+可通过
+``` Objective-C
+dipatch_queue_t dispatch_get_current_queue(void);
+```
+取得当前队列。“当前队列”是指处理当前工作运行片(running piece of work)的队列。如果你处在主线程或默认优先级的全局队列中，并且未于任务段段中间位置，它将返回主队列。此返回的实际队列可能是令人吃惊的，有一些像串行或并发这样期望之外的属性。Apple建议仅dispatch_get_current_queue()来确认测试结果("Am I really running on the mainqueue")或者调试。
+
+利用
+``` Objective-C
+dispatch_queue_t dispatch_queue_create(const char *label,dispatch_queue_attr_r attr);
+```
+创建咱们自己的队列。其中label可以是任意值，但是Apple推荐使用反向DNS命名模式，比如像com.bignerdranch.BigGroovy.FacebookQueue这样。这个label是可选项，但是呢，因为它出现在Instrment调试器中，所以它是崩溃报告中非常有用的一则信息。为attr传入NULL。在OS X 10.6和iOS 4中，它未曾用到，但可作为未来的一个扩展点。自此调用返回的是一个串行队列。
+
+使用
+``` Objective-C 
+void dispatch_set_target_queue(dispatch_object_t object,dispatch_queue_t target);
+```
+函数设置队列的目标队列。处理在彼队列中的work项会被放入此目标队列以获取最终的调度。可为任意GCD对象设置目标队列。对非队列的对象而言，这会告诉对象到哪去运行它的上下文指针指向的函数！
+## API之分派
+现在，你有了一个队列。拿它做点什么呢？你可把工作分给它。dispatch_async() 会扔一大摞工作到队列上，并随即返回。这些工作最终会找到通往全局队列的路，在那，这些要完成的工作运行于某线程中。因为这工作异步发生，所以有可能在dispatch_async()返回前，此要完成的工作已开始运行。如果工作量比较小，还有可能的是，在dispatch_async()返回前，要完成的工作不仅已开始，而且已经完成。
+
+GCD中的很多调用都有两个flavor：一个喂block，另一个拿函数(指针)作参数：
+``` Objective-C
+void dispatch_async(dispatch_queue_t queue,void (^block)(void));
+void dispatch_async_f(dispatch_queue_t queue,void *context,void (*function)(void *));
+```
+喂函数的变种遵循将f附加到名称末尾的传统，采用一个上下文指针和一个函数指针。它只是一种实现细节，但是GCD中的大部分均有f函数作为block版本的基础实现。你可以选择知道work项被完成才释放(不阻塞)你的线程。利用
+``` Objective-C
+void dispatch_sync(dispatch_queue_t queue,void (^block)(void));
+```
+可达成此目的。
+
+需要小心的是，你不能对dispatch_sync()递归调用。若递归调用，则可导致死锁。此情形下，内层(innner)的同步分派不得不等着外层(outer)分派完成，而外层的dispatch_sync()直到内层结束才能完成。
+
+主线程上的runloop会触发GCD为主队列开始处理任务块(block)。如果你手头没有runloop，或者正运行于Core Foundation之下的层级中，你可利用void dispatch_main(void);。这个函数从不返回，它将永远循环，处理添加到主队列中的work项。dispatch_after()允许你安排一个运行于将来某个时间点的block。
+## API之内存管理
+Grand Central Dispatch接近OS X食物链的底部，居于系统库中。你不会碰到像垃圾收集这样的好事，因此有管理对象生命周期的API。像在Cocoa中，GCD使用引用计数(reference counting)。通过retain一个对象，来表达对它长期的兴趣：
+``` Objective-C
+void dispatch_retain(dispatch_object_t object);
+```
+因为GCD对象与dispatch_object_t的继承关系，可用此函数来retain dispatch_queue_t或者dispatch_source_t。像从dispatch_queue_create()这样的调用返回的对象已然为你做了retain。当你处理完一个对象后，释放它。
+``` Objective-C
+void dispatch_release(dispatch_object_t object);
+```
+重复释放一个对象会引发程序崩溃，所以要确保在崩溃后检查log。函数库试图在崩溃报告中提供有用的应用方面的信息，比如：
+``` Objective-C
+BUG IN CLIENT OF LIBDISPATCH:
+Over-release of an object
+```
+队列和dispatch源也有上下文指针，可以在这儿放入一个指向你数据的指针。可用这些函数设置和取回上下文指针：
+``` Objective-C
+void dispatch_set_context(dispatch_object_t object,void *context);
+void *dispatch_get_context(dispatch_object_t object);
+```
+准确弄清楚一个对象被销毁的时间以便清理上下文指针这件事，并不容易！你倒是可以指定一个终结函数(finalizer function)，在对象被销毁后，它可被异步调用！
+``` Objective-C
+void dispatch_set_finalizer_f(dispatch_object_t object,
+                              dispatch_function_t finalizer);
+```
+dispatch_function_t接受void指针作参数，并且并不返回什么内容。并且，此函数并没有block版本，奇怪得很！
+``` Objective-C
+typedef void (*dispatch_function_t)(void *);
+```
+队列和dispatch源对象均可被暂停及恢复。这些对象有一个"暂停计数(suspend count)"，当此数非0时，会触发队列停止处理work项。在执行一个block(也就是从队列取出一个block)前，需检查它的暂停状态。正在执行的block或者函数不会被抢占，因此，暂停仅仅控制某某开启执行与否。
+``` Objective-C
+void dispatch_suspend(dispatch_object_t object);
+void dispatch_resume(dispatch_object_t object);
+```
+经常用resume摆平(平衡)suspend是重要的；否则，像终结函数和canclelation handler就得不到调用。过度恢复一个对象也会导致程序崩溃；释放一个暂停的(挂起的)对象属于为定义范畴。
+
+
+
+
 
 
 
