@@ -122,13 +122,48 @@ dispatch_function_t接受void指针作参数，并且并不返回什么内容。
 ``` Objective-C
 typedef void (*dispatch_function_t)(void *);
 ```
-队列和dispatch源对象均可被暂停及恢复。这些对象有一个"暂停计数(suspend count)"，当此数非0时，会触发队列停止处理work项。在执行一个block(也就是从队列取出一个block)前，需检查它的暂停状态。正在执行的block或者函数不会被抢占，因此，暂停仅仅控制某某开启执行与否。
+队列和dispatch源对象均可被暂停及恢复。这些对象有一个"暂停计数(suspend count)"，当此数非0时，会导致队列停止处理work项。在执行一个block(也就是从队列取出一个block)前，需检查它的暂停状态。正在执行的block或者函数不会被抢占，因此，暂停仅仅控制某某开启执行与否。
 ``` Objective-C
 void dispatch_suspend(dispatch_object_t object);
 void dispatch_resume(dispatch_object_t object);
 ```
-经常用resume摆平(平衡)suspend是重要的；否则，像终结函数和canclelation handler就得不到调用。过度恢复一个对象也会导致程序崩溃；释放一个暂停的(挂起的)对象属于为定义范畴。
+经常用resume摆平(平衡)suspend是重要的；否则，像终结函数和canclelation handler就得不到调用。过度恢复一个对象也会导致程序崩溃；释放一个暂停的(挂起的)对象属于未定义范畴。
+## WordCounter
+<img src="/images/posts/2018-12-09/wordCounter.png">
+此WordCounter程序不仅能计算文本域内单词的总数，还能计算到底有多少个不同的单词。这两个值更新在文本域中。此应用的代码是比较明确的，在Xcode中创建一个名叫WordCounter的新Cocoa App。像应用界面中那样，从对象库中取一个NSTextView，一个count按钮，一个进度提示器以及两个为不同计算的标签。简单配置对象的布局，更新工程代码：
 
+<img src="/images/posts/2018-12-09/viewControllerHeader.png">
+在Interface Builder中完成关联。ViewController.m中有真正干活的代码，当然文件的开头都是标准的样板戏：
+
+<img src="/images/posts/2018-12-09/getWordCounter.png">
+我们需要在getWordCount方法中获取两个值，即单词总数和一个记录单词频率的NSCountedSet。让函数一次返回两个值，其一，构造一个包含此二值的结构体，计算结束后，将其返回；其二，给函数传入指针，对地址进行操作。从代码中可看到，我们采取后者。实际上，由应用的功能看，此函数承担了比较繁重的工作。紧接着，在按钮handler中调用getWordCount方法。
+
+<img src="/images/posts/2018-12-09/count_0.png">
+这个方法得到文本总字数及各单词出现的频率，并且将它们置于标签上。现在，构建、运行应用。(正常工作)效果立现。但是因为getWordCount耗时数秒，你将得到一个提示UI已被锁定的Spinning Pizza of Death。在桌面系统中，一个被锁定的(locked up)应用虽有些烦人但也不算大事。你可先去干点儿其它事，随后再回来！但若在移动设备，这就是大问题了。如果你的应用UI被锁定了，用户除了盯着屏幕(执手相看泪眼)外，将一筹莫展。而且如果锁定时间太长，比如超过15或30秒，iOS系统的看门狗(watchdog)将杀掉你的程序。
+
+WordCounter放入2秒睡眠时间，来模拟有很多需要完成的工作情况。现如今的机器都太快以至于不会被这样的简单代码绊住脚步。一台MacBook Pro用不了1/4秒便可计算此中(/usr/share/dict/words)的全部文本，哪怕其中235,000个单词之多。但是，这仍有可能阻塞主线程。
+
+解决方案是不在主线程同时做如此多繁重的工作。针对此，可以用多种方法实现。你可以将任务"切片"，然后在主线程以异步方式处理这些任务片。计算1000个单词，而后返回到RunLoop。再计算1000个单词，而后再返回到RunLoop，如此一而再再而三地往复执行，知道全部计算完成。当然，也可以派生一个pthread或者NSThread来处理这任务。
+
+以上两方法的负面影响是皆有较大的工作量。针对第一种方法，需要重写代码；在线程方案中，需要一个与主线程汇合且得到结果的方式，更别提还须设置一个运行于实际线程上的线程函数。
+
+Grand Central Dispatch 使“扔些任务到后台线程，再扔些任务到主线程”类工作变得很容易。一个通常的"GCD is Cool !" demo是放一个dispatch_async()到后台线程以计算(getWordCount),一个dispat_async()到主线程以更新标签。实际的工作可能稍有复杂，但也复杂不到哪去。并且，肯定比手动派生一个其他的线程简单得多！
+
+你将要处理的一件事是阻止用户与窗口的控件进行交互。别误会,仅指当计算进行时，你肯定不想用户再去点按"Count !"。当然也不会想用户去改变窗口内的文本内容。当然了，在窗口放一个进度提示器就更用户友好了。它可以让用户知道某些事正在进行中！我们用两个辅助方法来完成这件事：
+
+<img src="/images/posts/2018-12-09/disableEnable.png">
+现在，代码GCD化之前，把disableEverything与enableEverything代码块放入IBAction方法内：
+
+<img src="/images/posts/2018-12-09/count_1.png">
+现在，弄明白：什么需要运行在后台，什么需要运行在主线程。UI操纵相关的代码需运行在主线程，-(void)getWordCount:addFrequencies:forString:需要发生在后台线程。对此了然后，便可编写最终的GCD增强版了。
+
+<img src="/images/posts/2018-12-09/count_2.png">
+现在，可以一究此方法如何运行了。首先，-disableEverything被调用。IBAction得到处理于主线程，所以为了此方法，代码正在主线程。UI被禁用，接着，方法的剩余部分是一个置于默认优先级全局队列的block，接着，此方法退出并且控制权返还到RunLoop手里。
+
+在将来的某个时间点，此block会被从队列头部取出并运行。它做的第一件事就是调用-(void)getWordCount:addFrequencies:forString:。接着，另一个block被放进主队列。在未来的某个未指定的时刻，主队列的block开始运行，更新UI。
+
+使用GCD时，这是一种常见的编码模式。利用嵌套的block：外层的block放入队列，任务完成后，像洋葱般被剥掉；内层的block被放进队列，待此block运行后，它也被剥掉；一个更内层的block开始运行！
+## Iteration
 
 
 
