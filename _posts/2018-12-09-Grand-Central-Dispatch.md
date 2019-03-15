@@ -164,6 +164,168 @@ Grand Central Dispatch 使“扔些任务到后台线程，再扔些任务到主
 
 使用GCD时，这是一种常见的编码模式。利用嵌套的block：外层的block放入队列，任务完成后，像洋葱般被剥掉；内层的block被放进队列，待此block运行后，它也被剥掉；一个更内层的block开始运行！
 ## Iteration
+甚至简单如for循环迭代处理数据的任务也可由GCD增强。迭代一个数组并于每个元素执行操作的经典方式是通过使用循环(loop)。
+``` Objective-C
+enum {
+	kNumberCount = 200000
+}
+static int numbers[kNumberCount];
+static int results[kNumberCount];
+
+for(int i = 0;i < kNumberCount;i++) {
+	result[i] = Work(numbers,i);
+}
+```
+其实，你可以利用dispatch_apply()并行化这些操作。调用(call)本身是同步的，所以你清楚当函数返回后，所有的工作便全部完成了。但是dispatch_apply()会找出尽可能多的CPU来把这事做到最好。
+``` Objective-C
+dispatch_queue_t queue = 
+               dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0);
+dispatch_apply(kNumberCount,queue,^(size_t index) {
+	results[index] = Work(numbers,index);
+});
+```
+这与NSArray的-enumerateObjectsWithOptions:usingBlock:很类似，当然在给它NSEnumerationCouncurrent选项的前提下。须确保的是，为dispatch_apply()使用一个全局队列。使用串行队列会串行化(序列化)你全部的工作，使任意并行化操作的尝试劳而无功。
+## 安全的全局初始化(Safe Global Initialization)
+有时你需要执行只有一次的(one-time)初始化，并且无论有多少线程在想着初始化发生，你都只能执行一次此操作。这经常用于懒初始化，或使用单例模式时，创建那唯一的真对象。虽然有一个称为Double-Clicked Locking技术，但难在正确使用。可pthread_one()来序列化一个只有一次的(one-time)初始化。当然，也可以使用dispatch_once()。
+``` Objective-C
+void dispatch_once(dispatch_once_t *predicate,void (^block)(void));
+
+static dispatch_once_t initializationPredicate;
+static blah *stuffToInitialize;
+
+dispatch_once(&initializationPredicate,^{
+	stuffToInitialize = goop();
+});
+```
+其中，dipatch_once_t被用作守护变量，不论有多少线程和内核想着初始化发生，dispatch_once()将仅会准确地执行一次它的block！如果可能的话，尽量使用与pthread功能相似的dispatch族函数。这些dispatch函数有着最好的性能表现。
+## Time,Time,Time
+当处理真实世界的代码时，经常需要和时间打交道，无论是有一些过会儿便超时的调用，还是安排发生在特定时间的事儿。GCD称这些时间为“时间里程碑”，并且以dispatch_time_t展现它们。此类型是一个“semi-opaque(半透明)”整型；它有一个整型(数)值，但是其内容易受改变。时间可被表达为针对其它时刻的相对时间，也可以是两个非常易分辨的时刻——现在(now)和永远(forever)：
+``` Objective-C
+static const dispatch_time_t DISPATCH_TIME_NOW = 0;
+static const dispatch_time_t DISPATCH_TIME_FOREVER = ~0ull;
+```
+可将DISPATCH_TIME_FOREVER作一个无限超时(infinite timeout)。
+
+有两种不同的时间用在GCD中。“主机时钟(host clock)”，也被称为系统时钟，它基于操作系统内的一个计数器。只要机器在运行，计数器就会增长。休眠机器也会冻结主机时钟。如果设置一个未来1小时的超时接着休眠30分钟，则此操作实际上超时于1.5小时后。
+
+另一种时钟是“挂钟(wall clock)”，它代表了可被手表或书桌上的日历报告的时间。即便机器睡眠了，或者向前/后调了时间，wall clock仍会一如既往地向前走。用户有时会旅行至一个不同的时区，或会切换夏令时的区域。因此，用wall clock time设置一个未来1小时的超时，休眠机器30分钟，结果是，超时会发生在30分钟后。
+
+dispatch_time()会返回针对已知里程碑的一个时间值，当然，发生在喂给它一个纳秒值后。
+``` Objective-C
+dispatch_time_t dispatch_time(dispatch_time_t base,int64_t nanoseconds);
+```
+如果基准时间是挂钟时间，那么返回值也为挂钟时间。DISPATCH_TIME_NOW作为主机时钟的基准。
+
+利用dispatch_walltime()来创建一个针对固定时间点的里程碑时刻。
+``` Objective-C
+dispatch_time_t dispatch_walltime(struct timespec *base,
+                                  int64_t nanoseconds);
+```
+可传入一个针对特定时间的struct timespec，它为自Unix时间戳1970之后的多少秒及多少纳秒。当然，传入NULL后，即表示当前时间。
+
+未来的第23秒可以这样创建：
+``` Objective-C
+dispatch_time_t milestone = dispatch_time(DISPATCH_TIME_NOW,
+                                          23ull * NSEC_PER_SEC);
+```
+对常量的修改符ull避免数值被截断为32位。USEC_PER_SEC表示微秒；NSEC_PER_SEC则表示纳秒。它们保证了在微秒与纳秒间的转换。
+
+通过把时间放入结构体tm并利用mktime()将其转化为struct timespec后，可设置一个针对某绝对时刻的超时：
+``` Objective-C
+struct tm tm = {0,};
+strptime("2016-09-13 13:13","%Y-%m-%d %H:%H",&tm);
+
+strtuct timespec ts = {};
+ts.tv_sec = mktime(&tm);
+
+dispatch_time_t time_out = dispatch_walltime(&ts,0);
+```
+可在对dispatch_after()的调用中使用dispatch_time_t:
+``` Objective-C
+void dispatch_after(dispatch_time_t when,
+                    dispatch_queue_t queue,
+					void (^block)(void));
+```
+此函数入队一个指定时间后才运行的work项(work item)。向dispatch_afer()传入DISPATCH_TIME_NOW与调用diaptch_async()有异曲同工之妙。
+## Dispatch群组
+有时，你想把工作分散于几个不同的队列中，然后擎等着它们完成。比如说,(在服务器)渲染页面可能涉及到访问数据库、渲染文本以及追加任意留在页面上的评论。
+
+一个dispatch_group就是包含block的一个集合。这些块被异步地分散于队列中。为创建一个追踪块集合地group，可用：
+``` Objective-C
+dispatch_group_t dispatch_group_create(void);
+```
+``` Objective-C
+void dispatch_group_async(dispatch_group_t group,
+                          dispatch_queue_t queue,
+						  void (^block)(void));
+```
+此情景中，添加blcok到gorup中，然后将它dispatch_async()到给定的队列。当组内的所有这些block被完成后，这有两种得到通知的方式。可指定一个blcok运行于dispatch_group_notify().
+``` Objective-C
+void dispatch_group_notify(dispatch_group_t group,
+						   dispatch_queue_t queue,
+						   void (^block)(void));
+```
+在group完成安排给它的最后一个block后，它会dispatch_async()此通知块(block)进队列。也可阻塞至group抽空时，若达成此目的，可赋予dispatch_group_wait()一个超时。
+``` Objective-C
+long dispatch_group_wait(dispatch_group_t group,
+                         dispatch_time_t timeout);
+```
+如果在timeout前，group已抽空，此函数返回0；如timeout已过，则返回一个非0值。如若想达用不超时之效果，可给它一个DISPATCH_TIME_FOREVER。可利用dispatch_group_enter及dispatch_group_leave来控制组内的当前work项个数：
+``` Objective-C
+void dispatch_group_enter(dispatch_group_t group);
+void dispatch_group_leave(dispatch_group_t group);
+``` 
+进入dispatch_group可将work项个数加1，离开则减1。直到此值变为0，dispatch_group才会发个通知。
+
+现在，展示几个实际应用的dispatch group。
+
+<img src="/images/posts/2018-12-09/groupCode_0.png">
+<img src="/images/posts/2018-12-09/groupCode_1.png">
+创建一个dispatch组，将其中的两个block分派给全局队列，剩余的一个分派给主队列。添加一个通知handler，像work项般等在dispatch组中。“等待”自然运行在全局队列(即后台线程)以便主线程可以畅快地运行分派到主队列的block。
+
+最后，运转runloop十秒钟以抽空主队列中的所有work项。程序运行(./group)后，将产生以下输出：
+
+<img src="/images/posts/2018-12-09/resultOfGroup.png">
+这有一些需要注意的趣事。在starting to wait发生前，第一个work项("I seem to be a verb")就已完成了。最可能已开始处理的work项("background grovvy!")却尚未结束。也可以观察到，background groovy项在主线程结束休眠前已结束。仍需要注意的是，分派给主队列的work项直到runloop启动才得到运行。
+
+其实，从运行结果去理解代码逻辑，还是很清晰的。
+- 默认优先级的全局队列首先运行，得 I seem to be a verb 及 starting to wait。
+- 5秒后，低优先级的全局队列输出 background groovy。
+- 又5秒后，启动主线程的RunLoop，故输出运行于主队列的main queue groovy！
+- 所有的work项执行完毕后，输出Wait returned with result: 0。
+
+dispatch_group_async()的一个实现可显示使用dispatch_group_enter()和leave()的方法。
+``` Objective-C
+void groovy_dispatch_group_async(dispatch_group_t group,
+								 dispatch_queue_t queue,
+								 dispatch_block_t work) {
+	dispatch_retain(group);
+	dispatch_group_enter(group);
+
+	dispatch_async(queue,^{
+		work();
+		dispatch_group_leave(group);
+		dispatch_release(group);
+	});
+}
+```
+此处有一个有意思的关键点：在enter前，group被持有(retain),并且直到leave后才释放(release)。这会阻止group在被调用和销毁前becoming empty。在分派work项前进入组，在实质work项结束后离开。并且，需要清醒认识的是：在dispatch组内仍有work项时就归置它，应用会崩溃。重复离开group也会引起崩溃。
+
+##  GCD或者NSOperation ?
+现在，已见识到了构建代码以支持面向任务并行化的两种不同方式，即NSOperation和Grand Central Dispatch。
+
+使用GCD时，针对某个特定的代码倾向于集中于一处。你有一个干活的block，然后放一些block到其它队列来完成其它工作，简直是一完美的剥洋葱故事。GCD执行地很快，几乎没有与之有牵连的累赘。也没有对KVO的依赖。GCD调用倾向于更点对点化，处理"I will just put this here to run this on the main queue"类的事。另外，复制、粘贴及创建处理相同任务的类似block是非常容易的。
+
+NSOperation倾向于使代码更分散。实现一个操作的代码通常在它自己的类中且有自身的源代码。Operation(操作)位于一种更高层级的抽象中。NSOperation允许Operation间的依赖。在GCD中构建类似功能可能会比较复杂，因为需要构建dispatch组，利用可计算的信号量来进行控制。Operation也易于取消，但在Group中，你须创造自己的取消机制。最后，Operation经常表示为类，所以它们是更具体的可重用对象。
+
+如果你需要在后台完成一些工作，你需要慎重考虑使用GCD还是NSOperation以拆分这些工作。当然了，离原生线程越远，你会越高兴。
+
+
+
+
+
+
+
 
 
 
