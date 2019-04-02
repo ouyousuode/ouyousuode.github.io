@@ -54,7 +54,7 @@ C语言的Semantics(语义学、词义学)可达到智能优化的目的，尤�
 
 所幸，通过注意固定在Activity Monitor中的CPU测量仪，或**top**正显示你的应用在耗费99%的可用CPU能量，高CPU使用量会很容易被发现。采样(sampling)和侧写(profiling)工具是追踪此类问题之原因的理想工具。
 ## 硬盘
-硬盘访问是很缓慢的———— 比内存访问慢了几个数量级。一般而言，如果能避免硬盘I/O，则避免。如果你打算从硬盘缓存数据，要记得：虚拟内存系统也使用硬盘。如果你缓存了大量的数据，最后会导致VM系统去做硬盘I/O操作。这是一个很糟糕的情况，因为you have now exchanged one disk read (from disk into memory) into a read and a write to page it out and then another read to page it back in from the disk into memory。
+硬盘访问是很缓慢的——比内存访问慢了几个数量级。一般而言，如果能避免硬盘I/O，则避免。如果你打算从硬盘缓存数据，要记得：虚拟内存系统也使用硬盘。如果你缓存了大量的数据，最后会导致VM系统去做硬盘I/O操作。这是一个很糟糕的情况，因为you have now exchanged one disk read (from disk into memory) into a read and a write to page it out and then another read to page it back in from the disk into memory。
 
 在涉及VM分页化，当优化硬盘访问时，locality of reference扮演着重要角色。伴随着差的locality of reference，你做会接触(touch)很多页。这些页触发其它页page out出VM缓存，以便发送到硬盘上。最终你会再次touch它们以获取这些页上的数据，如此过程便又导致硬盘I/O。
 
@@ -62,4 +62,9 @@ C语言的Semantics(语义学、词义学)可达到智能优化的目的，尤�
 
 类似地，如果你有一个大信息数据库，渐进访问比把全部内容加载进内存获得更高效的加速。使用内存映射(memory-mapped)的文件可避免硬盘活动，因为只有文件被touch的部分才会被载入内存。
 ## Graphics
+Mac OS X的Quartz图形引擎放了很多担子再内存系统的肩上。Quartz使用很大的图形缓冲器，每个缓冲器负责一个现实在屏幕上的窗口。还有一些用于渲染用户桌面的组合操作。虽然这其中很多操作已被移植到图形卡的图形处理单元了，但是Quartz仍会利用CPU来实现一些绘制效果。还有些在GPU上完成得不好的操作，就必须在CPU上执行了！
 
+优化graphics的关键是尽你所能避免绘制操作发生。利用[Quartz Debug](https://developer.apple.com/library/archive/documentation/GraphicsAnimation/Conceptual/HighResolutionOSX/Testing/Testing.html)工具可看清你正在何处做着不必要的绘制。它功能强大，比如，Autoflush drawing可使绘制操作一旦发生就显示在屏幕上。它可使屏幕上被绘制的区域闪烁起来，以便你能看到正绘制的地儿。相同屏幕上的更新可用不同颜色来突出分别，以便你能看到多余工作发生的区域。
+
+<img src="/images/posts/2019-03-18/quartxDebug.png">
+**NSView**有些特征；它们可以让你决定视图的哪些部分需要重绘、哪些部分则不必。你可点击测试那被传入**NSView**的**drawRect:**方法的矩形区域，并仅执行那些适用于这矩形区域的绘制调用。这个矩形倾向于成为所有需要重绘制区域的联合体，因此你可查阅**getRectsBeingDrawn:**以及**needsToDrawRect:**来测试那些需要重绘的区域。
