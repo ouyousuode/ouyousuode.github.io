@@ -28,3 +28,38 @@ for循环的一个简单颠倒便可导致10倍的性能惩罚！第一个循环
 
 <img src="/images/posts/2019-03-18/localityOfReference.jpg">
 ### 内存之Memory is the New I/O
+促使程序员缓存读自硬盘数据的动因时访问硬盘I/O极耗时间资源。等待一次硬盘I/O读取可耗费数十万(甚至更多)个CPU循环，而这段时间本可另作其它更好的用途。
+
+伴随着今天的处理器，内存子系统、总线结构以及RAM已然变得像I/O了。有时，与CPU速度像较，访问内存可能是极其缓慢的。比如，根据Apple技术笔记，G5利用从内存加载一个cache line的时间可做16到50次向量相加。而且，在现代处理器上，这种情况正变得越来越糟糕。
+
+与强力计算相比较，“precalculate and store in memory”技术可能已到瓶颈。CPU可促使一些计算比从内存获取快得多，查找表可强制更多重要数据移出CPU缓存。技术笔记继续提到“In one example,vector code that converts unsigned char data to float and then applies a 9th order polynomial to it is still marginally faster than hand turned scalar code that does a lookup into a 256 entry lookup table containing floats.”
+
+<img src="/images/posts/2019-03-18/busStructure.png">
+<img src="/images/posts/2019-03-18/memoryHierarchy.png">
+距CPU逻辑单元最近到缓存(Level-1 Cache)有一个存放指令的区域，但是每个核仅有32到64KB大小。像会增加代码长度的优化操作可能会被移出此缓存。它成为了一个在代码体积与存取数据间的平衡艺术。有时，trial-and-error是观察何种技术可致最佳性能的一种方式，尤其是如果你有高性能科学建模或需要快速处理大数据(如处理视频)任务时。
+
+C语言的Semantics(语义学、词义学)可达到智能优化的目的，尤其是与内存有关时。如果编译器清楚某块内存是被如何访问的，它便可以将数值缓存在寄存器中，甚至可以避免加载已被加载过的数据。因为C语言有指针，there can be aliasing problem。在进程的某处有个指针，它正指向编译器本可优化访问的一块内存。这也是为什么有些没有指针的语言(像FORTRAN)可以执行更彻底优化的原因。
+
+当在一个循环中由指针或全局变量使用数据结构时，编译器会在每次执行循环体时加载它在内存中的位置。It does this just in case the value was changed by someone else,either in another thread or by a function called inside the loop。创建一个局部变量来持有对应全局变量的值，以便让编译器了解此数据不会改变，最终避免每次循环皆访问内存。
+## CPU
+当面临优化事务(issue)时，大部分程序员第一个想到的度量标准便是CPU使用量。“我的应用正在拽住CPU,我需要给它加速。” 通常，当CPU使用量成为一个主导性因素时，其根本原因是一个缓慢低效的算法。它可能有一个高复杂性，也或者它只是一个糟糕的实现方式。在几乎所有的情形中，与其它种类代码或系统调整相比，改写你的算法会给你更大程度的加速。一个经典例子是将冒泡排序(N^2复杂度)改为快速排序(nlgn复杂度)。
+
+有时，一个算法的坏实现可导致比较大的破坏。比方说，某个SunOS 4.1.x显示**strstr()**编程错误，竟将O(N)操作变成了O(N^2)操作：
+``` Objective-C
+	while(c < strlen(string)) {
+		// do stuff with string[c]
+	}
+```
+回想，C字符串并不存储它们自身的长度。一个字符串只是一个以0结尾的比特序列。**strlen()**不得不遍访整个字符串方才得以计算全部字符数。虽有很多小手段可用于此过程，但它仍是一个O(N)操作。在这个特定的例子中，字符串的长度不会发生改变，因此没有必要每次循环都去计算其长度。
+
+所幸，通过注意固定在Activity Monitor中的CPU测量仪，或**top**正显示你的应用在耗费99%的可用CPU能量，高CPU使用量会很容易被发现。采样(sampling)和侧写(profiling)工具是追踪此类问题之原因的理想工具。
+## 硬盘
+硬盘访问是很缓慢的———— 比内存访问慢了几个数量级。一般而言，如果能避免硬盘I/O，则避免。如果你打算从硬盘缓存数据，要记得：虚拟内存系统也使用硬盘。如果你缓存了大量的数据，最后会导致VM系统去做硬盘I/O操作。这是一个很糟糕的情况，因为you have now exchanged one disk read (from disk into memory) into a read and a write to page it out and then another read to page it back in from the disk into memory。
+
+在涉及VM分页化，当优化硬盘访问时，locality of reference扮演着重要角色。伴随着差的locality of reference，你做会接触(touch)很多页。这些页触发其它页page out出VM缓存，以便发送到硬盘上。最终你会再次touch它们以获取这些页上的数据，如此过程便又导致硬盘I/O。
+
+通过不把所有工作都做完，你可以避免一些硬盘I/O耗费。一个常用的技巧是：将窗口们(windows)放入不同的.nib文件内，再按需加载。如果你不需要显示某个窗口，那就没理由把它加载进内存。
+
+类似地，如果你有一个大信息数据库，渐进访问比把全部内容加载进内存获得更高效的加速。使用内存映射(memory-mapped)的文件可避免硬盘活动，因为只有文件被touch的部分才会被载入内存。
+## Graphics
+
