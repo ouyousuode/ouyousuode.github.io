@@ -78,5 +78,38 @@ Keep good notes on what you do and the measurements you make so that you can app
 有些许关于应该何时优化的争论。一种学院派观点是：“过早优化是全部不幸的根源(premature optimization is the root of all evil)”，应当等到开发周期结束才去确定及解决性能问题。不幸的是，如果真有一个根本上的瓶颈问题，就需要重建产品的大部分功能。另一种学院派是：你要表现得节食一般，并一直紧绷性能问题这根弦。如此做的消极方面是：过早优化可能将设计和代码变得晦涩难懂，将追踪程序错误变得更为困难。
 
 正如生活中的每件事一样，中间地带(中庸之道)是个好去处。一眼盯着可被提高的算法，但是也不要过早地在开发过程中混淆代码。经常性地扔给程序一些大数据集。一眼盯着你的应用程序内存使用情况以防它增长地太快太大(多吃多占)。也要确保在用户环境运行程序。如果你正在编写一个桌面app，确保Safari和iTunes处于运行中，因为用户可能正在使用这些app。如果你的应用吃内存很厉害(memory pig)使得iTunes都退出运行了，你肯定会得到一些用户的抱怨。
+## 命令行工具
+Mac OS X带来了许多用来追踪特定类型性能问题的命令行工具。命令行工具的美妙之处在于你可以远程登录机器并观察它们。它们不会与你的应用用户界面打交道。
+### 命令行工具之time
+最简单的工具是**time**。它为命令执行计时；展示给你时钟时间，花费在用户空间的CPU时间以及花在内核的CPU时间。这有一个在**TextEdit**上运行/usr/bin/time的例子。测量的时间是从启动TextEdit到加载/usr/share/dict/words、再到从文本顶部滑至底部的总和。
+``` Objective-C
+time /Applications/TextEdit.app/Contents/MacOS/TextEdit
+```
+<img src="/images/posts/2019-03-18/timeForTextEdit.png">
+共计10秒，0.5秒在用户空间，以及不到0.2秒用在了内核中。也可以测测其它应用，比如vim，
+``` Objective-C
+time /usr/bin/vim
+```
+<img src="/images/posts/2019-03-18/timeForVim.png">
+当比较优化结果时，**time**是一件趁手的工具。Run a baseline or two with **time**，做优化，随着再次尝试**time**。如果你正在优化CPU使用量，发现CPU指数在增长，你当重新考虑有针对性的优化。
+### 命令行工具之dtruss
+### 命令行工具之top
+Unix系统是个复杂的beast，它由相互影响的程序构成。性能问题有时表明整个系统比较缓慢；但是孤立地看，每个程序运行状况良好。在观测某个特定程序的系统调用(system call)时，**dtruss**和**sc_usage**是两件非常有用的工具。另一方面，**top**可以用来监测系统之上的所有程序。不带参数运行**top**会显示熟悉的**OS**信息(内存分布、加载平均时间等)。默认情况下，它根据启动顺序对程序排序。如果你正监测一个最近启动的程序，这会是非常有用的特点。-u标志会根据**CPU**使用量排序结果。
 
+**top**也能计算和显示系统级事件。top -e 显示**VM**(virtual memory 虚拟内存)，网络活动，硬盘状态以及消息统计等。
+``` Objective-C
+top -e
+```
+<img src="/images/posts/2019-03-18/top.png">
+结果中有很多信息：313个进程，1142个线程；SharedLibs占据了297M内存，物理内存用去了7034M；网络及硬件I/O情况。每个进程又有线程数、工作队列、mach端口及内存域等信息。调整终端窗口大小可以看到更多列，比如虚拟内存大小、进程状态、页错误以及BSD系统调用等等。
+### 命令行工具之sample
+一件非常有用的低技术(low-tech)工具是随机分析(stochastic profiling)；在此过程中，你可将程序运行在调试器中，并偶尔打断它以查看调用栈的内容。如果你在调用栈中一遍遍地看到某函数，你就明白该从哪着手了。在传统性能分析工具无效的平台或情形下，这项技术就变得非常趁手。另外，此技术易用且迅速，尤其是已经在调试器运行程序的情况下。
 
+你可以从命令行做些分析来回答一些“正在发生什么”之类的问题。**sample**程序会以10ms的间隔来采样某进程，随即构建一个程序正在做什么的快照(snapshot)。
+``` Objective-C
+sample Safari
+```
+<img src="/images/posts/2019-03-18/introOfSample.png">
+<img src="/images/posts/2019-03-18/resultOfSample.png">
+从结果中可以看到很多信息：“进程493(Safari)的采样分析结果写到了文件/tmp/Safari_2019-04-03_165334_UBYE.sample.txt内”、“启动路径是什么”、“加载地址”、“分析工具的位置”、“Call graph中方法的启动和调用顺序”等等。
+## Precise Timing with mach_absolute_time()
