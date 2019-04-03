@@ -68,3 +68,15 @@ Mac OS X的Quartz图形引擎放了很多担子再内存系统的肩上。Quartz
 
 <img src="/images/posts/2019-03-18/quartxDebug.png">
 **NSView**有些特征；它们可以让你决定视图的哪些部分需要重绘、哪些部分则不必。你可点击测试那被传入**NSView**的**drawRect:**方法的矩形区域，并仅执行那些适用于这矩形区域的绘制调用。这个矩形倾向于成为所有需要重绘制区域的联合体，因此你可查阅**getRectsBeingDrawn:**以及**needsToDrawRect:**来测试那些需要重绘的区域。
+## 在使用任何profiling工具之前
+忘记任何关于性能问题出在何处的假设。程序员不应预测性能问题是什么；如果知道问题出在哪，问题就应该早被解决了，也就不会有所谓的性能问题了。与我一起工作过的某程序员确信：当加载文件时，文件加载与硬盘I/O操作是他程序中较慢的那部分；并且他付出了很大努力来优化硬盘访问。After a quick session with **Shark**，将数据整理成**NSOutlineView**可以使用的树形结构才是导致问题的实际原因。实际花费在文件I/O上的时间是微乎其微的。
+
+Keep good notes on what you do and the measurements you make so that you can apply the optimizations to other situations.By keeping a record of execution times(for instance),you can tell if your optimization attempts are helping or are actually making the problem worse.
+
+当追踪性能问题时，朝你的应用扔一个大数据集。像刚提到的文件加载问题，某些数据是花费1到2秒可加载的5k文件。这开的探视窗口太小以至于不能发现问题所在。如果你的应用被设计成编辑50页研究文稿，那就扔500或5000页文档给它。比较大的数据集应当会使O(N^2)算法表现得令人难以忍受地慢！如果编辑5000页文档时，你的应用都有很好的响应能力；那么，当用户使用它编辑50页文档时，自然能给用户一个良好的体验。不要用两或三个数量级以上的数据集来掺合这事；由于过多的数据可能需要数据结构的一次重新设计，如此对于小一些的数据集并非最优(成次最优效果了)。
+
+有些许关于应该何时优化的争论。一种学院派观点是：“过早优化是全部不幸的根源(premature optimization is the root of all evil)”，应当等到开发周期结束才去确定及解决性能问题。不幸的是，如果真有一个根本上的瓶颈问题，就需要重建产品的大部分功能。另一种学院派是：你要表现得节食一般，并一直紧绷性能问题这根弦。如此做的消极方面是：过早优化可能将设计和代码变得晦涩难懂，将追踪程序错误变得更为困难。
+
+正如生活中的每件事一样，中间地带(中庸之道)是个好去处。一眼盯着可被提高的算法，但是也不要过早地在开发过程中混淆代码。经常性地扔给程序一些大数据集。一眼盯着你的应用程序内存使用情况以防它增长地太快太大(多吃多占)。也要确保在用户环境运行程序。如果你正在编写一个桌面app，确保Safari和iTunes处于运行中，因为用户可能正在使用这些app。如果你的应用吃内存很厉害(memory pig)使得iTunes都退出运行了，你肯定会得到一些用户的抱怨。
+
+
