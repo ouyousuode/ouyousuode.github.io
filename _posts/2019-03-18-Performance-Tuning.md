@@ -112,4 +112,40 @@ sample Safari
 <img src="/images/posts/2019-03-18/introOfSample.png">
 <img src="/images/posts/2019-03-18/resultOfSample.png">
 从结果中可以看到很多信息：“进程493(Safari)的采样分析结果写到了文件/tmp/Safari_2019-04-03_165334_UBYE.sample.txt内”、“启动路径是什么”、“加载地址”、“分析工具的位置”、“Call graph中方法的启动和调用顺序”等等。
-## Precise Timing with mach_absolute_time()
+## 利用mach_absolute_time()精确计时
+Command-line tools are a great place to benchmark snippets of code,which is useful for those cases where you can isolate an algorithm or a programming technique out of your full application.一个几十或几百行的命令行工具总比拥有百万行代码的应用好驾驭。并非每个问题都可被放进这么一个小小的检查程序中，但是这并不妨碍它成为一项有用的技术。
+
+命令行程序的妙处在于你可使用**time**命令得到程序运行时间的绝对值，如此一来，对比你对目标程序做出的改变时，将会很容易。
+
+但是，有时**time**命令没有足够的精准度。你可能想要更精确的计时，或者你对测量程序特定部分的耗时感兴趣。你可能不关心加载数据的用时如何；但是如果加载数据耗时是算法运行时间的3倍，你便会想动手测测程序内部的计时了。
+
+Mach(Mac OS X的内核)提供了可用于精确计时的函数。**mach_absolute_time()**读取CPU时间基准寄存器，然后报告结果给用户。此时间基准寄存器也充任系统中其它时间测量的基础。
+``` Objective-C
+uint64_t mach_absolute_time(void);
+```
+**mach_absolute_time()**返回基于CPU时间的值，因此它无法直接使用。因为你不清楚计数器每次增长所代表的时间范围是多少。为将**mach_absolute_time()**的结果转换成纳秒，利用**mach_timebase_info()**来获取**mach_absolute_time()**值的缩放比例。
+``` Objecitve-C
+kern_return_t mach_timebase_info(mach_timebase_info_t info);
+```
+其中，mach_timebase_info_t是指向mach_timebase_info结构体的指针，
+``` Objective-C
+struct mach_timebase_info {
+	uint32_t numer;
+	uint32_t denom;
+};
+```
+**mach_timebase_info()**用分数来填充此结构体，得到的分数去乘以**mach_absolute_time()**的结果以计算实际纳秒值。用(numer/denom)乘以**mach_absolute_time()**的结果。machtime.m文件展示了如何使用这两个函数。代码计算调用**mach_timebase_info()**和**printf()**耗费的时间。当然，对工业应用中的代码，你会放一些需要计时的更有趣的逻辑。
+
+<img src="/images/posts/2019-03-18/codeOfMachtime.png">
+``` Objective-C
+./machtime
+```
+<img src="/images/posts/2019-03-18/resultOfMachtime_0.png">
+<img src="/images/posts/2019-03-18/resultOfMachtime_1.png">
+<img src="/images/posts/2019-03-18/resultOfMachtime_2.png">
+<img src="/images/posts/2019-03-18/resultOfMachtime_3.png">
+在这个2014 MacBook Pro系统上，这个变换的分子与分母均为1。像TiBook这样的一些老机器，其变换的分子是1000,000,000且分母为24,965,716，导致一个40.05的放大值。所以**mach_absolute_time()**的每个增量代表40纳秒。
+
+我们执行4次程序，其结果并非完全相同。为什么呢？当执行的这么短时间内，任何事都可以叨扰它。可能某些动态库查找被调用了，可能iTunes正在运行且在加载一个新曲目，也可能TimeMachine横插进来了。对一个真实的标准检查程序而言，你将运行一长时间段来隐藏这些昙花一现的干扰。当然了，也应该多运行几次以获得一个好的平均值(信号处理中，屏除噪音的常用手段)！
+## 总结
+Performance is a never-ending game.The rules change constantly as new OS revisions and new hardware comes out.We are nearing the end of free performance gains from hardware,at least for applications that can only take advantage of one CPU.Efficiency in coding and in alogorithms,as well as parallel processing,will become more and more important as time goes on.Luckily,we have a number of good tools to profile our code and highlight the areas where we should focus our attention.
