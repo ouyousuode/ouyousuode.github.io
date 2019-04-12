@@ -125,6 +125,126 @@ Figure1-7显示联系人app的几张截屏，它利用一个导航控制器来�
 <img src="/images/posts/2019-03-23/Figure1-7.png">
 虽然导航控制器的主要工作是管理它的儿视图控制器，但是也处理一些视图事务。特别地，它管理一个导航栏(显示有关用户当前位置的信息)、一个按钮(用于回退到前一个屏幕)，以及当前视图控制器需要的任意定制控件。你无须直接更改视图控制器拥有的视图。相反，你可以配置那些导航控制器显示的控件，怎么办呢？在每个儿视图控制器中设置属性。
 #### About Tab Bar Controllers
+**tab bar controller**是一个容器视图控制器，你可以用它将app划分成两个或更多个不同的操作方式。一个选项卡控制器是UITabBarController类的一个实例。选项卡有多个tab，每一个均代表一个儿视图控制器。选择一个tab触发tab bar控制器去显示相关视图控制器的视图到屏幕上。
+
+Figure1-8显示了Clock app的几个模式。每个模式有一个内容视图控制器来管理主内容区域。在这个Clock app的情况中，Clock和Alarm视图控制器都显示一个导航式的界面来容纳额外的控件。其它模式利用内容视图控制器来呈现一个单一的屏幕。
+
+<img src="/images/posts/2019-03-23/Figure1-8.png">
+当你的app呈现不同类型的数据或者以不同方式呈现同一数据时，可利用tab bar控制器。
+#### About Split View Controllers
+**split view controller**将屏幕划分为多个部分，其中每部分可单独更新。分屏视图控制器的外观可能依设备的方向改变。一个分屏视图控制器是UISplitViewController类的一个实例。分屏视图界面的内容源于它的两个儿视图控制器。
+
+Figure1-9显示了一个来自MutlipleDetailViews(样例应用程序)的分屏视图界面。在竖屏模式下，只显示详情视图。通过一个popover，列表视图才变得可用。然而，当显示在横屏模式时，分屏视图控制器并排显示它的两个儿视图控制器。
+
+<img src="/images/posts/2019-03-23/Figure1-9.png">
+分屏视图控制器仅适用于iPad；它被设计以帮你充分利用设备的大屏幕。在iPad app中实现主-从界面时，它们是首选方式。
+#### About Popover Controllers
+再看看Figure1-9。当分屏视图控制器以竖屏模式显示时，主视图显示在一个特殊的控件内，此控件称为popover。在一个iPad应用中，你可用popover控制器(UIPopoverController)来实现弹出(popovers)。
+
+实际上，一个popover控制器不是容器控制器；它并不继承自UIViewController。但是，在实践中，popover控制器类似于容器控制器；所以，当使用它们时，可以采用相同的编程原则。
+#### About Page View Controller
+**page view controller**是用于实现页面布局的一个容器视图控制器。此布局允许用户在离散的内容页之间左右翻动，就好像在翻书。一个页视图控制器是UIPageViewController类的一个实例。每个内容页均由内容视图控制器来提供。页视图控制器管理着不同页间的变换。当需要新页时，页视图控制器调用一个与之关联的数据源来得到用于下一页的视图控制器。
+## A View Cotroller's Content Can Be Displayed in Many Ways
+一个视图控制器的内容若想对用户可见，它必须和window关联在一起。在app中，有多种方式达成此目的：
+- 将视图控制器设为window的根视图控制器。
+- 将视图控制器设为某容器的儿子。
+- 显示视图控制器在popover控件中。
+- 在其它视图控制器处呈现它。
+
+Figure1-10显示了一个来自Contacts应用的实例。当用户点击"+"按钮以添加新联系人时，Contacts视图控制器便呈现New Contact视图控制器。直到用户取消此操作或者提供了可被保存到数据库的足够信息，New Contact界面都一直可见。在信息传回Contacts视图控制器的那一刻，它便解除(dismiss)这个它已呈现的控制器。
+
+<img src="/images/posts/2019-03-23/Figure1-10.png">
+一个被呈现的视图控制器并不是某种特定类型的控制器——它可以是内容型的，也可以是附带内容控制器的容器型。在实践中，the content view controller is designed specifically to be presented by another controller,so it can be think of as as variant of a content view controller。虽然容器视图控制器定义在被管理视图控制器之间的特殊关系，利用描述(presentation)允许开发者定义被呈现者与主呈现者之间的关系。
+
+绝大多数时间，你呈现视图控制器收集用户处的信息，或者为了某特殊目的以捕获用户的注意力。一旦目的达成，主(presenting)控制器便解除被呈现的控制器并且返回到标准应用界面。
+
+值得注意的是：一个被呈现的视图控制器自身也可以呈现其它的控制器。当你需要顺序执行几个模态操作时，将视图控制器链接一起的能力是非常有用的。比如，在Figure1-10中，如果用户在New Contact屏点击Add Photo按钮并且想选择一张已存在的图像，此New Contact视图控制器便呈现一个图片拾取器界面。用户必须先解除图片拾取器界面，随着解除New Contact界面，方能回到联系人列表。
+
+当呈现一个视图控制器时，某控制器决定用多少屏幕空间来显示此视图控制器。屏幕的这部分称为presentation contex。默认情况下，presentation context被定义为覆盖这个窗口。
+
+关于如何呈现视图控制器的更多详情，可参见Presenting View Controllers from Other View Controllers。
+## View Controllers Work Togther to Create an App's Interface
+视图控制器管理它们的视图和相关的对象，但是它们也与其它视图控制器一起共事来提供一个无缝衔接(平滑)的用户界面。那工作的分配以及视图控制器间的通信便成了一起共事的基本部分。在构建复杂app的过程中，因为它们的关系是如此重要，所以我们接下来的部分回顾已经讨论过的几种关系，并更详细地描述它们。
+### Parent-Child Relationships Represent Containment
+一个视图控制器层次起始于一个单一的"父亲"，即窗口的根视图控制器。如果此视图控制器是一个容器，它可能有提供内容的儿子。反过来，这些儿视图控制器可能也是它们自己儿子的容器。Figure1-11显示了视图控制器层次的一个实例。根视图控制器是一个有4个tab的tab视图控制器。第一个标签(tab)使用一个导航控制器，它也有自己的儿子；其余三个标签均被没有子嗣的内容控制器管理。
+
+<img src="/images/posts/2019-03-23/Figure1-11.png">
+每个视图控制器填充的区域由它的父亲决定。根视图控制器的区域由window(窗口)决定。在Figure1-11，标签视图控制器从窗口得到它的大小信息。它为它的标签栏保留空间并gives the remainder of the space to its children。如果现在显示的控件是导航控制器，它会为它的导航bar保留出空间并且处理剩余空间给它的内容控制器。在进行的每一步，父控制器先调整子视图控制器视图的大小并将其放置在父视图层次中。
+
+视图与视图控制器二者的组合也为事件处理建立一个响应链。
+### Sibling Relationships Represent Peers Inside a Container
+某些种类的容器定义由子控制器共享的关系。比如说，比较标签视图控制器和导航控制器。
+- 在标签(tab)视图控制器，标签们代表内容的不同屏幕；标签栏控制器不会定义子控制器的关系，尽管app可以选择这样做。
+- 在导航控制器，兄弟控制器显示安排在栈中的相关视图。此情况下，兄弟经常共享与临近兄弟的连接
+
+Figure1-12显示了一个与导航控制器相关的常见视图控制器配置。第一子控制器/Master，显示未展示全部细节的可用内容。当一个条目(item)被选中时，它便将一个兄弟视图控制器压入导航控制器，以便用户可以看到额外的详情。以此类推，如果用户需要更多详请，此兄弟视图控制器可以压入其它视图控制器以便显示更多可用的详情。当兄弟们像此图这般由一个定义好的关系，它们可以相互协调，或直接通信，或通过容器控制器。可看看Figure1-15。
+
+<img src="/images/posts/2019-03-23/Figure1-12.png">
+### Presentation Represents a Transient Display of Another Interface
+当一个视图控制器想要其它控制器执行某任务时，它便呈现这个其它视图控制器。主呈现(presenting)视图控制器负责这个行为。它配置这个被呈现的视图控制器，从它这接收信息，并最终解除它。然后，尽管它是被呈现，被呈现者的视图也会暂时添加到窗口的视图层次中。
+
+在Figure1-13，附着于tab视图控制器的一个内容视图控制器呈现一个视图控制器以执行任务。这个Content是主呈现者(presenting view controller)，并且Modal视图控制器是被呈现者(presented view controller)。
+
+当一个视图控制器被呈现时，它覆盖的部分屏幕由一个representation context定义，其中此上下文由其它视图控制器提供。提供representation context的视图控制器未必与被呈现者(控制器类型)相同。Figure1-14显示了呈现于Figure1-13的相同视图控制器层次。我们可以发现：Content视图控制器呈现了Modal视图控制器，但是它并不提供Context。相反，标签控制器显示了此视图控制器。因为这个原因，虽然主呈现(presenting)视图控制器仅覆盖了tab视图控制器的部分屏幕，但是被呈现却使用了tab视图控制器拥有的整个屏幕区域。
+
+<img src="/images/posts/2019-03-23/Figure1-14.png">
+### Control Flow Represents Overall Coordination Between Content Controllers
+在一个拥有多个视图控制器的app中，视图控制器的创建与销毁贯穿app的整个生命周期。在它们的生命周期内，视图控制器们要相互交流沟通以呈现一个无缝连接(平滑)的用户体验。这些关系代表app的控制流。
+
+最常见的情况是：当实例化一个新视图控制器时，这个控制流发生。通常，因为在其它视图控制器的动作，一个视图控制器便被实例化了。第一个视图控制器(源视图控制器)指挥第二个视图控制器(目的视图控制器)。如果目的视图控制器呈现数据给用户，源视图控制器通常提供此数据。类似地，如果源视图控制器需要来自目的视图控制器的信息，它负责建立彼此间的连接。
+
+Figure1-15显示了这些关系的最常见实例。在此图标中，
+- 导航控制器的一个子控制器将其他子控制器压入导航栈。
+- 一个视图控制器呈现其他视图控制器。
+- 一个视图控制器展示其它控制器于popover。
+
+<img src="/images/posts/2019-03-23/Figure1-15.png">
+每个控制器均由它之前的控制器进行配置。当多个控制器一起工作时，它们建立一条贯穿app的通信链条。
+
+通信链条上每个链接对应的控制流均定义在目的视图控制器。源视图控制器使用目的视图控制器提供的约定。
+- 目的视图控制器提供用于配置数据及呈现方式的属性。
+- 如果目的视图控制器需要与链条上它之前的控制器通信，它利用delegation(委托)。当源视图控制器配置目的视图控制器的其它属性时，它也被期望能够提供一个对象，这个对象显示delegate的协议。
+
+使用这个控制流约定的好处是：在每对源与目的视图控制器之间，有一个清晰的责任划分。当源视图控制器让目的视图控制器完成一个任务时，数据沿着路径向下流；源视图控制器驱动这个过程。比如，它可能提供目的视图控制器应展示的特定数据对象。在其它方向，当一个视图控制器需要把信息反馈给生成它的源视图控制器时，数据便沿着路径往上流。比如，当任务结束了，它可能反馈些信息。
+
+另外，在持续实现这个控制流模型时，你应确保目的视图控制器从不会过多了解配置它的源视图控制器。当它确实需要清楚链条上前一个视图控制器时，它了解的仅仅是此类实现了delegate协议，而非类的类信息。通过避免视图控制器相互了解太多，这些独立的(individual)控制器变得更具重用性。对正阅读你的代码的某些人而言，这样的控制流模型也使看清任意控制器对间的通信变得容易。
+## Storyboards Help you Design Your User Interface
+当你利用storyboard实现app时，可利用Interface Builder来组织app的视图控制器与任意关联的视图。Figure1-16显示了一个来自Interface Builder的布局实例。Interface Builder的可视化布局允许你眨眼之间便理解app的信息流。你可以看清：什么视图控制器被实例化了，以及实例化的顺序。但是，不止于此的是，你可以在storyboard配置视图与其它对象的复杂集合。生成的storyboard作为一个文件存储在工程中。当构建(build)工程时，工程中的storyboard便被处理并拷贝进app bundle；在运行时，它们会被app加载进内存。
+
+<img src="/images/posts/2019-03-23/Figure1-16.png">
+通常情况下，在视图控制器(in the storyboard)被需要的那一刻，iOS可以自动实例化它们。类似地，当它需要被显示时，与之相关的视图层次会被自动加载。视图控制器和视图以Interface Builder配置的相同属性进行实例化。因为大部分行为都为你自动化处理了，这极大简化了在app中使用视图控制器所需的工作。
+
+创建storyboard的全部细节描述在Xcode Overview。目前，你需要知道一些用到的必要术语when implementing stroyboards in your app。
+
+一个**scene**代表一个视图控制器管理的屏幕上的内容区域。可以把一个scene当成一个视图控制器及与它有关的视图层次。
+
+可以在同一个storyboard上创建scene间的**relationship**。在故事板(storyboard)上，关系(relationship)被表示为从一个场景到另一个场景的可视化箭头。当你建立两个对象间的连接时，Interface Builder经常自动推断这段新关系的全部细节。存在两种重要的关系：
+- **containment**代表两个场景间的父子关系。View controllers contained in other view controllers are instantiated when their parent controller is instantied。比如说，从一个导航控制器到其它场景到第一连接定义被压入导航栈到第一个视图控制器。当导航控制器被实例化时，这个控制器也自动被实例化。在故事板使用包含关系的一个优势是，Interface Builder可以调整子视图控制器的外观以反映它祖辈的呈现形式。当它显示在终版app时，这允许Interface Builder显示此内容视图控制器。
+- 一个**segue**代表从一个场景到另一个场景到可视化转变。在运行时，segue可被各种动作触发。当一个segue被触发后，导致一个新视图控制器被实例化并显示在屏幕上。虽然一个segue经常是从一个视图控制器到另一个，但是某个第三方对象偶尔也可牵涉其中。这个第三方对象实际上触发此segue。比如，如果你制作一个从源控制器中按钮到目的视图控制器的连接，当用户点击此按钮时，segue便被触发了。当直接制作一个从源视图控制器到目的视图控制器的segue时，它经常代表一个你想以编程方式触发的segue。
+
+不同种类的segue提供两个不同视图控制器间的常见切换：
+- **push segue**将目的视图控制器压入导航控制器栈。
+- **modal segue**呈现目的视图控制器。
+- **popover segue**于popover内展示目的视图控制器。
+- **custom segue**允许你设计自己的切换来展示目的视图控制器。
+
+segue共享一个通用的编程模型。在这个模型内，目的控制器由iOS自动实例化，随即调用源视图控制器来配置它。此行为匹配Control Flow Represents Overall Coordination Between Content Contollers中描述的控制流模型。
+
+你也可以创建同一场景中视图控制器与对象之间的连接。这些outlet和action使你小心翼翼地定义视图控制器和与之相关的对象间的关系。这些连接(connection)自身并不可见于故事板；但是可以在Interface Builder的Connections Inspector观察它们。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
