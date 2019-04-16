@@ -163,13 +163,44 @@ target-action机制允许一个控件对象发送给其它对象一个有意义�
 
 理解Cocoa设计模式使利用Cocoa Touch提供的多种技术变得容易，也可以将习得的技能用于它处。沿用这些模式也意味着你的代码能更好地利用这些对应用框架的增强。
 
+<br/>
 # Inspecting the View Controller and Its View
+如前文学到的，一个视图控制器负责管理一个场景，此场景代表一个内容区域。在此区域看到的内容定义在视图控制器的视图(view)中。在本章节，可以凑近看视图控制器以及学习如何调整视图的背景颜色。
 ## Use the Inspector to Examine the View Controller
 ---
+当应用起动时，主故事板文件被加载以及initial视图控制器被实例化。此初始视图控制器管理用户打开应用看到的第一个场景。因为Single View App模版仅提供了一个视图控制器，故而它被自动设置为初始视图控制器。可利用Xcode inspector核实视图控制器的状态。
+
+打开inspector...
+1.如有必要，在工程导航器单击Main.stroyboard在画布中显示场景。
+2.在大纲视图中选中Hello World View Controller。工程窗口应与下图类似：
+
+<img src="/images/posts/2018-07-18/defaultStoryboardFile.png">
+单击工具栏最右端的选项以在窗口右侧显示工具域。在工具域顶部，单击Attributes按钮。此时，工程窗口看起来应类似：
+
+<img src="/images/posts/2018-07-18/defaultStoryboardFile_0.png">
+在Attributes inspector，可看到"Is Initial View Controller"选项被选中了。如果取消选定此项，则初始场景提示器从画布消失。在本指导中，确保此“Is Initial View Controller”一直处于被选中状态。
 ## Change the View's Background Color
 ---
+在"Find Out How an Application Starts"一节，了解到当于模拟器运行app时一个视图提供白色背景。为确保app在正确地工作，可将此视图的背景改为其它颜色而非白色，并且再次于模拟器运行app以验证新颜色是否显示。在改变视图的背景颜色前，确保主故事板文件仍处于打开状态。
+
+为设置视图控制器视图的背景颜色...
+
+1.在大纲视图，选中Hello View Controller下方的View。
+
+2.单击工具域顶部的Attributes按钮来打开Attributes inspector。
+
+3.在Attributes inspector单击Background的白色矩形框来打开Color窗口。
+
+4.在Color窗口，选择一个非白色的颜色。
+
+<img src="/images/posts/2018-07-18/colorBackground.png">
+5.关闭Color窗口。
+在模拟器测试应用。它应当像这样：
+
+<img src="/images/posts/2018-07-18/redBackgroundApp.png">
 ## Recap
 ---
+在本章，检查了场景，也改变了视图的背景颜色。在接下来的一章，给视图添加控件。
 
 # Configuring the View
 ## Add the User Interface Elements
