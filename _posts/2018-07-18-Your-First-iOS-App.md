@@ -120,16 +120,48 @@ main.m文件内的**main**函数在一个自动释放池内调用**UIApplication
 
 <br/>
 # Understanding Fundamental Design Patterns
+在开始定制app之前，花些时间学习正在从事的编程环境以及塑造伟大iOS应用的设计模式。即便不读此章节，也可完成本指导；但是如果花时间读一读、想一想它描述的概念，会对iOS应用开发有个更好的理解。
 ## Cocoa Touch Provides the Frameworks You Need for iOS App Development
 ---
+Cocoa Touch是所有iOS app的应用环境；Cocoa为Mac OS X apps提供应用环境。随着为iOS开发应用，会依赖Cocoa Touch提供的面向对象框架。尤其是，会用到UIKit框架的应用编程接口(API)，它提供app需要构建、管理用户界面的所有类。
+
+有很多资源可帮助获取对Cocoa Touch(或Cocoa)更深层次理解。一个开始旅程的好地方是Cocoa Fundamentals Guide。
 ## Delegation Helps You Add Functionality Without Subclassing
 ---
+Delegation是一种设计模式，在此模式内，一个对象发送消息给另一个对象以获取输入或者通知某事件正在发生，此另一个对象被指定为前者的delegate。此委托对象以一种特定的方式响应这些消息。delegation是Cocoa Touch应用中的一种常见设计模式，因为它允许开发者无需继承或重写某复杂框架对象便提供某些定制行为。
+
+委托方法被聚集进一个协议(protocol)。一条协议基本上是一个方法列表。如果某类遵循一条协议，它必须保证实现此协议中的必要(required)方法(协议也可以包含一些可选[optional]方法)。一条委托协议列举了一个对象可能给它的委托发送的全部消息。比如，UIAppliactionDelegate协议列举了UIApplication对象可能发送给委托的所有消息，其中有application:didFinishLauchingWithoutOptions:。
+
+本指导中的应用以两种方式使用委托：
+- 每个iOS应用必须有一个application委托对象；在此应用，它是由Single View App模板提供的HelloWorldAppDelegate类的一个实例。除了执行定制的配置任务，应用委托可处理application级别的事件，因为它参与响应者链(responder chain)。在本指导中，不必执行特定的配置任务或处理任何app级别的时间，因此无需对HelloWorldAppDelegate源文件做任何修改。
+- 当用户结束键入内容时，稍后添加的text field需要告诉它的委托。为帮助实现此目的，需确保视图控制器对象(即HelloWorldViewController)遵循UITextFieldDelegate协议。
+
+<br/>
 ## Model-View-Controller Makes Code Easier to Write and Reuse
 ---
+Model-View-Controller(MVC)设计模式为应用中的对象定义了三种角色。
+
+**Model**对象代表数据，比如游戏中的太空船、日历app中的待办事项或者绘画app中的各种形状。
+
+在这个应用中，model对象非常简单——它只是一个持有用户输入名字的字符串。因为这个字符串仅在一个方法中用到，严格来说，可不把它看作model对象；但是，以model待之帮助开发者适应MVC设计模式。
+
+**View**对象清楚如何显示数据以及允许用户编辑数据。
+
+在这个应用中，需要一个主视图来包含三个其它视图：一个text field从用户处获取输入，一个label显示用户输入的文本，以及一个用户点击的按钮。
+
+**Controller**对象在model与view间居中调度。
+
+在这个应用中，视图控制器对象从输入text field(view)获得数据，将其存储在一个字符串(model)内，随即更新label(另一个view)。此更新开始于按钮发送的一条动作消息。
 ## The Target-Action Pattern Enables Responses to User Interactions
 ---
+target-action机制允许一个控件对象发送给其它对象一个有意义的消息来响应用户发起的事件，比如一次点击按钮。比如，考虑一个存储用户的联系人app：当用户点按Add Contact按钮，此按钮发送“add contact”消息(action)给一个定制的应用对象(target)，此对象清楚怎样将联系人添加到联系人列表。
+
+在这个应用中，当按钮被点击，它发送一个动作消息给控制器(target)，告诉它根据用户的输入更新它的model和view。
 ## Other Design Patterns
 ---
+除了委托、MVC和target-action，Cocoa Touch也使用一些其它的设计模式。稍后，当你读完此本指导后，应当学习这些设计模式以便将它们应用到自己的app开发中。可在Cocoa Design Patterns中获得对这些设计模式的综述。
+
+理解Cocoa设计模式使利用Cocoa Touch提供的多种技术变得容易，也可以将习得的技能用于它处。沿用这些模式也意味着你的代码能更好地利用这些对应用框架的增强。
 
 # Inspecting the View Controller and Its View
 ## Use the Inspector to Examine the View Controller
