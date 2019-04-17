@@ -372,15 +372,42 @@ Hello World View Controller场景已经包含一个视图，现在向它添加�
 ---
 ## Delegate Method Names
 ---
+<br/>
 # Next Steps
+在本指导中，有创造了一个非常简单的iOS应用。虽然Cocoa Touch提供了一个丰富的开发环境，但是本指导只是浮光掠影。随着继续学习iOS应用开发，本章建议了一些你可以采纳的下一步方向。
 ## Improve the User Interface
 ---
+iOS用户对运行在基于iOS设备的app外观及感觉有很高的期望。随着努力提高app的UI时，可以考虑给UI元素添加图像或颜色，给视图添加一个背景图像。
+
+很多iPhone应用支持多个方向；并且iPad应用应支持所有方向。提告app UI的其它方式可以是确保视图控制器可以处理关于方向的变化。为支持不同方向，首先学习shouldAutorotateToInterfaceOrientation:方法。接着，在故事板文件调整UI以确保：当视图发生旋转时，可以恰当地放置其中的UI元素。
+
+一定读一读iOS Human Interface Guidelines，学习设计app用户界面及使用体验的官方推荐方式。
 ## Install the Application on a Device
 ---
+如果你有一个连接到电脑的合适设备并且有一个来自iOS Developer Program的有效证书，可为iPhone设备设置有效的SDK，构建并运行此工程。假如代码可成功编译，Xcode随即自动降app上传到iPhone设备。为了解这部分开发过程，参见Developing for the App Store。
 ## Add More Functionality
 ---
-## Add Unit Tests
+也可以扩展此app的功能。这有可以走的几个方向：
+- **Write a custom view.**可以尝试编写一个定制视图，它绘制自身的内容以及响应接触事件。为寻求灵感，可查看样例代码工程，比如MoveMe和Metronome。
+- **Use a table view.**虽然使用Xcode来为此应用布局用户界面，但是很多应用利用表格视图来布局界面。应首先调查如何利用表格视图创建一个简单列表。这有很多样例代码工程，比如TableViewSuite；可以将这些样例代码作为某个定制app的基础。
+- **Use a navigation controller.**导航控制器和标签栏(tab bar)控制器可以提供组织iOS应用的不同方式。导航控制器经常与表格视图联合使用，但是导航控制器和标签栏控制器都可以与其它控制器合作。可以一窥一些使用导航控制器的实例代码工程(像SimpleDrillDown)，扩展它们来创建自己的applocation。
+- **Localize your app.**通过本地化application，可以增长潜在市场的数量。国际化是本地化application的过程。为学习国际化的更多细节，见Internationalization Programming Topics。
+- **Optimize your code.**高性能对iOS上的美好用户体验至关重要。应当学习使用Xcode提供的各种性能工具(尤其是，Instruments)来优化application，以便它能最小化资源使用量。
 
+最最重要的事务是尝试新想法以及多做实验。官网有很多可以寻求灵感的代码样例，也有帮助理解概念和编程接口的文档。
+<br/>
+## Add Unit Tests
+---
+当创建本指导中的工程时，并未选择“Include Unit Tests”。当开发真正的应用程序时，包含测试是非常重要的。在某些方面，可将测试当成封装设计原则的映射(counterpart)：测试确保如果一个方法的实现细节变化了，此方法是否仍能像通告般工作。
+
+当向app添加测试时，可创建一个选择了"Include Unit Tests"功能的新版本工程；也可以利用当前工程，选择File->New->Target,然后选择：
+
+<img src="/images/posts/2018-07-18/unitTestingBundle.png">
+<br/>
 # Code Listings
+此附录部分提供HelloWorldViewController类接口与实现文件的列表。在viewDidLoad方法中为按钮设置了圆角、边框颜色及宽度，为标签设置了圆角。
 ## The Interface File : HelloWorldViewController.h
+<img src="/images/posts/2018-07-18/HelloWorldViewControllerHeader.png">
 ## The Implementation File : HelloWorldViewController.m 
+<img src="/images/posts/2018-07-18/HelloWorldViewControllerImple_0.png">
+<img src="/images/posts/2018-07-18/HelloWorldViewControllerImple_1.png">
