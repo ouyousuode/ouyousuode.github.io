@@ -14,6 +14,7 @@ title: 如何编写一个拼写纠错器
 
 <img src="/images/posts/2018-06-02/example_0.png">
 ## 工作原理：一些概率论
+---
 correction(w)设法选择对w最可能的拼写纠正。没有办法去确切知道(比方说，应将lates纠正为late或latest或者lattes，抑或其他什么)，这就暗示我们须用概率的方式来解决它。给定原始单词w的情况下，我们设法从所有可能的候选者中找到具有最大可能性的c。
 
 <img src="/images/posts/2018-06-02/probabilityTheory.jpg">
@@ -33,6 +34,7 @@ correction(w)设法选择对w最可能的拼写纠正。没有办法去确切知
 
 一个明显的疑问是：为什么将P(c/w)这样简单的表达式替换为一个更复杂的包含两个模型的表达式？答案是P(c/w)已经混合两个因素了，并且将两个元素分开处理更简单些。考虑误拼写的单词w=“thew”且候选纠正c=“the”及c=“thaw”的情况。哪种有更大的P(c/w)值呢？“thaw”似乎挺好，因为唯一的改变是“a”变成了“e”，并且这也是一个小变化。另一方面，“the”看起来也挺好，应为“the”是一个非常常用的单词；尽管增加一个“w”看起来是改变较大、可能性较小的该表，可能是打字员手指滑过了字母“e”以致于附带上了“w”！要点是：为了估计P(c/w)值，我们至少要考虑“c”的概率值以及从“c”改为“w”的概率值两种情况，因此将两因素分开(处理)更清晰。
 ## 工作原理：一些Python知识点
+---
 程序的四个部分为：
 - 选择机制：
   
@@ -76,15 +78,16 @@ correction(w)设法选择对w最可能的拼写纠正。没有办法去确切知
   <img src="/images/posts/2018-06-02/codeForErrorModel.png">
 
 ## 延伸阅读
-
+---
 - Roger Mitton有一篇关于拼写检查的[调查文章](http://www.dcs.bbk.ac.uk/~roger/spellchecking.html)。
 - Jurafsky和Martin在他们的专著[Speech and Language Processing](http://www.cs.colorado.edu/~martin/slp.html)中很全面地包含了拼写纠错内容。
 - Manning和Schutze在他们教科书[Foundations of Statistical Natural Language Processing](https://nlp.stanford.edu/fsnlp/)中包含了统计语言模型，但是好像没有涉及拼写(至少未在index中看到)。
 - [aspell](http://aspell.net)项目有很多有趣的材料，包括一些[测试数据](http://aspell.net/test/)(看起来比我用到的数据要好)。
 - [LingPipe](http://alias-i.com/lingpipe/)工程有一个[拼写指南](http://alias-i.com/lingpipe/demos/tutorial/querySpellChecker/read-me.html)。
 
+<br/>
 ## Python版本
-
+---
 写完程序后，运行P('the')及P('outrivales')后，结果均为0。随即检查了程序运行时的Python版本;在Python2.X中，整数除以整数，只能得到整数，比如1/2的结果为0。若希望得到小数部分，将其中的一个值改为float型即可。
 
 <img src="/images/posts/2018-06-02/pythonVersion.png">
