@@ -154,7 +154,7 @@ Model-View-Controller(MVC)设计模式为应用中的对象定义了三种角色
 在这个应用中，视图控制器对象从输入text field(view)获得数据，将其存储在一个字符串(model)内，随即更新label(另一个view)。此更新开始于按钮发送的一条动作消息。
 ## The Target-Action Pattern Enables Responses to User Interactions
 ---
-target-action机制允许一个控件对象发送给其它对象一个有意义的消息来响应用户发起的事件，比如一次点击按钮。比如，考虑一个存储用户的联系人app：当用户点按Add Contact按钮，此按钮发送“add contact”消息(action)给一个定制的应用对象(target)，此对象清楚怎样将联系人添加到联系人列表。
+target-action机制允许一个控件对象发送给其它对象一个有意义的消息来响应用户发起的事件，比如一次点击按钮。例如，考虑一个存储用户的联系人app：当用户点按Add Contact按钮，此按钮发送“add contact”消息(action)给一个定制的应用对象(target)，此对象清楚怎样将联系人添加到联系人列表。
 
 在这个应用中，当按钮被点击，它发送一个动作消息给控制器(target)，告诉它根据用户的输入更新它的model和view。
 ## Other Design Patterns
@@ -171,7 +171,9 @@ target-action机制允许一个控件对象发送给其它对象一个有意义�
 当应用起动时，主故事板文件被加载以及initial视图控制器被实例化。此初始视图控制器管理用户打开应用看到的第一个场景。因为Single View App模版仅提供了一个视图控制器，故而它被自动设置为初始视图控制器。可利用Xcode inspector核实视图控制器的状态。
 
 打开inspector...
+
 1.如有必要，在工程导航器单击Main.stroyboard在画布中显示场景。
+
 2.在大纲视图中选中Hello World View Controller。工程窗口应与下图类似：
 
 <img src="/images/posts/2018-07-18/defaultStoryboardFile.png">
@@ -202,20 +204,155 @@ target-action机制允许一个控件对象发送给其它对象一个有意义�
 ---
 在本章，检查了场景，也改变了视图的背景颜色。在接下来的一章，给视图添加控件。
 
+<br/>
 # Configuring the View
+Xcode提供一个对象库，可以把其中的对象添加到故事板文件。有些对象是属于视图的用户界面元素，比如按钮和文本域(text field)；其它的则是更高层级的对象，比如视图控制器和手势识别器。
+
+Hello World View Controller场景已经包含一个视图，现在向它添加一个按钮、一个标签以及一个文本域。接着，建立这些元素和视图控制器类之间的联系以便这些元素能提供咱们想要的行为。
 ## Add the User Interface Elements
 ---
+从对象库拖拽对象到画布中的视图，即可完成添加UI元素的目的。将它们放置于视图后，可以移动它们或者调整大小。
+
+为向视图添加UI元素：
+
+1.如有必要，在工程导航器选择Main.storyboard，将场景显示在画布中。
+
+2.如有必要，打开对象库。对象库在工具域的底部。
+
+3.在对象库搜索框，选择需要的控件。每次一个，分别将文本域、按钮以及标签拖拽到视图。
+
+4.在视图，合理布局这些控件。在视图内移动控件时，蓝色虚线可帮助排列它们。
+
+5.在视图，选中文本域内到文字，输入Your Name;选中标签，输入result；双击按钮，输入文本Hello。
+
+<img src="/images/posts/2018-07-18/addControlsDone.png">
+还需要一些对文本域做些其它改动，以便符合用户期望。首先，因为用户将输入他们的名字，你可以确保iOS建议每个单词大写化。其次，可将与文本域相连的键盘配置为输入名字(而非数字)，且此键盘显示一个Done按钮。
+
+这些改动背后的一个基本原则是：在设计期，你已经清楚文本域需填充的内容，所以加以限制，如此运行期的应用表现更能符合用户的期望。可在Attributes inspector完成这些改动。
+
+为配置文本域：
+
+1.在视图，选中文本域。
+
+2.在Text Field Attributes insepctor，做以下选择：
+- 在Capitalization选择Words。
+- 确保Keyboard Type设置为Default。
+- 在Return Key选择Done。
+
+<img src="/images/posts/2018-07-18/configureTextField.png">
 ## Create an Action for the Button
 ---
+依照在“The Target-Action Pattern Enables Responses to User Interaction”学到的，当用户激活某个UI元素时，此元素可发送动作消息给一个对象，这个对象清楚如何执行对应的动作方法。在本指导中，当用户点击按钮时，你想它发送一条“change the greeting”消息给视图控制器。接着，你想视图控制器执行对应的“change the greeting”方法来响应它，此方法改变显示在标签上的文本。
+
+为向按钮添加动作...
+
+1.如有必要，在工程导航器选择Main.storyboard，将场景显示在画布中。
+
+2.在工具栏，单击Utilities按钮来隐藏工具域，单击assistant编辑器按钮来显示Assistant编辑器面板。
+
+3.确保Assistant显示了视图控制器头文件(HelloWorldViewController.h)。
+
+4.在视图选中按钮，按住Control键从它处拖拽到头文件的方法声明区域。当Control-drag时，能看到：
+
+<img src="/images/posts/2018-07-18/createActionForButton_0.png">
+释放Control-drag后，Xcode显示一个弹出框，在其中可配置刚做出的动作连接：
+
+<img src="/images/posts/2018-07-18/createActionForButton_1.png">
+单击Connect。
+
+如此，便在头文件得到了对此方法对声明：
+``` Objective-C
+- (IBAction)changeGreeting:(id)sender;
+```
+以及在实现文件得到一个此方法的存根：
+``` Objective-C
+- (IBAction)changeGreeting:(id)sender {
+
+}
+```
+其中，IBAction是一个特殊关键字，用来告诉Xcode将此方法当作对target-action连接的动作。IBAction被定义为void。方法中的sender参数指的是发送动作消息的对象，在本指导中，此sender是按钮。
+
+如此，在按钮与视图控制器间创建了一个连接。建立此连接等同于“在按钮上调用addTarget:action:forControlEvents:”，其中，target是视图控制器，动作为changeGreeting:选择器，以及包含Touch Up Inside的控制器事件。
+
+下一步，在视图控制器与两个剩下的UI元素(即标签和文本域)间建立连接。
 ## Create Outlets for the Text Field and the Label
 ---
+**outlet**是指向其它对象的属性。当在Xcode创建一个outlet连接时，此连接会被存档在故事板文件内；当应用运行时，此连接被恢复。被恢复的连接允许两个对象在运行时相互通信。
+
+为添加outlet采取的步骤与添加action很类似。在开始之前，确保：主故事板文件仍在画布中可见，HelloWorldViewController头文件仍在Assistant编辑器处于打开状态。
+
+为向文本域添加outlet...
+
+1.在视图选中文本域，按住Control键盘从它处拖拽到头文件的方法声明区域。当Control-drag时，能看到：
+
+<img src="/images/posts/2018-07-18/createOutletForTextField_0.png">
+<img src="/images/posts/2018-07-18/createOutletForTextField_1.png">
+在弹出框，点击Connect。通过向文本域添加outlet，此完成了两件事：
+- 向视图控制器类添加了适当的代码。特别是，向头文件添加了以下声明：
+``` Objective-C
+@property (weak,nonatomic) IBOutlet UITextField *textField;
+```
+此处的IBOutlet也是一个特殊关键字，用来告诉Xcode将此对象看作一个outlet。实际上，它被定义为nothing，因此它在编译期没什么影响。
+- 建立一条从视图控制器到文本域的连接。建立此连接等同于对视图控制器调用setTextField:，将文本域作为参数。
+
+同理，为标签添加一个outlet并配置之。配置完成后，在Connection inspector，Xcode展示了选中对象的所有连接，如图所示：
+
+<img src="/images/posts/2018-07-18/addActionOutletDone.png">
 ## Make the Text Field's Delegate Connection
 ---
+在app内，还有一个要完成的连接：需要把文本域和某个对象连接起来，此对象为文本域的委托。在本指导中，利用视图控制器作为此文本域的委托。
+
+需要为此文本域指定一个委托对象，因为当用户点按键盘上的Done按钮时，文本域向它的委托发送一条消息。在随后的步骤中，用与此消息关联的方法来dismiss键盘。
+
+确保在画布的故事板文件仍处于打开状态。如未，在工程导航器打开Main.stroyboard。
+
+为设置文本域的delegate...
+
+1.在视图选中文本域，按住Control键从此处拖拽到视图控制器(内空的黄色球形)。
+
+2.释放Control-drag后，选择Outlets处的delegate。
+
+<img src="/images/posts/2018-07-18/createDelegateForTextField.png">
 ## Test the Application
 ---
+单击Run测试app。应发现单击文本域时，键盘出现并可输入文本。然后，没有办法使其消失。为达成此目的，需要实现相关的委托方法。在下一章节完成此部分功能。
 ## Recap
 ---
+当利用合适的连接配置视图时，也应更新实现(implementation)文件以支持outlet和对应的动作。在此刻，HelloWorldViewController.m文件应当显示为：
 
+``` Objective-C
+#import "HelloWorldViewController.h"
+
+@interface HelloWorldViewController ()
+
+@end
+
+@implementation HelloWorldViewController
+
+@synthesize textField;
+@synthesize label;
+@synthesize userName;
+@synthesize helloButton;
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view,
+    // typically from a nib.
+}
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+- (IBAction)changeGreeting:(id)sender {
+
+} 
+  
+@end
+```
+
+<br/>
 # Implementing the View Controller
 ## Add a Property for the User's Name
 ---
