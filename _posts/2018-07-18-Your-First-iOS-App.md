@@ -6,7 +6,7 @@ title: 第一个iOS App
 =================================
 <img src="/images/posts/2018-07-18/index_0.png">
 <img src="/images/posts/2018-07-18/index_1.png">
-# About Creating Your First iOS App
+# 关于创建第一个iOS App
 第一个iOS应用向你介绍iOS app开发的3T:
 - **Tools**.如何利用Xcode创建以及管理一个工程。
 - **Technologies**.如何创建一个可以响应用户输入动作的应用。
@@ -20,15 +20,15 @@ title: 第一个iOS App
 ## At a Glance
 ---
 跟着此指南走，会帮你踏上开发伟大iOS应用的康庄大道。虽然你在此指南中创建的app非常简单，但是它会帮助你适应iOS开发环境，并且向你介绍一些塑造伟大iOS应用的强大设计模式。
-### Becoming Familiar with the Tools and the Design Patterns
+### 熟悉开发工具与设计模式
 iOS应用在Xcode中开发，它是Apple的集成开发环境。Xcode包含了多个开发者工具，并且集成了用于编码app的编程框架。
 
 随着你开始为app编码，你需要学习成功的app是如何构成的以及一些关键设计模式如何帮你写出更棒的代码。
-### Learning About the Roles of View Controllers and Views
+### 学习视图控制器与视图的角色
 在一个iOS应用中，一个视图(view)仅仅是屏幕上的用户可以看见并与之交互的一块区域。一个视图对象可以是任意大小，它可以包含其它视图对象，比如按钮或者图像。视图控制器是控制一个或多个视图的一个对象。在此指南中，你会学到：app中不同对象的角色，如何创建视图控制器与添加到它视图中对象的连接。
-### Writing Code to Perform a Custom Task
+### 编写执行特定任务的代码
 Xcode与编程框架(programming framework)合作为你提供很多功能，但是仍然有一些你的app必须完成的特定任务。在本指导中，你会学到：如何通过写一个方法来实现某个特定的任务；当一个按钮被点击时，此方法被调用。
-### Solving Problems and Choosing Your Next Steps
+### 解决问题并选择下一步的方向
 随着你完成本指导中的任务，你可能遇到你不知如何解决的问题。Your First iOS Application粗略描述了一些可查找的常见错误，它也包括一个用于对比的代码列表。
 
 在完成本指南后，你应当考虑可提高app质量以及增长知识面的方式。可选择的方向很多，并且Xcode和iOS编程框架可帮你实现你可设计的方方面面。
@@ -40,9 +40,9 @@ Xcode与编程框架(programming framework)合作为你提供很多功能，但�
 - 当准备提交app到App Store时，为了解需要执行的全部任务，可参考Developing for the App Store。
 
 <br/>
-# Getting Started
+# 准备开始
 为创建本指导中的iOS应用，需要Xcode 4.2(及以上)。Xcode是为iOS及Mac OS X开发的Apple集成开发环境。当在Mac上安装Xcode时，也会得到iOS SDK，它包括iOS平台的编程接口。
-## Create and Test a New Project
+## 创建及测试一个新工程
 ---
 为开启开发应用之路，创建一个新Xcode工程。
 
@@ -71,7 +71,7 @@ Xcode与编程框架(programming framework)合作为你提供很多功能，但�
 <img src="/images/posts/2018-07-18/defaultApp.png">
 现在看，这款应用并不有趣：它仅显示一块空白屏幕。为理解此空白屏幕来自何处，需要学习代码中的对象以及它们是如何合作来启动app的。现在，可以退出模拟器了(要确保，不要退出Xcode)。
 
-## Find Out How an Application Starts Up
+## 查明应用如何启动
 ---
 因为基于Xcode模版构建工程，所以当你运行应用时，大部分基本的应用环境已自动建立。比如，Xcode创建一个application对象，它连接窗口服务器(window server)，建立run loop以及其它的准备工作。此工作的大部分均由**UIApplicationMain**函数完成，它在main.m文件中完成调用。
 可在工程目录中查看main.m源文件：
@@ -119,14 +119,14 @@ main.m文件内的**main**函数在一个自动释放池内调用**UIApplication
 在本章，利用Xcode创建了一个基于Single View模板的新工程。接着，构建且运行了模板定义的默认应用。也查看了工程的一些基本组成，比如main.m源文件、Info.plist文件以及故事板文件；学习了一个应用是如何起动的。下一章，将学习遍及iOS应用开发中的设计模式以及如何将它们适用于自己的app。
 
 <br/>
-# Understanding Fundamental Design Patterns
+# 理解基本的设计模式
 在开始定制app之前，花些时间学习正在从事的编程环境以及塑造伟大iOS应用的设计模式。即便不读此章节，也可完成本指导；但是如果花时间读一读、想一想它描述的概念，会对iOS应用开发有个更好的理解。
-## Cocoa Touch Provides the Frameworks You Need for iOS App Development
+## Cocoa Touch提供用于iOS开发的框架
 ---
 Cocoa Touch是所有iOS app的应用环境；Cocoa为Mac OS X apps提供应用环境。随着为iOS开发应用，会依赖Cocoa Touch提供的面向对象框架。尤其是，会用到UIKit框架的应用编程接口(API)，它提供app需要构建、管理用户界面的所有类。
 
 有很多资源可帮助获取对Cocoa Touch(或Cocoa)更深层次理解。一个开始旅程的好地方是Cocoa Fundamentals Guide。
-## Delegation Helps You Add Functionality Without Subclassing
+## Delegation帮助添加功能而无需子类化
 ---
 Delegation是一种设计模式，在此模式内，一个对象发送消息给另一个对象以获取输入或者通知某事件正在发生，此另一个对象被指定为前者的delegate。此委托对象以一种特定的方式响应这些消息。delegation是Cocoa Touch应用中的一种常见设计模式，因为它允许开发者无需继承或重写某复杂框架对象便提供某些定制行为。
 
@@ -137,7 +137,7 @@ Delegation是一种设计模式，在此模式内，一个对象发送消息给�
 - 当用户结束键入内容时，稍后添加的text field需要告诉它的委托。为帮助实现此目的，需确保视图控制器对象(即HelloWorldViewController)遵循UITextFieldDelegate协议。
 
 <br/>
-## Model-View-Controller Makes Code Easier to Write and Reuse
+## Model-View-Controller使代码编写及重用性更容易
 ---
 Model-View-Controller(MVC)设计模式为应用中的对象定义了三种角色。
 
@@ -152,21 +152,21 @@ Model-View-Controller(MVC)设计模式为应用中的对象定义了三种角色
 **Controller**对象在model与view间居中调度。
 
 在这个应用中，视图控制器对象从输入text field(view)获得数据，将其存储在一个字符串(model)内，随即更新label(另一个view)。此更新开始于按钮发送的一条动作消息。
-## The Target-Action Pattern Enables Responses to User Interactions
+## Target-Action模式使能对用户交互的响应
 ---
 target-action机制允许一个控件对象发送给其它对象一个有意义的消息来响应用户发起的事件，比如一次点击按钮。例如，考虑一个存储用户的联系人app：当用户点按Add Contact按钮，此按钮发送“add contact”消息(action)给一个定制的应用对象(target)，此对象清楚怎样将联系人添加到联系人列表。
 
 在这个应用中，当按钮被点击，它发送一个动作消息给控制器(target)，告诉它根据用户的输入更新它的model和view。
-## Other Design Patterns
+## 其它的设计模式
 ---
 除了委托、MVC和target-action，Cocoa Touch也使用一些其它的设计模式。稍后，当你读完此本指导后，应当学习这些设计模式以便将它们应用到自己的app开发中。可在Cocoa Design Patterns中获得对这些设计模式的综述。
 
 理解Cocoa设计模式使利用Cocoa Touch提供的多种技术变得容易，也可以将习得的技能用于它处。沿用这些模式也意味着你的代码能更好地利用这些对应用框架的增强。
 
 <br/>
-# Inspecting the View Controller and Its View
+# 检查视图控制器及它的视图
 如前文学到的，一个视图控制器负责管理一个场景，此场景代表一个内容区域。在此区域看到的内容定义在视图控制器的视图(view)中。在本章节，可以凑近看视图控制器以及学习如何调整视图的背景颜色。
-## Use the Inspector to Examine the View Controller
+## 利用Inspector检查视图控制器
 ---
 当应用起动时，主故事板文件被加载以及initial视图控制器被实例化。此初始视图控制器管理用户打开应用看到的第一个场景。因为Single View App模版仅提供了一个视图控制器，故而它被自动设置为初始视图控制器。可利用Xcode inspector核实视图控制器的状态。
 
@@ -181,7 +181,7 @@ target-action机制允许一个控件对象发送给其它对象一个有意义�
 
 <img src="/images/posts/2018-07-18/defaultStoryboardFile_0.png">
 在Attributes inspector，可看到"Is Initial View Controller"选项被选中了。如果取消选定此项，则初始场景提示器从画布消失。在本指导中，确保此“Is Initial View Controller”一直处于被选中状态。
-## Change the View's Background Color
+## 更改视图的背景颜色
 ---
 在"Find Out How an Application Starts"一节，了解到当于模拟器运行app时一个视图提供白色背景。为确保app在正确地工作，可将此视图的背景改为其它颜色而非白色，并且再次于模拟器运行app以验证新颜色是否显示。在改变视图的背景颜色前，确保主故事板文件仍处于打开状态。
 
@@ -205,11 +205,11 @@ target-action机制允许一个控件对象发送给其它对象一个有意义�
 在本章，检查了场景，也改变了视图的背景颜色。在接下来的一章，给视图添加控件。
 
 <br/>
-# Configuring the View
+# 配置视图
 Xcode提供一个对象库，可以把其中的对象添加到故事板文件。有些对象是属于视图的用户界面元素，比如按钮和文本域(text field)；其它的则是更高层级的对象，比如视图控制器和手势识别器。
 
 Hello World View Controller场景已经包含一个视图，现在向它添加一个按钮、一个标签以及一个文本域。接着，建立这些元素和视图控制器类之间的联系以便这些元素能提供咱们想要的行为。
-## Add the User Interface Elements
+## 添加用户界面元素
 ---
 从对象库拖拽对象到画布中的视图，即可完成添加UI元素的目的。将它们放置于视图后，可以移动它们或者调整大小。
 
@@ -240,7 +240,7 @@ Hello World View Controller场景已经包含一个视图，现在向它添加�
 - 在Return Key选择Done。
 
 <img src="/images/posts/2018-07-18/configureTextField.png">
-## Create an Action for the Button
+## 为按钮创建action
 ---
 依照在“The Target-Action Pattern Enables Responses to User Interaction”学到的，当用户激活某个UI元素时，此元素可发送动作消息给一个对象，这个对象清楚如何执行对应的动作方法。在本指导中，当用户点击按钮时，你想它发送一条“change the greeting”消息给视图控制器。接着，你想视图控制器执行对应的“change the greeting”方法来响应它，此方法改变显示在标签上的文本。
 
@@ -275,7 +275,7 @@ Hello World View Controller场景已经包含一个视图，现在向它添加�
 如此，在按钮与视图控制器间创建了一个连接。建立此连接等同于“在按钮上调用addTarget:action:forControlEvents:”，其中，target是视图控制器，动作为changeGreeting:选择器，以及包含Touch Up Inside的控制器事件。
 
 下一步，在视图控制器与两个剩下的UI元素(即标签和文本域)间建立连接。
-## Create Outlets for the Text Field and the Label
+## 为文本域和标签创建outlet
 ---
 **outlet**是指向其它对象的属性。当在Xcode创建一个outlet连接时，此连接会被存档在故事板文件内；当应用运行时，此连接被恢复。被恢复的连接允许两个对象在运行时相互通信。
 
@@ -298,7 +298,7 @@ Hello World View Controller场景已经包含一个视图，现在向它添加�
 同理，为标签添加一个outlet并配置之。配置完成后，在Connection inspector，Xcode展示了选中对象的所有连接，如图所示：
 
 <img src="/images/posts/2018-07-18/addActionOutletDone.png">
-## Make the Text Field's Delegate Connection
+## 准备文本域的委托连接
 ---
 在app内，还有一个要完成的连接：需要把文本域和某个对象连接起来，此对象为文本域的委托。在本指导中，利用视图控制器作为此文本域的委托。
 
@@ -313,7 +313,7 @@ Hello World View Controller场景已经包含一个视图，现在向它添加�
 2.释放Control-drag后，选择Outlets处的delegate。
 
 <img src="/images/posts/2018-07-18/createDelegateForTextField.png">
-## Test the Application
+## 测试应用
 ---
 单击Run测试app。应发现单击文本域时，键盘出现并可输入文本。然后，没有办法使其消失。为达成此目的，需要实现相关的委托方法。在下一章节完成此部分功能。
 ## Recap
@@ -353,39 +353,144 @@ Hello World View Controller场景已经包含一个视图，现在向它添加�
 ```
 
 <br/>
-# Implementing the View Controller
-## Add a Property for the User's Name
+# 实现视图控制器
+这有几个需要实现视图控制器的部分：为用户名添加一个属性，实现changeGreeting:方法，以及确保当用户点击Done时键盘会消失。
+## 为用户名添加属性值
 ---
-## Implement the changeGreeting: Method
+需要为持有用户名的字符串声明一个变量，并且需要为它添加一个声明以便代码能时常引用它。添加此二者给视图控制器头文件(HelloWorldViewController.h)。
+
+到此刻为止，已不必对故事板文件再做进一步的改动了。为给写代码腾出更多空间，可以把工具域隐藏起来。
+
+为给用户名添加变量及属性声明...
+
+1.在工程导航器，选择HelloWorldViewController.h。
+
+2.在@interface的大括号内，为持有用户名的字符串添加一个变量声明。注意，可能需要在@interface声明后手动输入一对大括号。添加变量后的形式为：
+``` Objective-C
+@interface HelloWorldViewController : UIViewController {
+	NSString *userName;
+}
+```
+3.在右闭括号之后及@end声明之前，为刚声明的字符串变量添加一个@property声明。
+``` Objective-C
+@property (nonatomic,copy) NSString *userName;
+```
+这个userName属性需要一个称为setUserName:的setter方法。在下一步提供此方法。
+
+为完成userName属性的实现，需要告诉编译器合成对应的accessor方法。在视图控制器的实现文件(HelloWorldViewController.m)提供相应的代码。
+
+为给用户名属性合成accessor方法：
+
+1.在工程导航器，选择HelloWorldViewController.m。
+
+2.在@implementation HelloWorldViewController线之后，添加如下代码：
+``` Objective-C
+@synthesize userName = _userName;
+```
+
+当使用@synthesize指令时，你在告诉编译器去为头文件中指定的属性合成accessor方法。在本指导中，userName属性的声明是@property (nonatomic,copy) NSString userName;,因此编译器生成两个accessor方法：
+``` Objective-C
+- (NSString *)userName;
+- (void)setUserName:(NSString *)newUserName;
+```
+通过在@synthesize代码行给userName添加一个下划线，便告诉编译器使用带下划线的userName作为userName属性的实例变量。
+
+按照惯例，给实例变量加一个下划线前缀是为了提醒开发者不应直接访问一个实例变量。相反，应使用已合成的accessor方法。一个例外之处是，可以在init方法内直接获取或设置实例变量。
+
+从学术角度看，避免对实例变量的直接访问可帮助维持**encapsulation**(封装)，但也是有其它实用价值的：
+- 一些Cocoa技术(尤其是key-value coding)依赖对accessor方法的使用，及accessor方法的恰当命名。如不使用accessor方法，你的应用也许不能充分利用标准Cocoa特点的优势。
+- 有些属性值是按需创建的。如果你视图直接使用实例变量，可能会得到nil或者一个未初始化的值。比如，视图控制器的视图属性便是按需创建的好例子。
+
+为加深记忆此惯例，修改Xcode为文本域和标签添加的@synthesize代码行，使之变为：
+``` Objective-C
+@synthesize textField = _textField;
+@synthesize label = _label;
+```
+<br/>
+## 实现changeGreeting:方法 
 ---
-## Configure the View Controller as the Text Field's Delegate
+在“To add action for the button”部分，配置了按钮以便“当用户点击它时，它发送一条changeGreeting:消息给视图控制器”。作为响应，你想视图控制器在标签上显示用户在文本域输入的文本。特别地，changeGreeting:应当：
+- 从文本域取回字符串，并将视图控制器的userName属性设为此字符串。
+- 基于userName属性创建一个新字符串，并将其显示在标签上。
+
+为实现changeGreeting:方法...
+
+1.如有必要，在工程导航器选择HelloWorldViewController.m。
+
+2.通过添加以下代码，完成changeGreeting:方法的存根实现：
+``` Objective-C
+- (IBAction)changeGreeting:(id)sender {
+
+	self.userName = self.textField.text;
+	NSString *nameString = self.userName;
+	if([nameString length] == 0) {
+		nameString = @"World";
+	}
+
+	NSString *greeting = [[NSString alloc] initWithFormat:@"Hello, %@",
+	                      nameString];
+	
+	self.label.text = greet;
+
+}
+```
+<br/>
+## 配置视图控制器为文本域的委托
 ---
-## Text the Application
+如果构建运行应用，应当发现当单击按钮时，标签显示"Hello,World"。如果你选择文本域开始键入内容，应当发现仍然没有办法暗示已经完成输入且dismiss键盘。
+
+在iOS应用中，当一个允许文本输入的界面元素变为第一响应者后，键盘会自动显示；当此元素失去第一响应者状态后，键盘又被自动dimiss。虽然没办法直接给键盘发消息，但是可以切换某个文本输入元素的第一响应者状态，此带来的另一个作用便是键盘显示或消失。
+
+UITextFieldDelegate协议包括textFiledShouldReturn:方法；当用户点击Return按钮时，文本域便调用此方法。因为你设置视图控制器为文本域的委托，所以你可实现此方法，通过向它发送一条resignFirstResponder消息来强制其失去第一响应者状态。
+
+为配置HelloWorldViewController为文本域的委托...
+
+1.如必要，在工程导航器选择HelloWorldViewController.m。
+
+2.实现textFieldSholdReturn: method。此方法应告诉文本域放弃第一响应者状态。
+``` Objective-C
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+
+    if(textField == self.textField) {
+        [textField resignFirstResponder];
+    }
+    return YES;
+}
+```
+3.在工程导航器选择HelloWorldViewController.h。
+
+4.在@interface行，恰左开括号前并且UIViewController后，添加<UITextFieldDelegate>。所以接口文件应为：
+``` Objective-C
+@interface HelloWorldViewController : UIViewController <UITextDelegate> {
+	...
+}
+
+@end
+```
+此声明代表HelloWorldViewController类采纳UITextFieldDelegate协议。
+## 测试应用
 ---
+构建且运行应用。这次，它如你期望。在模拟器，输入Your Name后，单击Done以解除键盘；随即单击Hello按钮，以在标签上显示“Hello,Your Name !”。
+
+如果应用的行为未如预期，则需要做些故障排查。
 ## Recap
 ---
+既然已经完成了视图控制器的实现，便完成了第一个iOS应用。恭喜！花点时间仔细想想视图控制器是如何融入整体应用结构的,因为在将来编写的所有iOS应用中都会使用视图控制器。
 
-# Troubleshooting
-## Code and Compiler Warnings
----
-## Check the Storyboard File
----
-## Delegate Method Names
----
 <br/>
-# Next Steps
+# 接下来
 在本指导中，有创造了一个非常简单的iOS应用。虽然Cocoa Touch提供了一个丰富的开发环境，但是本指导只是浮光掠影。随着继续学习iOS应用开发，本章建议了一些你可以采纳的下一步方向。
-## Improve the User Interface
+## 提高用户界面
 ---
 iOS用户对运行在基于iOS设备的app外观及感觉有很高的期望。随着努力提高app的UI时，可以考虑给UI元素添加图像或颜色，给视图添加一个背景图像。
 
 很多iPhone应用支持多个方向；并且iPad应用应支持所有方向。提告app UI的其它方式可以是确保视图控制器可以处理关于方向的变化。为支持不同方向，首先学习shouldAutorotateToInterfaceOrientation:方法。接着，在故事板文件调整UI以确保：当视图发生旋转时，可以恰当地放置其中的UI元素。
 
 一定读一读iOS Human Interface Guidelines，学习设计app用户界面及使用体验的官方推荐方式。
-## Install the Application on a Device
+## 安装应用到设备上
 ---
 如果你有一个连接到电脑的合适设备并且有一个来自iOS Developer Program的有效证书，可为iPhone设备设置有效的SDK，构建并运行此工程。假如代码可成功编译，Xcode随即自动降app上传到iPhone设备。为了解这部分开发过程，参见Developing for the App Store。
-## Add More Functionality
+## 添加更多功能
 ---
 也可以扩展此app的功能。这有可以走的几个方向：
 - **Write a custom view.**可以尝试编写一个定制视图，它绘制自身的内容以及响应接触事件。为寻求灵感，可查看样例代码工程，比如MoveMe和Metronome。
@@ -396,7 +501,7 @@ iOS用户对运行在基于iOS设备的app外观及感觉有很高的期望。�
 
 最最重要的事务是尝试新想法以及多做实验。官网有很多可以寻求灵感的代码样例，也有帮助理解概念和编程接口的文档。
 <br/>
-## Add Unit Tests
+## 添加单元测试
 ---
 当创建本指导中的工程时，并未选择“Include Unit Tests”。当开发真正的应用程序时，包含测试是非常重要的。在某些方面，可将测试当成封装设计原则的映射(counterpart)：测试确保如果一个方法的实现细节变化了，此方法是否仍能像通告般工作。
 
@@ -404,10 +509,10 @@ iOS用户对运行在基于iOS设备的app外观及感觉有很高的期望。�
 
 <img src="/images/posts/2018-07-18/unitTestingBundle.png">
 <br/>
-# Code Listings
+# 代码列表
 此附录部分提供HelloWorldViewController类接口与实现文件的列表。在viewDidLoad方法中为按钮设置了圆角、边框颜色及宽度，为标签设置了圆角。
-## The Interface File : HelloWorldViewController.h
+## 接口文件 : HelloWorldViewController.h
 <img src="/images/posts/2018-07-18/HelloWorldViewControllerHeader.png">
-## The Implementation File : HelloWorldViewController.m 
+## 实现文件 : HelloWorldViewController.m 
 <img src="/images/posts/2018-07-18/HelloWorldViewControllerImple_0.png">
 <img src="/images/posts/2018-07-18/HelloWorldViewControllerImple_1.png">
