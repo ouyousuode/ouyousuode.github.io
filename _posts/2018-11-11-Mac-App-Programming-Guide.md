@@ -46,17 +46,78 @@ Cocoa是解锁OS X全部力量的应用环境。Cocoa提供APIs、库以及运�
 
 <br/>
 # The Mac Application Environment
+OS X吸收了最新的技术用以创建强劲且有趣的应用。但是，技术本身并不足以使每个应用都伟大(great)。将一个app与其同类区分开来的是它怎样帮用户实现某些确定的目标。毕竟，用户不会去关心一个app使用了什么技术，只要它能帮助完成需要的任务即可。妨碍用户的app将被遗忘，但是把工作变得容易或把游戏变得更有趣的app将被记住。
+
+你使用Cocoa为OS X编写应用。Cocoa给你所有OS X特征的使用权限，并允许你将app与系统的剩余部分干净地集成在一起。本章节涉及帮你创建伟大app的OS X关键部分。特别是，此章描述了在OS X v10.7引入的一些重要易用(ease-of-use)技术。若想浏览OS X中更多可用的技术，可参考Mac Technology Overview。
 ## An Environment Designed for Ease of Use
 ---
-## 复杂的图形化环境
+OS X努力提供的环境是对用户尽可能易懂易用的。通过将困难任务简单化，系统使用户更具创造力变得容易起来，并且花费更少的时间来担心需要使电脑工作的工作。当然，简化任务意味着你的app不得不做更多的工作，但是OS X也会在这些方面提供帮助。
+
+随着你设计app，你应考虑用户通常执行的任务以及找到使它们变简单的方式。OS X支持强劲的(powerful)易用性(ease-of-use)特征以及设计原则。比如：
+- 用户不应手动保存他们的工作。Cocoa的文档模型为无须用户交互即保存基于文件的文档提供支持；可见The Document Architecture Provides Many Capabilities for Free。
+- Apps应在登陆时恢复用户的工作环境。Cocoa为解析应用界面当前状态及在启动期恢复此状态提供支持；见User Interface Preservation。
+- Apps应当支持自动终止以便用户勿需不得不退出他们。自动终止意味着当用户关闭应用窗口时，应用好像退出了，但实际上只是静静地移动到后台。此优势是随后的启动可接近瞬时，因为应用只是又退回到前台；具体可见Automatic and Sudden Terminationof Apps Improve the User Experience。
+- 你应考虑给用户提供一个逼真的全屏体验，怎么实现呢？通过实现一个用户界面的全屏版本即可。此全屏体验可消除外部的干扰，允许用户集中注意力到他们的内容上；可参考Implementing the Full-Screen Experience。
+- 在应用中为合适的动作提供触控板手势。手势可为常见任务提供简单的快捷方式，也可用于补充现存的控件及菜单项命令。OS X为报告手势给应用提供自动支持，此过程经由正常的事件处理(event-handling)机制；可见Cocoa Event Handling Guide。
+- 考虑最小化或消除用户与原始文件系统的交互。有些以iPhoto和iTunes方式的应用，通过以一个简化版的精心设计过的浏览器来提供一个更好的用户体验，而不是通过open和save面板把整个文件系统暴露给用户。OS X使用一个定义明确的文件系统结构，此结构允许你容易地放置及找到文件，此结构包括为访问这些文件的很多技术；见The File System。
+- 为向app支持特定的文档类型，提供一个Quick Look插件以便用户可从app外部查看你的文档；可参考Quick Look Programming Guide。
+- Apps应支持为OS X用户体验的基本特征，正是它们才使得应用得以优雅且直观。用户应一直拥有控制权，收到持续的反馈，因为应用一直在原谅那些可撤销的动作；见OS X Human Interface Guidelines。
+
+以上种种特征，均由Cocoa支持；付出少许努力便可集成到开发的应用中。
+
+## 久经考验的图形化环境
 ---
+高质量的图形图像及动画可使app看起来great，并传达很多信息给用户(一图胜千言)。尤其，动画是提供关于用户界面变化的反馈的良好方式。因此，当你设计app时，可将以下观点谨记于心：
+- 使用动画提供反馈及传达变换。Cocoa为快速创建复杂的动画提供支持，这些支持包含在AppKit和Core Animation框架内。想了解有关创建基于视图的动画信息，见Cocoa Drawing Guide。关于利用Core Animation创建动画，可参考Core Animation Programming Guide。
+- 包括美术图片及图像的高分辨率版本。当app运行在一个尺度因子大于1.0的屏幕时，OS X自动加载高分辨率图像资源。包含这样的图像资源可使app在高分辨率屏幕上的图像看起来更锐利(sharper)、更脆(crisper)。
+
+关于适用于OS X的图像技术，参见Media Layer in Mac Technology Overview。
 ## Runtime环境的底层细节
 ---
-### 基于Unxi
-### 并发与线程化
-### 文件系统
-### 安全性
+当你准备编写实际代码时，有很多促使编码工作变容易的可用技术。OS X支持全部的基本功能，比如内存管理，文件管理，网络及并发；你需要使用它们来编写自己的代码。在某些情况下，虽然OS X也提供更为复杂的服务，但遵此行事，可使编写代码更容易。
+### 基于UNIX
+OS X由一个64位的Mach内核提供动力，此内核管理处理器资源、内存以及其它的底层行为。在内核的顶部，坐落着一个修改过的Berkeley Software Distribution(BSD)操作系统版本，它向app提供用以与底层系统打交道的接口(interfaces)。Mach和BSD的组合为app提供以下的系统级支持：
+- 抢占式多任务 —— 全部进程更有效地共享CPU。内核调度进程，以确保它们皆能接收需要运行的时间的方式。甚至，后台app也能继接收CPU时间来执行正运行的任务。
+- 受保护的内存 —— 每个进程运行在它们自己的受保护内存空间内，如此可阻止进程间相互打扰。(Apps可以共享部分内存空间以实现快速的进程间通信，但是它们必须负责恰当地同步及锁定此内存。)
+- 虚拟内存 —— 64位app有一个大概18 billion billion字节大小的虚拟地址空间。(如果创建一个32位的app，其虚拟内存大小仅有4GB)当一个app的内存使用量超过了超过了剩余的物理内存，系统会透明地将页写到硬盘，以生成更多可用的内存。被写出到硬盘的页会一直待着，直至它们再次被内存需要或者app退出了。
+- 网络和Bonjour —— OS X为标准的网络协议及现今使用的服务提供支持。BSD socket为app提供底层的通信机制，但是高级接口也存在。通过提供一种通知及连接TCP/IP之上的网络服务的动态方式，Bonjour简化了用户交流的体验(networking experience)。
 
+为OS X底层环境的详细信息，可参考Mac Technology Overview中的Kernel and Device Drivers Layer一节。
+### 并发与线程化
+每个进程都以一个单一的线程开始，而后根据所需创建更多线程。虽然可以利用POSIX和其它高级接口来直接创建线程，但是对大部分工作而言，利用block对象与Grand Central Dispatch(GCD)或operation对象非直接地创建它们更好！其中，operation对象是用NSOperation类实现的一种Cocoa并发技术。
+
+GCD与operaion对象是针对原始线程的一种替代选择，它们可以简化或者消除与线程化编程相关的诸多问题，比如同步和加锁。尤其是，它们定义了一个异步编程模型；在此模型内，你可指定想执行的工作以及执行它的顺序。系统随即处理需要调度必需线程的繁杂工作，以及在当前硬件上尽可能高效地执行你的任务。对于时间敏感性的数据处理任务，你不应使用GCD或者operation，但是，你可以利用它们处理大部分其它类型的任务。
+
+关于在app中使用GCD和operation对象实现并发操作的更多信息，可以参考Concurrency Programming Guide。
+### 文件系统
+OS X的文件系统被精心组织为用户提供更好的体验。Finder将普通用户不应使用的文件及目录隐藏起来，比如底层UNIX目录的内容；而不是向用户暴露整个文件系统。对终端用户而言，此举可提供一个更简单的界面。Apps仍然可以访问它们有权限的任意文件及目录，不管它们是否被Finder隐藏。
+
+当创建app时，你应理解并遵循这些与OS X文件系统有关的惯例。清楚在哪放文件以及如何从文件系统获得信息确保一个更好的用户体验。
+#### 几个重要的App目录
+OS X文件系统的组织方式是把相关的文件及数据分组进一个指定的位置。文件系统中的每个文件有它自己的位置，app们需要知道将它们创建的文件置于何处。如果你正由App Store分发app，此举就尤为重要了；这种分发方式期望你放置数据在特定位置。
+
+Table1-1列出了apps经常打交道的目录。其中有些在home目录内，它要么是用户的home目录，要么是app的容器目录(如果app采用App Sandbox的话)。因为实际路径可根据这些条件区分，所以，利用NSFileManager类的URLsForDirectory:inDomains:方法获取实际的目录路径。你可以给返回的URL对象添加任意特定的目录及文件名信息来完善此路径。
+
+<img src="/images/posts/2018-11-11/Table1-1.png">
+下面这个程序展示如何获取到Application Support目录的基础路径以及向它追加一个特定的app目录。
+
+<img src="/images/posts/2018-11-11/List1-1.png">
+关于如何访问系统目录中的文件，可进一步查看File System Programming Guide。
+#### Coordinating File Access with Other Process
+在OS X，其它进程可能会访问你正在访问的某个文件。因此，当处理文件时，你应当用OS X v10.7引入的文件协调接口(file coordination interfaces)来接收某种通知，具体是什么呢？即，当其它进程试图读取或修改你的app当前正使用的文件时，你的app进程能得到通知。比如，当你的app采用iCloud存储时，协调文件访问便是至关紧要的。
+
+这些文件协调APIs允许你维护对所关心的文件及目录的所有权。在任意时间点，其它进程试图访问这些项目中的任意一员时，你的app会有一个响应的机会。比如，当一个app试图读取你的app正在编辑的某个文档的内容时，在其它进程被允许做读取操作前，你可以将尚未保存的修改写入硬盘中。
+
+又比如，使用iCloud文档存储时，你必须包含文件协调功能，因为多个app均可访问存于iCloud的文档文件。包含文件协调功能的最简单方式为使用NSDocument类，它会为你处理所有文件相关的管理工作。见Document-Based App Programming Guide for Mac。
+
+另一方面，如果你正在编写一个library-style(或者“鞋盒”)app，你必须直接使用文件协调接口，像在File System Programming Guide描述的那样。
+#### Interacting with the File System
+虽然Macintosh电脑上的硬盘默认使用HFS+文件系统，但此电脑仍能与使用其它文件系统的硬盘打交道。Table1-2列出了一些你可能需要考虑的基本文件系统属性，以及你应如何处理它们。
+#### File-System Usage Requirements for the Mac App Store
+### 安全性
+#### App沙盒和XPC
+#### 代码签名
+#### The Keychain
 <br/>
 # The Core App Design
 ## The App Style Determines the Core Architecture
