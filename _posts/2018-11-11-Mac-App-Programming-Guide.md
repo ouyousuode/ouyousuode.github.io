@@ -113,106 +113,198 @@ Table1-1列出了apps经常打交道的目录。其中有些在home目录内，�
 另一方面，如果你正在编写一个library-style(或者“鞋盒”)app，你必须直接使用文件协调接口，像在File System Programming Guide描述的那样。
 #### Interacting with the File System
 虽然Macintosh电脑上的硬盘默认使用HFS+文件系统，但此电脑仍能与使用其它文件系统的硬盘打交道。Table1-2列出了一些你可能需要考虑的基本文件系统属性，以及你应如何处理它们。
-#### File-System Usage Requirements for the Mac App Store
+
+<img src="/images/posts/2018-11-11/Table1-2.png">
+#### 针对Mac App Store的文件系统使用要求
+为促进一个更一致的用户体验，提交到Mac App Store的应用必须遵守在何处写文件的特定规则。当应用产生对文件系统的副作用时，用户可能会疑惑不解。比如，在用户的文档目录存储数据库，在用户的Library文件夹存储文件，在用户的Library文件夹存储用户数据，等等。
+
+你的应用必须遵循以下的要求：
+- 你可能会使用诸如User Defaults、Calendar Store及Address Book这样的Apple框架，这些框架会暗中写入某具体位置的文件，而其中有些位置是你的应用无法直接访问的。
+- 你的应用可能写入某个利用Apple编程接口获取的临时路径,此编程接口可能是NSTemporaryDirectory函数。
+- 你的应用可能向以下目录写入：
+```Objctive-C
+~/Library/Application Support/<app-identifier>
+~/Library/<app-identifier>
+~/Library/Caches/<app-identifier>
+```
+在这，app-identifier是应用的bundle identifier，它的名字或者公司名称。这个必须准确匹配。可以常用比如URLsForDirectory:inDomains:函数这样的Apple编程接口来定位这些路径，而非硬编码它们。更多信息，可见File System Programming Guide。
+- 如果你的应用管理图片、音乐及视频库，它可能也向以下目录写入：
+```Objective-C
+~/Pictures/<app-identifier>
+~/Music/<app-identifier>
+~/Movies/<app-identifer>
+```
+- 如果用户显式地在一个备用位置存储数据，你的应用也可以写入此位置。
+
+<br/>
 ### 安全性
+OS X的安全技术帮你守护app创建或管理的敏感数据，以及最小化来自恶意代码攻击的伤害。这些技术影响你的app如何与系统资源及文件系统打交道。
 #### App沙盒和XPC
+通过遵照Secure Coding Guide中推荐的实践，你可以保护app以免受来自流氓软件的攻击。但是，攻击者只需找到防卫中的一个单一漏洞，或者你链接的框架和库中的任一漏洞，便可以获得对你的app的控制权。
+
+如果恶意代码侵入了你的应用，App沙盒提供抵抗破坏或删除用户数据等的最后一道防线。App沙盒也能最小化来自编码错误的损害。它的策略是双重保险：
+- 1.App沙盒使用能够描述你的app如何与系统打交道。系统随即授权app访问某些它需要完成的工作。为向app提供最高级别的损坏防卫，最佳实践是尽可能采用最牢固的沙盒。
+- 2.App沙盒允许用户显式地给app授权其它访问，通过Open与Save,drag与drop，以及其它常见的用户交互方式。
+
+通过在Xcode中设置权利(entitlement)的方式，描述app与系统间的交互。一条权利是定义在属性列表文件的一个键值对(key-value pair)，它授予针对某个目标的特殊能力及安全权限。比如，有些权限键暗示着你的应用需要访问摄像头、网络以及如Address Book般的用户数据。关于OS X中全部可用的权利，可见Entitlement Key Reference。
+
+当你采用App沙盒后，系统为你的app提供一个特殊的目录，一个称之为container仅用于你的app之目录。你的应用可对此容器自由读/写。POSIX层之上的全部OS X路径查找APIs都是针对容器而言，而非用户的home目录。其它沙盒内的app无法访问你的app的容器。
+
+你的沙盒之内的app能够通过以下三种方式访问容器之外的路径：
+- 在特定的用户方向上。
+- 利用针对特定文件系统位置的授权来配置app，比如Movies文件夹。
+- 当一个路径位于对世界均可读的目录内。
+
+
 #### 代码签名
+
 #### The Keychain
+
 <br/>
 # The Core App Design
+
 ## The App Style Determines the Core Architecture
 ---
+
 ### 所有Cocoa Apps的核心对象
+
 ### Additional Core Objects for Multiwindow Apps
+
 ### Integrating iCloud Support Into Your App
+
 ### Shoebox-Style Apps Should Not Use NSDocument
 
 ## Document-Based Apps Are Based on an NSDocument Subclass
 ---
+
 ### OS X内的文档
+
 ### The Document Architecture Provides Many Capbilities for Free
 
 ## App的生命周期
 ---
+
 ### main函数是App入口点
+
 ### App的Main Event Loop驱动交互
+
 ### App的自动及快速终止提高用户体验
+
 ## 在应用中支持关键的运行时行为
 ---
+
 ### 自动终止
+
 ### 快速终止
+
 ### 用户界面保留
 
 ## Apps Are Built Using Many Different Pieces
 ---
+
 ### 用户界面
+
 ### 事件处理
+
 ### 图形、绘制及打印
+
 ### 文本处理
 
 ## 实现应用菜单栏
 ---
+
 ### Xcode模板提供菜单栏
+
 ### 连接菜单项到代码或第一响应者对象
 
 <br/>
 # 实现全屏幕体验
+
 ## NSApplication中的全屏幕API
 ---
+
 ## NSWindow中的全屏幕API
 ---
+
 ## NSWindowDelegate协议中的全屏幕API
 ---
 
 <br/>
 # 支持常见的App行为
+
 ## You Can Prevent the Automatic Relauch of Your App
 ---
+
 ## Making Your App Accessible Enables Many Users
 ---
+
 ## 为定制化提供用户偏好设置
 ---
+
 ## Integrate Your App with Spotlight Search
 ---
+
 ## Use Services to Increase Your App's Usefulness
 ---
+
 ## 为高分辨率优化
 ---
+
 ### 考虑点，而非像素
+
 ### 为图形提供高分辨率版本
+
 ### Use High-Resolution-Savvy Image-Loading Methods
+
 ### 使用支持高分辨率的API
 
 ## Preparce for Fast User Switching
 ---
+
 ## 利用Dock
 ---
 
 <br/>
 # Build-Time配置细节
+
 ## 配置Xcode工程
 ---
+
 ## The Information Property List File
 ---
+
 ## OS X应用Bundle
 ---
+
 ## 国际化App
 ---
 
 <br/>
 # Tuning for Performance and Responsiveness
+
 ## 加速启动App
 ---
+
 ### 推迟初始化代码
+
 ### 简化Main Nib文件
+
 ### 最小化全局变量
+
 ### 在启动期最小化文件访问
+
 ## 不要阻塞主线程
 ---
+
 ## 减小代码的体积
 ---
+
 ### 编译器级别的优化
+
 ### 使用Core Data处理大数据集合
+
 ### 清除内存泄漏
+
 ### Dead Strip Your Code
+
 ### Strip Symbol Information
