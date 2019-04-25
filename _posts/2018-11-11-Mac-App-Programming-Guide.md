@@ -155,11 +155,27 @@ OS X的安全技术帮你守护app创建或管理的敏感数据，以及最小�
 - 利用针对特定文件系统位置的授权来配置app，比如Movies文件夹。
 - 当一个路径位于对世界均可读的目录内。
 
+与用户交互以扩张沙盒的OS X安全技术称为Powerbox。Powerbox没有API。你的app很直白地使用Powerbox，比如当你使用NSOpenPanel和NSSavePanel类时，又或者当用户使用drag及drop操作时。
 
+某些app操作更可能成为恶意开发(exploitation)的靶子。这样的实例很多，比如，对来自网络数据的解析，以及对视频帧的解码。通过使用XPC，你可以提高App沙盒提供的抗破坏效力，怎么做呢？把这些潜在的危险活动分配到它们自己的地址空间内。
+
+XPC是一项OS X进程间通信技术；通过赋能权限分离，它可以补充App沙盒。依次地，权限分离(privilege separation)是一项开发策略；在此策略下，根据每块需要的系统资源访问权，将app划分成若干块。你创建的这些组件被称为XPC服务。关于采用XPC的细节，可参见Daemons and Services Programming Guide。
+
+若寻求App沙盒及如何使用的完整解释，读一读App Sandbox Design Guide。
 #### 代码签名
+OS X采用被称为代码签名(code signing)的安全技术来确保你的app确实由你创建。在为app签名后，系统可捕捉到针对此app的任何改动，无论是意外引入的，还是恶意代码造成的。包括App沙盒及家长控制(parental controls)在内的多种安全技术均仰仗代码签名。
 
+在大多数情况下，你可以指望Xcode的自动代码签名功能，这仅需要你为工程在构建(build)设置中指定一个代码签名特性即可。关于代码签名app需采取的步骤均描述于Tools Workflow Guide for Mac。如果你需要将代码签名纳入到一个自动化构建系统内，或者将应用与第三方库链接起来，参考Code Signing Guide中描述的步骤！
+
+当你采用App沙盒时，你必须对app进行代码签名。这是因为权利(entitlement)被固化为app代码签名的一部分。
+
+OS X强化了app容器与代码签名间的连接。这项重要的安全特征确保没有其它沙盒内的app可访问你的容器。这项机制的工作流程如下：系统为一个应用创建容器后，每当拥有相同bundle ID的应用启动时，系统便会检查此应用的签名是否与容器期望的签名一致；如果系统探测到不一致，它将阻止应用的启动。
+
+为App沙盒内涵下代码签名的完整解释，可阅读App Sandbox Design Guide的Depth节。
 #### The Keychain
+钥匙串(keychain)是存储用户密码及其它密码的安全、已加密容器。设计它用于帮助用户管理他们的多个登录项，每一对ID及密码。你应当经常利用钥匙串为app存储敏感的证书。
 
+关于钥匙串的更多信息，可见Keychain Services Programming Guide中Keychain Services Concepts部分。
 <br/>
 # The Core App Design
 
