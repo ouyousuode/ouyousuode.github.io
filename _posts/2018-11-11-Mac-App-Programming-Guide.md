@@ -176,14 +176,45 @@ OS X强化了app容器与代码签名间的连接。这项重要的安全特征�
 钥匙串(keychain)是存储用户密码及其它密码的安全、已加密容器。设计它用于帮助用户管理他们的多个登录项，每一对ID及密码。你应当经常利用钥匙串为app存储敏感的证书。
 
 关于钥匙串的更多信息，可见Keychain Services Programming Guide中Keychain Services Concepts部分。
+
 <br/>
 # The Core App Design
+为释放OS X的能量，你使用Cocoa应用环境开发apps。Cocoa呈现app的用户界面，并将它与操作系统的其它组件紧密集成起来。Cocoa提供一个面向对象的软件组件的集成套件，这些软件组件被打包进两个核心类库，AppKit和Foundation框架，还有许多提供支持技术的基础框架。Cocoa类是可重用及可扩展的，你可以使用它们作为或者为某些特定要求扩展它们。
 
+创建这样的app，它采用了所有的约定及显露OS X的全部能量；Cocoa让这件事变得容易起来。实际上，无须添加任何代码，你便可以在Xcode创建一个新Cocoa应用，此应用具备些许功能。这样的一个app能够显示它的窗口(或创建新文档)以及实现很多标准的系统行为。虽然Xcode模板提供了一些使之发生的代码，但是它们提供的代码量是很少的。此中大部分行为是Cocoa自己提供的。
+
+为制作一款好用的app，你应当站在巨人(Cocoa)的肩膀上，充分利用它为你提供的开发惯例及基础设施。为了高效地完成它，理解一个Cocoa应用如何组合在一起是非常重要的。
+## 基本的设计模式
+---
+Cocoa在它的实现中纳入了很多设计模式。Table2-1列出了你应熟悉的关键设计模式。
+
+<img src="/images/posts/2018-11-11/Table2-1_0.png">
+<img src="/images/posts/2018-11-11/Table2-1_1.png">
 ## The App Style Determines the Core Architecture
 ---
+你的app风格规定了你在它的实现中必须使用哪种核心对象。Cocoa支持单窗口及多窗口app的创建。对多窗口设计而言，它还提供一个文档架构来帮助管理与每个app窗口相关联的文件。因此，apps可以有以下类型：
+- 单窗口工具型app
+- 单窗口库类型app
+- 多窗口基于文档的app
 
+在设计阶段，你应当尽早选择一种基本的app风格，因为此风格影响着你稍后要做的每件事。很多情形下，单窗口风格是首选，特别是对从iOS平台转过来的开发者。单窗口风格通常产生一种更为精简的用户体验，它也易于为app提供全屏模式的支持。然而，如果你的app广泛地处理复杂文档，那么多窗口风格可能是首选项，因为它提供更多与文档相关的架构来帮你实现app。
+
+拥自OS X的计算器应用是单窗口工具型app的一个例子。工具型apps通常处理短暂存在的数据或管理系统进程。计算器不会创建或处理任何文档或持久存在的用户数据，仅处理用户在单窗口的文本域输入的数值型数据，以及在相同区域显示它的计算结果。当用户退出app时，它处理的那些数据也被简单地丢弃了。
+
+<img src="/images/posts/2018-11-11/Figure2-1.png">
+单窗口、库类型(或“鞋盒”)apps处理那些持久存在的用户数据。一个库类型应用的最突出例子是iPhoto，显示于Figure2-2。iPhoto处理的用户数据是照片及其相关的元数据；应用编辑、显示以及存储它们。所有与iPhoto的用户交互均发生在一个单一的窗口。虽然iPhoto存储数据于文件内，但是它并不呈现这些文件给用户。此app呈现一个简化的界面，以便用户不必为了使用app而管理文件。相反，他们直接操作照片。此外，通过将文件放置于某个单一的package内，iPhoto将它们从Finder内的常规操作中隐去。另外，app在合适的时机将用户的编辑更改保存到硬盘中。如此，用户便从手动保存、打开、或关闭文档的工作中解脱出来了。此简单性是库类型app设计的一个主要优势。
+
+<img src="/images/posts/2018-11-11/Figure2-2.png">
+一个多窗口基于文档的app的好例子是TextEdit，它创建、显示、以及编辑那些包含纯文本或样式文本和图像的文档。TextEdit不会组织或管理它的文档；用户利用Finder做这件事。每个TextEdit文档展现在它自己的窗口内，多个文档可同时展现，并且用户利用window工具栏及app菜单栏中的控件与最前端的文档交互。Figure2-3显示了一个创建自TextEdit的文档。关于基于文档app设计的更多信息，可见Document-Based Apps Are Based on an NSDocument Subclass。
+
+<img src="/images/posts/2018-11-11/Figure2-3.png">
+单窗口和多窗口app两个都可以呈现一个高效的全屏幕模式，此模式提供一种沉浸式体验，而此体验可使用户专注于他们的工作而不分心(无暇他顾)。关于全屏幕模式，可见Implementing the Full-Screen Experiences。
 ### 所有Cocoa Apps的核心对象
+不管你是使用单窗口还是多窗口风格，所有的apps均使用相同的核心对象集。Cocoa为为大多数这些对象提供默认行为。你可以为这些对象提供一定程度的定制化以实现app的定制行为。
 
+Figure2-4展示了单窗口app格式之核心对象间的关系。根据对象是model、view或controller的哪一部分，他们被分隔开来。正如你从表中看到的，Cocoa提供的对象为app提供了大部分controller和view层。
+
+<img src="/images/posts/2018-11-11/Figure2-4.png">
 ### Additional Core Objects for Multiwindow Apps
 
 ### Integrating iCloud Support Into Your App
@@ -199,11 +230,34 @@ OS X强化了app容器与代码签名间的连接。这项重要的安全特征�
 
 ## App的生命周期
 ---
+App生命周期是它从启动到终止的过程。App可通过用户或系统来启动。用户可通过双击App图标，用Launchpad，抑或打开一个类型与App绑定的文件来启动此应用。在OS X v10.7及以后的版本中，当需要恢复用户的桌面到上一个状态时，系统会在用户登录时启动此App。
 
+当App启动后，系统为它创建一个进程和所有与之相关的系统数据结构。在进程内部，它创建一个主线程并用来执行App代码。至此时，App代码接管全部工作且App处于运行中。
 ### main函数是App入口点
+像任何基于C语言的应用一样，启动期Mac App的主入口点是main函数。在Mac App内，main函数仅被最低限度地使用。它的主要任务是交控制权予AppKit框架。任意在Xcode中创建的新工程都附带一个默认如List2-1所示的main函数。一般来说，你勿需改变其实现。
 
+<img src="/images/posts/2018-11-11/List2-1.jpg">
+NSApplicationMain函数初始化app并筹备其运行。作为初始化过程的一部分，此函数得做几件事：
+- 创建NSApplication类的一个实例。可用sharedApplication类方法在app内任意处访问此对象。
+- 加载Info.plist文件中键为NSMainNibFile的nib文件并实例化此文件内的全部对象。这是app的主nib文件，它应当包含应用delegate及其它任何必须在启动周期早期加载的关键对象。在启动期不需要加载的对象应放置在单独的nib文件中，且稍后需要时再加载。
+- 调用application对象的run方法来完成启动并开始处理事件。
+
+等到run方法被调用，应用的主要对象才被加载进内存，但是app仍未完全启动。run方法告知应用delegate应用即将启动，显示应用菜单栏，打开传给应用的任意文件，做一些框架管理工作，然后开启事件处理循环。所有这些工作均发生在应用主线程内。如果对应NSDocument对象的canConcurrentlyReadDocumentsOfType:类方法返回值为**YES**，文件可被打开于第二个线程。
+
+如果应用在启动周期间保留了用户界面，Cocoa会在启动期加载任何被保留的数据并用它重建最后一次打开的窗口。
 ### App的Main Event Loop驱动交互
+随着用户与app交互，应用的main event loop处理到来的事件并将它们分发给合适的对象来处理。当NSApplication对象初次创建时，它建立一个与系统窗口服务器的连接，窗口服务器收到来自底层硬件的事件后转发给app。app也会建立一个FIFO的事件队列来存储来自窗口服务器的事件。此main event loop随即负责出队及处理队列中正等待的事件，如Figure2-7所示。
 
+<img src="/images/posts/2018-11-11/Cocoa_0.jpg">
+<img src="/images/posts/2018-11-11/Figure2-7.png">
+NSApplication对象的run方法是main evnet loop的主力。在一个封闭的循环中，此方法执行以下步骤直至app终止：
+- 提供window-update通知的服务，此会引起任何标记为dirty的窗口进行重绘。
+- 利用nextEventMatchingMask:untilDate:inMode:dequeue:方法出队来自内部event队列中的事件，并将事件数据转化为NSEvent对象。
+- 利用NSApplication对象的sendEvent:方法把事件分发给合适的目标对象。
+
+在app分发事件时，sendEvent:方法利用事件的类型来决定合适的目标。总体来说，主要有两大类输入事件，即键盘事件和鼠标事件。key事件被发送给key window，即当前正接受key按压的窗口。鼠标事件被分发给事件发生的窗口。
+
+对鼠标事件而言，窗口首先寻找事件发生处的view并将事件分发给此视图对象。view是响应者对象，可以响应任意类型的事件。如果此view是一个control，它通常用此事件为它的关联target生成一个action消息。
 ### App的自动及快速终止提高用户体验
 
 ## 在应用中支持关键的运行时行为
@@ -221,7 +275,20 @@ OS X强化了app容器与代码签名间的连接。这项重要的安全特征�
 ### 用户界面
 
 ### 事件处理
+系统窗口服务器负责追踪鼠标、键盘及其它事件并将它们传递给app。当系统启动应用时，它为此app创建一个进程及一个单一的线程。这个初始线程就变成了应用的主线程。在主线程内，NSApplication对象建立main run loop及配置它的事件处理代码。如Figure2-10展示的那样。
 
+<img src="/images/posts/2018-11-11/Figure2-10.png">
+随着窗口服务器传送事件，app将这些事件加入队列，继而在app的main run loop处理它们。处理事件涉及到将事件分发给最适于处理它的对象。比如，鼠标事件通常被分发给事件发生处的视图处。
+
+run loop监视一个指定执行线程的输入源。应用的event queue代表这些输入源中的某一个。当事件队列为空时，主线程会休眠。当一个事件到达后，run loop唤醒主线程并将控制权调配给NSApplication对象以便处理事件。待处理完毕后，控制权返还给run loop，它才能再处理其它事件，处理其它输入源；若无事可做，便将线程放回休眠状态。关于run loop及输入源如何工作的更多信息，可见Threading Programming Guide。
+
+分发和处理事件是响应者对象的职责，它们是NSResponder类的实例。类NSApplication,NSWindow,NSDrawer,NSView,NSWindowController及NSViewController皆为NSResponder的派生类。从事件队列(event queue)取出一个事件后，app分发此事件给发生地的窗口对象(window object)，窗口对象依次转发此事件给它的第一响应者。就鼠标事件而言，第一响应者对象通常是触碰发生处的NSView对象。例如，发生在按钮上的鼠标事件就被传递给对应的按钮对象。
+
+如果第一响应者对象不能处理此事件，则转发此事件给它的下一个响应者，下一个响应者可能是父类视图、视图控制器、也或者是窗口对象。如果此级响应者也无法处理此事件，则转发此事件给它的下一层响应者，依次类推，直至事件被处理。此一系列连接起来的响应对象被称为响应链。消息继续前行经过响应链——朝向更高级的响应者对象，比如window controller或者application对象——直到此事件被处理。如果走到尽头，此事件仍未能得到处理，那么它只能被丢弃了。
+
+处理事件的响应者对象经常启动一系列程式化的动作。比方说，控制器对象(NSController的子类)处理事件是通过发送action消息给另一对象，此对象通常是管理当前活跃视图的控制器。当处理action消息时，控制器可能改变用户界面或者调整视图的位置以重绘自身。当此发生时，视图和图形基础设施接管此任务并且以尽可能最高效的方式处理此事件。
+
+若想了解关于响应者、响应链以及处理事件的的更多详情，可见Cocoa Event Handling Guide。
 ### 图形、绘制及打印
 
 ### 文本处理
