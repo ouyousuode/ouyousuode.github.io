@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Grand Central Dispatch
+title: 第22章  Grand Central Dispatch
 ---
 {{page.title}}
 =======================
@@ -25,13 +25,13 @@ Mac OS X 10.6及iOS 4引入了Grand Central Dispatch(GCD),它本质上使用了�
 Grand Central Dispatch是libdispatch库的营销(marketing)名称，它被内置于OS X C库，并且它的所有公开函数和类型均以dispatch为前缀。你可用任一程序来获取GCD的数据类型及函数，而且还不必牵扯任意额外的库及框架。开始使用GCD的所有条件仅是包含<dispatch/dispatch.h>头文件及调用它的函数。也需特殊的编译器和链接器标志。
 
 GCD整合了Foundation及Core Foundation的runloop架构。运行主线程的runloop抽空(drain)GCD的主队列。如果没在使用runloop，将不得不在主线程上调用dispatch_main()以抽空其主队列。
-## GCD术语
+## 22.1  GCD术语
 GCD任务是需要处理的事务，像渲染一个网页或显示一条来自社交网络的新信息。一个任务是你的应用想要达成的一个个分立目标。任务可依赖其他任务，它们也可被拆分为子任务。任务最终会被拆分为work项(work items)。
 
 work项是需要完成的独立工作块。对网页而言，这些工作将会是解析请求、访问数据库、运行模板引擎以及合并结果等等。
 
 任务构建自work项，work项又被放入队列。当work项运行时，分派(dispatching)发生。当它到达队列首位时，它会被委派给一个线程以使得工作可实际执行。GCD运行于thread(线程)之上的一层抽象。线程就变成了具体的实现细节。
-## 队列
+## 22.2  队列
 Dispatch队列是GCD的基础数据结构。一个队列就是包含work项的一个列表。根据定义，队列以FIFO(先进者先出)的方式排空。GCD维护一个线程池，在池内运行从队列取出的work项。work可被提交为一个block或者一个"函数指针/上下文"对。每个串行队列均由一个全局队列来支持。
 
 这有两种队列，即串行队列和全局队列。串行队列以FIFO方式分派和完成它们的work项。串行队列不会有两个同时执行的不同work项。这也是能串行访问敏感数据之所在。在主线程干活的主队列(main queue)便是一个串行队列。
@@ -44,12 +44,12 @@ Dispatch队列是GCD的基础数据结构。一个队列就是包含work项的�
 一个串行队列的优先级取决于它的目标队列的优先级。通过靶定一个串行队列到默认优先级全局队列上，它的work项就终以调度在默认优先级队列的工作队列中。重新靶定串行队列到高优先级全局队列将导致任意已入队却还未以默认优先级调度的work项运行在高优先级全局队列中(这句太长了)！
 
 串行队列是非常轻量级的数据结构，其体积以比特计而非几KB。但凡对设计有益，可创建任意多有专门用途的队，因为无须担心对其数据结构的管理工作。线程却没这么让人省心，它属于相当重量级的数据结构。那就是说，除非你有理由非得要串行运行work项，比如确保同一时间仅有单独一个线程操纵资源；否则，你应当直接将work项入队到一个全局队列中。
-## 面向对象设计
+## 22.3  面向对象设计
 虽然GCD纯以C语言实现，但是它是一个面向对象库。基本的GCD类型是指向不透明(opaque)数据结构的指针，然而也涉及到一个继承模型。dispatch对象的基类是dispatch_object_t。你从不会直接创建一个dispatch_object_t对象；相反，你创建比如队列(source)、源(source)及组(group)这样具体的对象。这也有几个类似dispatch_time_t、dispatch_once_t这样的类型，它们并非对象却属于半透明的标量类型。
 
 <img src="/images/posts/2018-12-09/dispatchClassesAndFunctions.jpg">
-现在可以一窥相关的Dispatch API了。
-## API之队列
+## 22.4  Dispatch API
+### 22.4.1 API之队列
 在你可以在队列上调度任务前，你需要掌握一个队列。可以利用
 ``` Objective-C
 dispatch_queue_t dispatch_get_main_queue(void);
@@ -77,7 +77,7 @@ dispatch_queue_t dispatch_queue_create(const char *label,dispatch_queue_attr_r a
 void dispatch_set_target_queue(dispatch_object_t object,dispatch_queue_t target);
 ```
 函数设置队列的目标队列。处理在彼队列中的work项会被放入此目标队列以获取最终的调度。可为任意GCD对象设置目标队列。对非队列的对象而言，这会告诉对象到哪去运行它的上下文指针指向的函数！
-## API之分派
+### 22.4.2 API之分派
 现在，你有了一个队列。拿它做点什么呢？你可把工作分给它。dispatch_async() 会扔一大摞工作到队列上，并随即返回。这些工作最终会找到通往全局队列的路，在那，这些要完成的工作运行于某线程中。因为这工作异步发生，所以有可能在dispatch_async()返回前，此要完成的工作已开始运行。如果工作量比较小，还有可能的是，在dispatch_async()返回前，要完成的工作不仅已开始，而且已经完成。
 
 GCD中的很多调用都有两个flavor：一个喂block，另一个拿函数(指针)作参数：
@@ -94,7 +94,7 @@ void dispatch_sync(dispatch_queue_t queue,void (^block)(void));
 需要小心的是，你不能对dispatch_sync()递归调用。若递归调用，则可导致死锁。此情形下，内层(innner)的同步分派不得不等着外层(outer)分派完成，而外层的dispatch_sync()直到内层结束才能完成。
 
 主线程上的runloop会触发GCD为主队列开始处理任务块(block)。如果你手头没有runloop，或者正运行于Core Foundation之下的层级中，你可利用void dispatch_main(void);。这个函数从不返回，它将永远循环，处理添加到主队列中的work项。dispatch_after()允许你安排一个运行于将来某个时间点的block。
-## API之内存管理
+### 22.4.3  API之内存管理
 Grand Central Dispatch接近OS X食物链的底部，居于系统库中。你不会碰到像垃圾收集这样的好事，因此有管理对象生命周期的API。像在Cocoa中，GCD使用引用计数(reference counting)。通过retain一个对象，来表达对它长期的兴趣：
 ``` Objective-C
 void dispatch_retain(dispatch_object_t object);
@@ -128,7 +128,7 @@ void dispatch_suspend(dispatch_object_t object);
 void dispatch_resume(dispatch_object_t object);
 ```
 经常用resume摆平(平衡)suspend是重要的；否则，像终结函数和canclelation handler就得不到调用。过度恢复一个对象也会导致程序崩溃；释放一个暂停的(挂起的)对象属于未定义范畴。
-## WordCounter
+## 22.5  WordCounter
 <img src="/images/posts/2018-12-09/wordCounter.png">
 此WordCounter程序不仅能计算文本域内单词的总数，还能计算到底有多少个不同的单词。这两个值更新在文本域中。此应用的代码是比较明确的，在Xcode中创建一个名叫WordCounter的新Cocoa App。像应用界面中那样，从对象库中取一个NSTextView，一个count按钮，一个进度提示器以及两个为不同计算的标签。简单配置对象的布局，更新工程代码：
 
@@ -163,7 +163,7 @@ Grand Central Dispatch 使“扔些任务到后台线程，再扔些任务到主
 在将来的某个时间点，此block会被从队列头部取出并运行。它做的第一件事就是调用-(void)getWordCount:addFrequencies:forString:。接着，另一个block被放进主队列。在未来的某个未指定的时刻，主队列的block开始运行，更新UI。
 
 使用GCD时，这是一种常见的编码模式。利用嵌套的block：外层的block放入队列，任务完成后，像洋葱般被剥掉；内层的block被放进队列，待此block运行后，它也被剥掉；一个更内层的block开始运行！
-## Iteration
+## 22.6  Iteration
 甚至简单如for循环迭代处理数据的任务也可由GCD增强。迭代一个数组并于每个元素执行操作的经典方式是通过使用循环(loop)。
 ``` Objective-C
 enum {
@@ -185,7 +185,7 @@ dispatch_apply(kNumberCount,queue,^(size_t index) {
 });
 ```
 这与NSArray的-enumerateObjectsWithOptions:usingBlock:很类似，当然在给它NSEnumerationCouncurrent选项的前提下。须确保的是，为dispatch_apply()使用一个全局队列。使用串行队列会串行化(序列化)你全部的工作，使任意并行化操作的尝试劳而无功。
-## 安全的全局初始化(Safe Global Initialization)
+## 22.7  安全的全局初始化(Safe Global Initialization)
 有时你需要执行只有一次的(one-time)初始化，并且无论有多少线程在想着初始化发生，你都只能执行一次此操作。这经常用于懒初始化，或使用单例模式时，创建那唯一的真对象。虽然有一个称为Double-Clicked Locking技术，但难在正确使用。可pthread_one()来序列化一个只有一次的(one-time)初始化。当然，也可以使用dispatch_once()。
 ``` Objective-C
 void dispatch_once(dispatch_once_t *predicate,void (^block)(void));
@@ -198,7 +198,7 @@ dispatch_once(&initializationPredicate,^{
 });
 ```
 其中，dipatch_once_t被用作守护变量，不论有多少线程和内核想着初始化发生，dispatch_once()将仅会准确地执行一次它的block！如果可能的话，尽量使用与pthread功能相似的dispatch族函数。这些dispatch函数有着最好的性能表现。
-## Time,Time,Time
+## 22.8  Time,Time,Time
 当处理真实世界的代码时，经常需要和时间打交道，无论是有一些过会儿便超时的调用，还是安排发生在特定时间的事儿。GCD称这些时间为“时间里程碑”，并且以dispatch_time_t展现它们。此类型是一个“semi-opaque(半透明)”整型；它有一个整型(数)值，但是其内容易受改变。时间可被表达为针对其它时刻的相对时间，也可以是两个非常易分辨的时刻——现在(now)和永远(forever)：
 ``` Objective-C
 static const dispatch_time_t DISPATCH_TIME_NOW = 0;
@@ -247,7 +247,7 @@ void dispatch_after(dispatch_time_t when,
 					void (^block)(void));
 ```
 此函数入队一个指定时间后才运行的work项(work item)。向dispatch_afer()传入DISPATCH_TIME_NOW与调用diaptch_async()有异曲同工之妙。
-## Dispatch群组
+## 22.9  Dispatch群组
 有时，你想把工作分散于几个不同的队列中，然后擎等着它们完成。比如说,(在服务器)渲染页面可能涉及到访问数据库、渲染文本以及追加任意留在页面上的评论。
 
 一个dispatch_group就是包含block的一个集合。这些块被异步地分散于队列中。为创建一个追踪块集合地group，可用：
@@ -311,7 +311,32 @@ void groovy_dispatch_group_async(dispatch_group_t group,
 ```
 此处有一个有意思的关键点：在enter前，group被持有(retain),并且直到leave后才释放(release)。这会阻止group在被调用和销毁前becoming empty。在分派work项前进入组，在实质work项结束后离开。并且，需要清醒认识的是：在dispatch组内仍有work项时就归置它，应用会崩溃。重复离开group也会引起崩溃。
 
-##  GCD或者NSOperation ?
+## 22.10  Dispatch源
+Dispatch源(source)代表事件流。当一个与dispatch source相关的事件发生时，一个事件handler(比如一个block)会被安排到一个设定好的队列中。可用GCD函数生成一个新的dispatch源：
+``` Objective-C
+dispatch_source_t dispatch_source_create(dispatch_source_type_t type,
+						 uintptr_t handle,
+						 unsigned long mask,
+						 dispatch_queue_t queue);
+```
+type是以下几个常量中的一员：
+``` Objective-C
+DISPATCH_SOURCE_TYPE_DATA_ADD
+DISPATCH_SOURCE_TYPE_DATA_OR
+DISPATCH_SOURCE_TYPE_MACH_SEND
+DISPATCH_SOURCE_TYPE_MACH_RECV
+DISPATCH_SOURCE_TYPE_PROC
+DISPATCH_SOURCE_TYPE_READ
+DISPATCH_SOURCE_TYPE_SIGNAL
+DISPATCH_SOURCE_TYPE_TIMER
+DISPATCH_SOURCE_TYPE_VNODE
+DISPATCH_SOURCE_TYPE_WRITE
+```
+鉴于你已在kqueue()见到了signal、sockets、files以及process，所以这些常量应该挺相似的。当然，也有不同的，如mach消息。也可以创造自己的定制source以处理GCD内其它种类的事件。Dispatch源就像使用kqueue()但无需创建你自己的kernel队列。当有新事件发生时，你的block就被自动调度到队列中。
+
+handle与mask参数到期望值依赖你正创建的dispatch源类型。比如，signal源类型会用signal号码作为handle。
+
+## 22.12  GCD或者NSOperation ?
 现在，已见识到了构建代码以支持面向任务并行化的两种不同方式，即NSOperation和Grand Central Dispatch。
 
 使用GCD时，针对某个特定的代码倾向于集中于一处。你有一个干活的block，然后放一些block到其它队列来完成其它工作，简直是一完美的剥洋葱故事。GCD执行地很快，几乎没有与之有牵连的累赘。也没有对KVO的依赖。GCD调用倾向于更点对点化，处理"I will just put this here to run this on the main queue"类的事。另外，复制、粘贴及创建处理相同任务的类似block是非常容易的。
@@ -319,20 +344,4 @@ void groovy_dispatch_group_async(dispatch_group_t group,
 NSOperation倾向于使代码更分散。实现一个操作的代码通常在它自己的类中且有自身的源代码。Operation(操作)位于一种更高层级的抽象中。NSOperation允许Operation间的依赖。在GCD中构建类似功能可能会比较复杂，因为需要构建dispatch组，利用可计算的信号量来进行控制。Operation也易于取消，但在Group中，你须创造自己的取消机制。最后，Operation经常表示为类，所以它们是更具体的可重用对象。
 
 如果你需要在后台完成一些工作，你需要慎重考虑使用GCD还是NSOperation以拆分这些工作。当然了，离原生线程越远，你会越高兴。
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
