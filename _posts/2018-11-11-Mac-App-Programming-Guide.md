@@ -4,21 +4,21 @@ title: Mac App Programming Guide
 ---
 {{page.title}}
 ==================================
-# 关于OS X App设计
+# 前言、关于OS X App设计
 本文档是学习如何创建Mac应用的起点。它包含有关OS X环境的基本信息，以及你的应用如何与环境交互。它也包含关于Mac应用架构的重要信息，和设计app关键部分的一些技巧。
 
 <img src="/images/posts/2018-11-11/MacAppProgrammingGuide_0.png">
-## At a Glance
+## 0.1  At a Glance
 ---
 Cocoa是解锁OS X全部力量的应用环境。Cocoa提供APIs、库以及运行时(runtimes)，此三者可帮你创建快速、令人惊叹的应用；这些应用自动继承OS X的漂亮外观及feel。
 
-### Cocoa帮你创建OS X应用
+### 0.1.1  Cocoa帮你创建OS X应用
 开发者使用Cocoa为OS X编写应用，Cocoa为你的程序提供大量的基础设施。贯穿Cocoa的基本设计模式可使你的app与子系统框架无缝衔接，核心的应用对象提供关键行为以支持简单性及应用架构的可扩展性。Cocoa环境的关键部分专门设计成支持易用性；易用性是促使Mac app成功的最重要的一方面。通过消除在设备间同步数据的需要，很多应用应采纳iCould以提供一个更连贯的用户体验。
-### Common Behaviors Make Apps Complete
+### 0.1.2  Common Behaviors Make Apps Complete
 在创建app的设计阶段，你需要考虑如何实现用户期望的某些特征。将这些特征集成进你的app架构可对用户体验留有影响：可访问性，偏好性，Spotlight，服务，分辨率无关性，快速用户切换以及Dock。使你的app采用全屏幕模式，占据整块屏幕，向用户提供一个更逼真的观影体验，也促使他们关注自己的内容而无暇他顾。
-### 正确理解：满足系统及App Store的要求
+### 0.1.3  正确理解：满足系统及App Store的要求
 恰当地配置app是开发过程的重要部分。Mac apps使用一个称为bundle的结构化目录管理他们的代码及资源文件。虽然大部分文件是定制的，且为支持app而存在；但是，有些却为系统或App Store所需，因此，必须恰当配置。应用bundle也包含一些你提供的用于国际化app以支持多种语言的资源。
-### Finish Your App with Performance Tuning
+### 0.1.4  Finish Your App with Performance Tuning
 随着你开发应用及工程代码稳定后，可以着手性能优化了。当然，你想你的app尽可能快速地启动及响应用户的命令。一个反应灵敏的app可容易地纳入进用户的工作流中，并且给人一种制作精良的印象。可通过加速启动及减小代码体积来提高app的性能。可参考的资料有：
 - WWDC 2013 224 Designing Code for Performance
 - WWDC 2013 408 Optimizing Your Code Using LLVM
@@ -30,12 +30,12 @@ Cocoa是解锁OS X全部力量的应用环境。Cocoa提供APIs、库以及运�
 
 ...
 
-## 如何使用本文档
+## 0.2  如何使用本文档
 ---
 本指南向你介绍在写App时遇到的最重要的技术。在此指南中，你将看到写一个app需要的方方面面。也就是说，本文向你展现你需要的所有片段，以及如何把他们拼装在一起。仍有本文未谈及的app设计的重要部分，比如用户界面设计。然而，本文包括提供细节的其它文档的链接。
 
 除此之外，本指南强调了在OS X v10.7引入的特定技术，这些技术提供了一些与老旧版本相区别的必要能力；这些能力来自iOS平台最出色的功能，可赋予应用卓越的易用性。
-## See Also
+## 0.3  See Also
 ---
 下面的文档提供了关于设计Mac应用的额外信息，也包括本指南中涉及话题的更多详情:
 - 为浏览一篇展示如何创建一个Cocoa app的教程，参见Start Developing Mac Apps Today。
@@ -45,11 +45,11 @@ Cocoa是解锁OS X全部力量的应用环境。Cocoa提供APIs、库以及运�
 - 为理解如何实现一个基于文档的app，参见Document-Based App Programming Guide For Mac。
 
 <br/>
-# The Mac Application Environment
+# 一、The Mac Application Environment
 OS X吸收了最新的技术用以创建强劲且有趣的应用。但是，技术本身并不足以使每个应用都伟大(great)。将一个app与其同类区分开来的是它怎样帮用户实现某些确定的目标。毕竟，用户不会去关心一个app使用了什么技术，只要它能帮助完成需要的任务即可。妨碍用户的app将被遗忘，但是把工作变得容易或把游戏变得更有趣的app将被记住。
 
 你使用Cocoa为OS X编写应用。Cocoa给你所有OS X特征的使用权限，并允许你将app与系统的剩余部分干净地集成在一起。本章节涉及帮你创建伟大app的OS X关键部分。特别是，此章描述了在OS X v10.7引入的一些重要易用(ease-of-use)技术。若想浏览OS X中更多可用的技术，可参考Mac Technology Overview。
-## An Environment Designed for Ease of Use
+## 1.1  An Environment Designed for Ease of Use
 ---
 OS X努力提供的环境是对用户尽可能易懂易用的。通过将困难任务简单化，系统使用户更具创造力变得容易起来，并且花费更少的时间来担心需要使电脑工作的工作。当然，简化任务意味着你的app不得不做更多的工作，但是OS X也会在这些方面提供帮助。
 
@@ -65,17 +65,17 @@ OS X努力提供的环境是对用户尽可能易懂易用的。通过将困难�
 
 以上种种特征，均由Cocoa支持；付出少许努力便可集成到开发的应用中。
 
-## 久经考验的图形境
+## 1.2  久经考验的图形境
 ---
 高质量的图形图像及动画可使app看起来great，并传达很多信息给用户(一图胜千言)。尤其，动画是提供关于用户界面变化的反馈的良好方式。因此，当你设计app时，可将以下观点谨记于心：
 - 使用动画提供反馈及传达变换。Cocoa为快速创建复杂的动画提供支持，这些支持包含在AppKit和Core Animation框架内。想了解有关创建基于视图的动画信息，见Cocoa Drawing Guide。关于利用Core Animation创建动画，可参考Core Animation Programming Guide。
 - 包括美术图片及图像的高分辨率版本。当app运行在一个尺度因子大于1.0的屏幕时，OS X自动加载高分辨率图像资源。包含这样的图像资源可使app在高分辨率屏幕上的图像看起来更锐利(sharper)、更脆(crisper)。
 
 关于适用于OS X的图像技术，参见Media Layer in Mac Technology Overview。
-## Runtime环境的底层细节
+## 1.3  Runtime环境的底层细节
 ---
 当你准备编写实际代码时，有很多促使编码工作变容易的可用技术。OS X支持全部的基本功能，比如内存管理，文件管理，网络及并发；你需要使用它们来编写自己的代码。在某些情况下，虽然OS X也提供更为复杂的服务，但遵此行事，可使编写代码更容易。
-### 基于UNIX
+### 1.3.1  基于UNIX
 OS X由一个64位的Mach内核提供动力，此内核管理处理器资源、内存以及其它的底层行为。在内核的顶部，坐落着一个修改过的Berkeley Software Distribution(BSD)操作系统版本，它向app提供用以与底层系统打交道的接口(interfaces)。Mach和BSD的组合为app提供以下的系统级支持：
 - 抢占式多任务 —— 全部进程更有效地共享CPU。内核调度进程，以确保它们皆能接收需要运行的时间的方式。甚至，后台app也能继接收CPU时间来执行正运行的任务。
 - 受保护的内存 —— 每个进程运行在它们自己的受保护内存空间内，如此可阻止进程间相互打扰。(Apps可以共享部分内存空间以实现快速的进程间通信，但是它们必须负责恰当地同步及锁定此内存。)
@@ -83,13 +83,13 @@ OS X由一个64位的Mach内核提供动力，此内核管理处理器资源、�
 - 网络和Bonjour —— OS X为标准的网络协议及现今使用的服务提供支持。BSD socket为app提供底层的通信机制，但是高级接口也存在。通过提供一种通知及连接TCP/IP之上的网络服务的动态方式，Bonjour简化了用户交流的体验(networking experience)。
 
 为OS X底层环境的详细信息，可参考Mac Technology Overview中的Kernel and Device Drivers Layer一节。
-### 并发与线程化
+### 1.3.2  并发与线程化
 每个进程都以一个单一的线程开始，而后根据所需创建更多线程。虽然可以利用POSIX和其它高级接口来直接创建线程，但是对大部分工作而言，利用block对象与Grand Central Dispatch(GCD)或operation对象非直接地创建它们更好！其中，operation对象是用NSOperation类实现的一种Cocoa并发技术。
 
 GCD与operaion对象是针对原始线程的一种替代选择，它们可以简化或者消除与线程化编程相关的诸多问题，比如同步和加锁。尤其是，它们定义了一个异步编程模型；在此模型内，你可指定想执行的工作以及执行它的顺序。系统随即处理需要调度必需线程的繁杂工作，以及在当前硬件上尽可能高效地执行你的任务。对于时间敏感性的数据处理任务，你不应使用GCD或者operation，但是，你可以利用它们处理大部分其它类型的任务。
 
 关于在app中使用GCD和operation对象实现并发操作的更多信息，可以参考Concurrency Programming Guide。
-### 文件系统
+### 1.3.3  文件系统
 OS X的文件系统被精心组织为用户提供更好的体验。Finder将普通用户不应使用的文件及目录隐藏起来，比如底层UNIX目录的内容；而不是向用户暴露整个文件系统。对终端用户而言，此举可提供一个更简单的界面。Apps仍然可以访问它们有权限的任意文件及目录，不管它们是否被Finder隐藏。
 
 当创建app时，你应理解并遵循这些与OS X文件系统有关的惯例。清楚在哪放文件以及如何从文件系统获得信息确保一个更好的用户体验。
@@ -137,7 +137,7 @@ Table1-1列出了apps经常打交道的目录。其中有些在home目录内，�
 - 如果用户显式地在一个备用位置存储数据，你的应用也可以写入此位置。
 
 <br/>
-### 安全性
+### 1.3.4  安全性
 OS X的安全技术帮你守护app创建或管理的敏感数据，以及最小化来自恶意代码攻击的伤害。这些技术影响你的app如何与系统资源及文件系统打交道。
 #### App沙盒和XPC
 通过遵照Secure Coding Guide中推荐的实践，你可以保护app以免受来自流氓软件的攻击。但是，攻击者只需找到防卫中的一个单一漏洞，或者你链接的框架和库中的任一漏洞，便可以获得对你的app的控制权。
@@ -178,19 +178,19 @@ OS X强化了app容器与代码签名间的连接。这项重要的安全特征�
 关于钥匙串的更多信息，可见Keychain Services Programming Guide中Keychain Services Concepts部分。
 
 <br/>
-# The Core App Design
+# 二、The Core App Design
 为释放OS X的能量，你使用Cocoa应用环境开发apps。Cocoa呈现app的用户界面，并将它与操作系统的其它组件紧密集成起来。Cocoa提供一个面向对象的软件组件的集成套件，这些软件组件被打包进两个核心类库，AppKit和Foundation框架，还有许多提供支持技术的基础框架。Cocoa类是可重用及可扩展的，你可以使用它们作为或者为某些特定要求扩展它们。
 
 创建这样的app，它采用了所有的约定及显露OS X的全部能量；Cocoa让这件事变得容易起来。实际上，无须添加任何代码，你便可以在Xcode创建一个新Cocoa应用，此应用具备些许功能。这样的一个app能够显示它的窗口(或创建新文档)以及实现很多标准的系统行为。虽然Xcode模板提供了一些使之发生的代码，但是它们提供的代码量是很少的。此中大部分行为是Cocoa自己提供的。
 
 为制作一款好用的app，你应当站在巨人(Cocoa)的肩膀上，充分利用它为你提供的开发惯例及基础设施。为了高效地完成它，理解一个Cocoa应用如何组合在一起是非常重要的。
-## 基本的设计模式
+## 2.1  基本的设计模式
 ---
 Cocoa在它的实现中纳入了很多设计模式。Table2-1列出了你应熟悉的关键设计模式。
 
 <img src="/images/posts/2018-11-11/Table2-1_0.png">
 <img src="/images/posts/2018-11-11/Table2-1_1.png">
-## The App Style Determines the Core Architecture
+## 2.2  The App Style Determines the Core Architecture
 ---
 你的app风格规定了你在它的实现中必须使用哪种核心对象。Cocoa支持单窗口及多窗口app的创建。对多窗口设计而言，它还提供一个文档架构来帮助管理与每个app窗口相关联的文件。因此，apps可以有以下类型：
 - 单窗口工具型app
@@ -209,7 +209,7 @@ Cocoa在它的实现中纳入了很多设计模式。Table2-1列出了你应熟�
 
 <img src="/images/posts/2018-11-11/Figure2-3.png">
 单窗口和多窗口app两个都可以呈现一个高效的全屏幕模式，此模式提供一种沉浸式体验，而此体验可使用户专注于他们的工作而不分心(无暇他顾)。关于全屏幕模式，可见Implementing the Full-Screen Experiences。
-### 所有Cocoa Apps的核心对象
+### 2.2.1  所有Cocoa Apps的核心对象
 不管你是使用单窗口还是多窗口风格，所有的apps均使用相同的核心对象集。Cocoa为为大多数这些对象提供默认行为。你可以为这些对象提供一定程度的定制化以实现app的定制行为。
 
 Figure2-4展示了单窗口app格式之核心对象间的关系。根据对象是model、view或controller的哪一部分，他们被分隔开来。正如你从表中看到的，Cocoa提供的对象为app提供了大部分controller和view层。
@@ -219,7 +219,7 @@ Table2-2描述了图表中各对象扮演的角色。
 
 <img src="/images/posts/2018-11-11/Table2-2_0.png">
 <img src="/images/posts/2018-11-11/Table2-2_1.png">
-### Additional Core Objects for Multiwindow Apps
+### 2.2.2  Additional Core Objects for Multiwindow Apps
 与单窗口app相反，一个多窗口app使用多个窗口来呈现它的主要内容。对多窗口apps的Cocoa支持构建在一个基于文档的模型周围，此模型由一个称为**document architecture**的子系统实现。在此模型内，每个文档对象管理它的内容，协调自硬盘对内容的读写，以及在窗口内呈现内容。所有的文档对象与Cocoa底层架构合作以协调事件的传输，但是文档之间是相互独立的。
 
 Figure2-5显示了一个多窗口文档app的核心对象间的关系。此图内的很多对象与单窗口app使用的对象相同。主要区别是NSDocumentController的插入，以及在应用对象与管理用户界面的对象之间放置的NSDocument对象。
@@ -228,7 +228,7 @@ Figure2-5显示了一个多窗口文档app的核心对象间的关系。此图�
 Table2-3描述了插入的NSDocumentController及NSDocument对象的角色。关于图中其它对象的角色信息，见Table2-2。
 
 <img src="/images/posts/2018-11-11/Table2-3.png">
-### 向app集成iCloud支持
+### 2.2.3  向app集成iCloud支持
 不论如何存储app的数据，iCloud是使数据在用户所有的设备均可用的一种便捷方式。为将iCloud集成进app，当存储用户文件时，你做些改变。你存储文件于称为ubiquity container的特殊文件系统处，而非用户的Home文件夹或App沙盒容器内。一个ubiquity container作为对应iCloud存储的本地代表。它位于App沙盒容器的外部，所以需要为app赋予相应的权利才可与之交互。
 
 除了对文件系统位置的更改，你的app设计需要声明你的数据模型是服务于多进程的。以下的考虑事项：
@@ -237,19 +237,19 @@ Table2-3描述了插入的NSDocumentController及NSDocument对象的角色。关
 - 为存储少量数据于iCloud，你可使用键-值(key-value)存储。使用键-值存储为以下事物，诸如股票或天气信息，位置，书签，一个近期文档列表，设置及首选项，以及简单的游戏状态等。每个iCloud app都应充分利用key-value存储的优势。为与key-value存储交互，你使用共享的NSUbiquitousKeyValuesStore对象。
 
 为学习如何在app中采用iCloud，读一读iCloud Design Guide。
-### 鞋盒式Apps不应使用NSDocument
+### 2.2.4  鞋盒式Apps不应使用NSDocument
 当实现一个单窗口、鞋盒式(有时也指“库”风格)app时，最好不用NSDocument对象管理你的内容。NSDocument类被专门设计在多窗口文档app中使用。相反，使用定制的控制器对象管理你的数据。这些定制化控制器将与某个视图控制器或应用的主窗口控制器合作以协调数据的显示。
 
 虽然你通常仅使用一个NSDocumentController对象于多窗口apps，但是你可以继承它并在单窗口app中使用它，以调整Open Recent及类似行为。当继承时，你必须重写与NSDocument对象创建相关的任意方法。
-## 基于文档的Apps建立在NSDocument子类的基础上
+## 2.3  基于文档的Apps建立在NSDocument子类的基础上
 ---
 对存储于文件和iCloud的用户数据而言，文档是容器。在一个基于文档的设计内，app允许用户去创建及管理包含他们数据的文档。一个app通常处理多个文档，每个文档在它自己的窗口内；常常同时展示不止一个文档。比如，一个字处理器(word processor)提供用于创建新文档的命令；它呈现一个编辑环境，在此环境内，用户输入文本或者嵌入图形；它保存数据到硬盘(也可能是iCloud)；它提供其它与文档相关的命令，比如打印及版本管理。在Cocoa，基于文档的app设计由文档架构(document architecture)提供支持，此架构是AppKit框架的一部分。
-### OS X内的文档
+### 2.3.1  OS X内的文档
 可以有多种方式来看待文档。概念上讲，文档就是一个针对信息体的容器，此信息体可被命名及存储在一个硬盘文件或iCloud中。从这个角度说，文档(document)与文件(file)不同；它是位于内存中的一个对象，拥有并管理文档数据。对用户而言，文档是他们点信息，比如文本(text)及格式化在页面上的图形。从编程角度看，一份文档就是一定制NSDocument子类的一个实例，此子类清楚如何呈现这些可显示在窗口的内部持久性数据。此文档对象知道如何从文件读取文档数据；知道如何为文档数据模型在内存创建一个对象图。它也知道如何处理用户的编辑命令以修改数据模型，知道如何将文档数据写回到硬盘。因此，正如在Figure2-6显示的这般，文档对象调解于文档数据的不同表现形式之间。
 
 <img src="/images/posts/2018-11-11/Figure2-6.png">
 使用iCloud后，文档可在用户的电脑及iOS设备间自动共享。无须用户的干涉，对文档数据的更改即可自动同步。关于iCloud的信息，可见“向app集成iCloud支持”一节。
-### 文档架构义务提供许多能力
+### 2.3.2  文档架构义务提供许多能力
 当你设计app时，基于文档的风格是你应当考虑的一种设计选择。如果创建这样的多个离散数据集对用户意义非常，其中，每个数据皆可在图形化环境编辑，在文件或iCloud存储，此时，你的确应当计划开发一款基于文档的app。
 
 Cocoa文档架构为基于文档的app提供了一个框架，执行以下任务：
@@ -264,12 +264,12 @@ Cocoa文档架构为基于文档的app提供了一个框架，执行以下任务
 - **Handle app and window delegation.** 在重大生命周期事件时，比如app终止时，app将发送通知且调用delegate方法。
 
 关于如何实现一个基于文档的app，更多细节可见Document-Based App Programming Guide for Mac。
-## App的生命周期
+## 2.4  App的生命周期
 ---
 App生命周期是它从启动到终止的过程。App可通过用户或系统来启动。用户可通过双击App图标，用Launchpad，抑或打开一个类型与App绑定的文件来启动此应用。在OS X v10.7及以后的版本中，当需要恢复用户的桌面到上一个状态时，系统会在用户登录时启动此App。
 
 当App启动后，系统为它创建一个进程和所有与之相关的系统数据结构。在进程内部，它创建一个主线程并用来执行App代码。至此时，App代码接管全部工作且App处于运行中。
-### main函数是App入口点
+### 2.4.1  main函数是App入口点
 像任何基于C语言的应用一样，启动期Mac App的主入口点是main函数。在Mac App内，main函数仅被最低限度地使用。它的主要任务是交控制权予AppKit框架。任意在Xcode中创建的新工程都附带一个默认如List2-1所示的main函数。一般来说，你勿需改变其实现。
 
 <img src="/images/posts/2018-11-11/List2-1.jpg">
@@ -281,7 +281,7 @@ NSApplicationMain函数初始化app并筹备其运行。作为初始化过程的
 等到run方法被调用，应用的主要对象才被加载进内存，但是app仍未完全启动。run方法告知应用delegate应用即将启动，显示应用菜单栏，打开传给应用的任意文件，做一些框架管理工作，然后开启事件处理循环。所有这些工作均发生在应用主线程内。如果对应NSDocument对象的canConcurrentlyReadDocumentsOfType:类方法返回值为**YES**，文件可被打开于第二个线程。
 
 如果应用在启动周期间保留了用户界面，Cocoa会在启动期加载任何被保留的数据并用它重建最后一次打开的窗口。
-### App的Main Event Loop驱动交互
+### 2.4.2  App的Main Event Loop驱动交互
 随着用户与app交互，应用的main event loop处理到来的事件并将它们分发给合适的对象来处理。当NSApplication对象初次创建时，它建立一个与系统窗口服务器的连接，窗口服务器收到来自底层硬件的事件后转发给app。app也会建立一个FIFO的事件队列来存储来自窗口服务器的事件。此main event loop随即负责出队及处理队列中正等待的事件，如Figure2-7所示。
 
 <img src="/images/posts/2018-11-11/Cocoa_0.jpg">
@@ -294,7 +294,7 @@ NSApplication对象的run方法是main evnet loop的主力。在一个封闭的�
 在app分发事件时，sendEvent:方法利用事件的类型来决定合适的目标。总体来说，主要有两大类输入事件，即键盘事件和鼠标事件。key事件被发送给key window，即当前正接受key按压的窗口。鼠标事件被分发给事件发生的窗口。
 
 对鼠标事件而言，窗口首先寻找事件发生处的view并将事件分发给此视图对象。view是响应者对象，可以响应任意类型的事件。如果此view是一个control，它通常用此事件为它的关联target生成一个action消息。
-### App的自动及快速终止提高用户体验
+### 2.4.3  App的自动及快速终止提高用户体验
 在OS X v10.7及以后的版本中，终止app的Quit命令之使用被弱化了很多，以支持更以用户为中心的技术。尤其是，Cocoa支持两种使app终止更为平滑且迅速的技术：
 - Automatic termination为用户消除了退出app的需要。相反，系统在场景背后平滑地管理app终止，自动终止那些没在使用的app以重新声明比如内存这样的被需要资源。
 - Sudden termination允许系统立即杀掉app的进程而无需等它执行某些最终的动作。系统用此技术来提高以下操作的速度，诸如退出、重启或关机。
@@ -306,10 +306,10 @@ Automatic termination将管理进程的工作从用户转移到系统，而系�
 Apps必须选择此二者终止方式并为它们提供恰当的支持。在这两种情况下，app必须确保终止发生前用户数据已保存。因为用户不会退出一个可自动退出的app，这样一个app也应当利用内建的Cocoa支持保存用户界面的状态。保存及恢复界面状态为用户提供一种连续感。
 
 关于如何在app中支持automatic termination，可见“自动终止(Automatic Termination)”。关于如何支持sudden termination，见“快速终止(Sudden Termination)”。
-## 在App中支持关键的运行时行为
+## 2.5  在App中支持关键的运行时行为
 ---
 无论你正创建的app是什么风格，都存在一些所有app均应支持的特定行为。这些行为的目的是帮助用户聚焦它们正创建的内容，而不是关注app管理及其它并非内容创建的繁琐工作。
-### 自动终止(Automatic Termination)
+### 2.5.1  自动终止(Automatic Termination)
 自动终止是你必须在app中显式编码的一个特征。声明对自动终止的支持容易，但是app需要与系统合作来保存用户界面的当前状态，以便随后根据所需再恢复它们。系统可随时为自动终止app杀掉底层的进程，因此保存此类信息可为app保持感官上的连续性。通常情况下，在用户关掉app的全部窗口一段时间后，系统杀掉此app的底层进程。不过，如果app当前未在屏幕显示，可能因用户将其隐藏了或者切换到其它空间了，无论什么原因，系统也可能杀掉这种带窗口的app。
 
 为支持自动终止，你应当完成以下几件事：
@@ -341,7 +341,7 @@ Apps必须选择此二者终止方式并为它们提供恰当的支持。在这�
 - 每当用户对app数据做出有效更改时
 
 最后一条意味着你有随时保存用户数据的自由。比如，如果用户正在编辑数据记录字段(fields of a data record)，当任一字段值改变时，你可以保存它；或者你可以等到用户显示新字段时，再保存全部字段。此类增量更改确保了数据总是最新的，但是也需要更细粒度地管理数据模型。在这样的一个实例中，Core Data可帮你更容易地做出改变。关于Core Data的信息，可见Core Data Starting Point。
-### 快速终止(Sudden Termination)
+### 2.5.2  快速终止(Sudden Termination)
 快速终止让系统知道，在没有app任何额外的参与下，它可被系统直接杀掉。支持快速终止的好处是让系统更快速地关闭app；当用户在关机或退出时，此举非常重要。
 
 app有两种方式以声明对快速终止的支持：
@@ -355,7 +355,7 @@ app有两种方式以声明对快速终止的支持：
 动态地启用与禁止快速终止也意味着，你的app应当不断地保存数据，并且不能仅依赖用户动作来保存重要信息。确保app数据能被保存的最好方式为to support the interfaces in OS X v10.7 for saving your document and window state.这些界面帮助相关用户及app信息的自动化保存。关于保存用户界面状态的更多信息，可见"用户界面保存(User Interface Preservation)"。关于保存文档的更多信息，见"基于文档的Apps建立在NSDocument子类的基础上(Document-Based Apps Are Based on an NSDocument Subclass)"。
 
 关于启用和禁止快速终止的额外信息，见NSProcessInfo Class Reference。
-### 用户界面保存
+### 2.5.3  用户界面保存
 在OS X v10.7及以后的版本中，Resume特性保存app窗口的状态，以及在随后的app启动中恢复它们。对窗口状态的保存允许你将app返回到用户最后使用时的状态。如果你的应用支持自动终止，尤其应使用Resume特性；因为自动终止条件下，当app运行于对用户隐藏的情况下，可引发app被系统终止。如果你的app支持自动终止，但是未保存它的界面，app进入它的默认状态。仅转离你app的用户可能会以为此app崩溃了。
 #### Writing Out the State of Your Windows and Custom Objects
 你必须完成以下几件事来保存用户界面的状态：
@@ -396,13 +396,13 @@ app数据应当独立存储于app管理的data文件内。
 
 在启动周期，Cocoa依下列各项恢复每个被保存的窗口：
 
-1.Cocoa从被保存数据处取得窗口的恢复类，以及调用它的restoreWindowWithIdentifier:state:completionHandler:类方法。
+1.Cocoa从被保存数据处取得窗口的恢复类，并调它的**restoreWindowWithIdentifier:state:completionHandler:**类方法。
 
-2.restoreWindowWithIdentifier:state:completionHandler:类方法必须调用提供的  completion handler with the desired窗口对象。为达成此目的，须完成以下：
+2.**restoreWindowWithIdentifier:state:completionHandler:**类方法必须调用提供的  completion handler with the desired窗口对象。为达成此目的，须完成以下：
 - 它创建任何可能用于显示窗口的相关控制器对象(包括窗口控制器)。
 - 如果控制器对对象已经存在(可能因为它们已从nib文件中加载),此方法从这些存在的对象处得到窗口(window)。
 
-如果窗口不能被创建，可能因为相关的文档已被用户删除，restoreWindowWithIdentifier:state:completionHandler:应传递一个error对象给completion handler。
+如果窗口不能被创建，可能因为相关的文档已被用户删除，**restoreWindowWithIdentifier:state:completionHandler:**应传递一个error对象给completion handler。
 
 3.Cocoa使用返回的窗口来恢复它及任意被保存的响应者对象到它们以前的状态。
 - 在没有额外帮助下，标准的Cocoa窗口及视图对象便恢复到它们以前的状态。如果子类化(继承)了NSWindow或NSView，则实现restoreStateWithCoder:方法以恢复任意自定义状态。如果你在自定义的响应者对象实现了restoreStateKeyPaths方法，Cocoa自动将相关属性值设置为它们的保存值。因此，你不必实现restoreStateWithCoder:来恢复这些属性。
@@ -414,10 +414,10 @@ app数据应当独立存储于app管理的data文件内。
 对主窗口控制器及窗口均加载自main nib文件的单窗口app来说，你的恢复类之工作是相当明确的。在这呢，你可以使用application delegate类作为恢复类，实现类似于List2-2(为单窗口app返回主窗口)中展示的restoreWindowWithIdentifier:state:completionHandler:方法。
 
 <img src="/images/posts/2018-11-11/List2-2.png">
-## 应用程序是由许多不同部件构建的
+## 2.6  应用程序是由许多不同部件构建的
 ---
 核心架构的对象非常重要，但是于app设计而言，并非需要考虑的仅有对象。这些核心对象管理app的高层次行为，但是app视图层的对象承担了大部分工作以显示自定义内容及响应事件。在创建有趣其急剧黏性的app时，其它对象也扮演了重要角色。
-### 用户界面
+### 2.6.1  用户界面
 app的用户界面由一个菜单栏，一或几个窗口，以及一或几个视图组成。菜单栏(menu bar)是用户可在app执行的命令仓库。命令可能适用于app as a whole，对当前活动窗口，或者对当前选中的对象。你负责定义app支持的命令，也负责提供事件驱动代码以响应它们。
 
 你利用窗口和视图于屏幕呈现app的可视化内容，来管理与那内容的即时交互。一个窗口(window)是NSWindow类的一个实例。panel时NSPanel类的实例，其中NSPanel是NSWindow的派生类；你可使用panel呈现二级内容。单窗口app有一个主窗口，以及可能有一或多个二级窗口或面板(panels)。多窗口app有多个窗口显示它们的主要内容，也可能有一或多个二级窗口或面板。窗口的风格决定它在屏幕上的外观。Figure2-9展示了菜单栏，连同一些标准窗口及面板。
@@ -429,7 +429,7 @@ app的用户界面由一个菜单栏，一或几个窗口，以及一或几个�
 - **Event handling.**视图接收事件。视图在适当的时候转发事件给其它对象。
 
 关于创建及配置窗口的信息，见**Window Programming Guide**。关于使用及创建视图层次的信息，见View Programming Guide。
-### 事件处理
+### 2.6.2  事件处理
 系统窗口服务器负责追踪鼠标、键盘及其它事件并将它们传递给app。当系统启动应用时，它为此app创建一个进程及一个单一的线程。这个初始线程就变成了应用的主线程。在主线程内，NSApplication对象建立main run loop及配置它的事件处理代码。如Figure2-10展示的那样。
 
 <img src="/images/posts/2018-11-11/Figure2-10.png">
@@ -444,7 +444,7 @@ run loop监视一个指定执行线程的输入源。应用的event queue代表�
 处理事件的响应者对象经常启动一系列程式化的动作。比方说，控制器对象(NSController的子类)处理事件是通过发送action消息给另一对象，此对象通常是管理当前活跃视图的控制器。当处理action消息时，控制器可能改变用户界面或者调整视图的位置以重绘自身。当此发生时，视图和图形基础设施接管此任务并且以尽可能最高效的方式处理此事件。
 
 若想了解关于响应者、响应链以及处理事件的的更多详情，可见Cocoa Event Handling Guide。
-### 图形、绘制及打印
+### 2.6.3  图形、绘制及打印
 这有两种基本方式，Mac应用可利用绘制它的内容：
 - 原生的绘制技术(比如Core Graphics及AppKit)
 - OpenGL
@@ -454,7 +454,7 @@ run loop监视一个指定执行线程的输入源。应用的event queue代表�
 如果使用OpenGL绘制app的内容，你仍创建一个窗口及视图来管理你的内容，但是这些内容仅仅为一个OpenGL绘制上下文提供渲染的外表。一旦你拥有了绘制上下文，你的应用负责以合适的间隔初始化绘制更新。
 
 关于如何在视图中绘制自定义内容，见**Cocoa Drawing Guide**。
-### 文本处理
+### 2.6.4  文本处理
 Cocoa文本系统，即OS X的主要文本处理系统，负责处理以及Cocoa中所有可视化文本的显示。它通过与文本相关的AppKit类提供一整套高质量的排版服务；AppKit类允许应用创建、编辑、显示以及存储文本with all the characteristics of fine typesetting。
 
 Cocoa文本系统提供全部这些基本及高级的文本处理features，它也满足来自日益互联的计算世界的额外要求：对世界所有现存语言的字符集支持，处理多种文本方向性及非矩形文本容器的强劲布局能力，以及复杂的诸如字距调整、段落间隔控制等排字能力。Cocoa的面向对象文本系统被设计用于提供所有这些能力without requiring you to learn about or interact with more of the system than is necessary to meet the needs of your app。
@@ -462,16 +462,16 @@ Cocoa文本系统提供全部这些基本及高级的文本处理features，它�
 Cocoa文本系统基础是Core Text，它向如Cocoa及WebKit高层引擎提供底层的基本文本布局及字体处理能力。Core Text为许多Cocoa文本技术提供实现。App开发者通常不必直接使用Core Text。然而，Core Text API向必须直接使用它的开发者公开，比如利用他们自己的布局引擎编写apps的开发者，以及将旧有基于ATSUI或QuickDraw代码库移植到现代世界的开发者们。
 
 关于Cocoa文本系统的更多信息，见Cocoa Text Architecture Guide。
-## 实现应用菜单栏
+## 2.7  实现应用菜单栏
 ---
 类NSMenu及NSMenuItem是所有类型菜单的基础。一个NSMenu实例管理一个菜单项集合，并(一个在另一个下方地)绘制它们。一个NSMenuItem实例代表一个菜单项，它封装NSMenu对象需要绘制及管理它的所有信息，但是它自身不做绘制或事件处理。你通常使用Interface Builder来创建和修改任意类型的菜单，所以通常没有编写代码的需要。
 
 当app位于最前端时，应用菜单栏横亘于屏幕顶部，替换任意其它app的菜单栏。app的全部菜单归一个NSMenu实例所有，此实例是由app启动时创建的！
-### Xcode模板提供菜单栏
+### 2.7.1  Xcode模板提供菜单栏
 Xcode的Cocoa应用模版在一个称为MainMenu.xib的nib文件内提供那个NSMenu实例。这个nib文件包含一个application菜单(以app名字命名)，一个File菜单(以及全部关联命令)，一个Edit菜单(与文本编辑命令及Undo和Redo一起)，Format，View，Window以及Help菜单(与它们自己的代表命令的菜单项一起)。这些菜单项均被关联到适当的第一响应者action方法。举例来说，About菜单项被关联到File's Owner的orderFrontStandardAboutPanel:方法，此File's Owner显示一个标准About窗口。
 
 模板有为Edit、Format、View、Window以及Help菜单的类似现成的连接。如果没有提供相应动作，你应从nib中移除关联的菜单项(或菜单)。或者，你可能想重新目的化和重命名菜单命令及动作方法以适合自己的app，则利用模板内的菜单机制以确保各司其职(everything is in the right place)。
-### 关联菜单项到代码或第一响应者对象
+### 2.7.2  关联菜单项到代码或第一响应者对象
 对app的尚未关联到对象内action方法的自定义菜单项或nib文件内的占位符对象而言，有两种常用的技术来处理Mac app的菜单命令：
 - 关联相应的菜单项到一个第一响应者方法。
 - 关联菜单项到自定义应用对象或应用委托对象的一个方法。
@@ -481,93 +481,93 @@ Xcode的Cocoa应用模版在一个称为MainMenu.xib的nib文件内提供那个N
 在Xcode的Designing User Interfaces，有关联菜单项到代码内action方法的一步步指令，有关菜单生效及其它菜单话题的更多信息，见Application Menu and Pop-up List Programming Topics。
 
 <br/>
-# 实现全屏幕体验
+# 三、实现全屏幕体验
 
-## NSApplication中的全屏幕API
+## 3.1  NSApplication中的全屏幕API
 ---
 
-## NSWindow中的全屏幕API
+## 3.2  NSWindow中的全屏幕API
 ---
 
-## NSWindowDelegate协议中的全屏幕API
----
-
-<br/>
-# 支持常见的App行为
-
-## You Can Prevent the Automatic Relauch of Your App
----
-
-## Making Your App Accessible Enables Many Users
----
-
-## 为定制化提供用户偏好设置
----
-
-## Integrate Your App with Spotlight Search
----
-
-## Use Services to Increase Your App's Usefulness
----
-
-## 为高分辨率优化
----
-
-### 考虑点，而非像素
-
-### 为图形提供高分辨率版本
-
-### Use High-Resolution-Savvy Image-Loading Methods
-
-### 使用支持高分辨率的API
-
-## Preparce for Fast User Switching
----
-
-## 利用Dock
+## 3.3  NSWindowDelegate协议中的全屏幕API
 ---
 
 <br/>
-# Build-Time配置细节
+# 四、支持常见的App行为
 
-## 配置Xcode工程
+## 4.1  You Can Prevent the Automatic Relauch of Your App
 ---
 
-## The Information Property List File
+## 4.2  Making Your App Accessible Enables Many Users
 ---
 
-## OS X应用Bundle
+## 4.3  为定制化提供用户偏好设置
 ---
 
-## 国际化App
+## 4.4  Integrate Your App with Spotlight Search
+---
+
+## 4.5  Use Services to Increase Your App's Usefulness
+---
+
+## 4.6  为高分辨率优化
+---
+
+### 4.6.1  考虑点，而非像素
+
+### 4.6.2  为图形提供高分辨率版本
+
+### 4.6.3  Use High-Resolution-Savvy Image-Loading Methods
+
+### 4.6.4  使用支持高分辨率的API
+
+## 4.7  Preparce for Fast User Switching
+---
+
+## 4.8  利用Dock
 ---
 
 <br/>
-# Tuning for Performance and Responsiveness
+# 五、Build-Time配置细节
 
-## 加速启动App
+## 5.1  配置Xcode工程
 ---
 
-### 推迟初始化代码
-
-### 简化Main Nib文件
-
-### 最小化全局变量
-
-### 在启动期最小化文件访问
-
-## 不要阻塞主线程
+## 5.2  The Information Property List File
 ---
 
-## 减小代码的体积
+## 5.3  OS X应用Bundle
 ---
 
-### 编译器级别的优化
+## 5.4  国际化App
+---
 
-### 使用Core Data处理大数据集合
+<br/>
+# 六、Tuning for Performance and Responsiveness
 
-### 清除内存泄漏
+## 6.1  加速启动App
+---
 
-### Dead Strip Your Code
+### 6.1.1  推迟初始化代码
 
-### Strip Symbol Information
+### 6.1.2  简化Main Nib文件
+
+### 6.1.3  最小化全局变量
+
+### 6.1.4  在启动期最小化文件访问
+
+## 6.2  不要阻塞主线程
+---
+
+## 6.3  减小代码的体积
+---
+
+### 6.3.1  编译器级别的优化
+
+### 6.3.2  使用Core Data处理大数据集合
+
+### 6.3.3  清除内存泄漏
+
+### 6.3.4  Dead Strip Your Code
+
+### 6.3.5  Strip Symbol Information
