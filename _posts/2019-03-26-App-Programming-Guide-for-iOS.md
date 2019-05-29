@@ -139,14 +139,73 @@ List3-1展示了当应用切换到后台时如何开始一个长时间运行(lon
 当所有与后台会话关联的任务完成时，系统重启已终止的应用(假设sessionSendsLaunchEvents属性被设为YES并且用户未强制退出app)，并调用app委托对象的application:handleEventsForBackgroundURLSession:completionHandler:方法。(系统也可能重启app以处理验证，或其它需要app注意力的任务相关的事件。)在你的委托方法实现中，利用提供的标识符创建一个新的与之前配置相同的**NSURLSessionConfiguration**及NSURLSession对象。系统会重新连接你的新会话对象到之前的任务，并将它们的状态报告给会话对象的委托对象。
 ## 3.3 实现长时间运行的任务
 ---
+对需要更多时间才得以执行的任务而言，你必须请求特有的权限在后台运行它们，而不被挂起！在iOS，仅有特定类型的app被允许运行于后台：
+- 虽在后台却向用户播放有声内容的应用，比如音乐播放器app
+- 虽在后台却记录音频内容的应用
+- 随时通知用户位置的应用，比如导航app
+- 支持网络电话(Voice over Internet Protocol,VoIP)的应用
+- 需要定期下载及处理新内容的应用
+- 从外部附件接收定期更新的应用
+
+实现这些服务的应用必须声明它们支持的服务，并利用系统框架(system frameworks)来实现这些服务的相关方面。声明此类服务让系统清楚你利用哪些服务，但是在某些情况下，正是系统框架实际阻止你的应用被挂起。
 ### 3.3.1 声明App支持的后台任务
+对某些类型的后台执行的支持必须提前由app声明。在Xcode 5及其后的版本中，可从工程设置的Capabilities标签页声明app支持的后台模型。使能Background Modes选项添加UIBackgroundModes键到app的Info.plist文件。选中一或多个复选框添加对应的后台模型值。Table3-1列出了你可以指定的后台模型，以及Xcode在app的Info.plist文件委任给UIBackgroundModes键的值。
+
+<img src="/images/posts/2019-03-26/Table3-1.png">
+每个之前的模型让系统知道你的app在恰当时刻应被唤醒或启动以响应相关的事件。比如，开始播放音乐且接下来进入后台的应用仍需要执行事件以填充音频输出缓冲器。使能Audio模式告诉系统框架，它们应继续在恰当的时间间隔给app生成必须的回调(callback)。如果应用未选择此模式，当app进入后台后，任何由app播放或录制的音频均停止。
 ### 3.3.2 追踪用户的位置
-### 3.3.3 播放及录制后台的音频
-### 3.3.4 实现一个VoIP App
-### 3.3.5 Fetching Small Amounts of Content Opportunistically
-### 3.3.6 使用Push通知初始化一项下载
+有多种在后台追踪用户的方式，其中大部分实际上并不需要你的应用在后台持续运行：
+- significant-change location服务(推荐)
+- foreground-only location服务
+- background location服务
+
+高度推荐significant-change location服务给此类应用，它们并不需要高精度的位置数据。有了这个服务，仅当用户的位置显著改变时，位置更新才产生；如此这般，对社交应用或提供用户非关键、位置相关信息的应用而言，它是比较理想的！当更新发生时，如果应用被挂起了，系统在后台将其唤醒以处理此更新。如果应用开始此服务并随后被终止，当一个新位置变得可用时，系统自动重启此app。此服务适用于iOS 4及其后的版本，并且仅在包含蜂窝无线电的设备中可用。
+
+foreground-only和background location服务皆利用标准的位置Core Location服务来检索位置数据。仅有的区别是，如果应用被ever挂起了，foreground-only位置服务停止传递更新；如果app未支持其它后台服务或任务，此情况还是可能发生的！foreground-only位置服务倾向于服务于此类应用，(可**望文生义**)它们仅当运行于前台时才需要位置数据。
+
+你可在Xcode工程的Capabilities标签页使能自Background模式的位置支持。(通过在应用的Info.plist文件包括UIBackgroundModes键及其location值，也可使能此支持)使能此模式并不阻止系统挂起你的app，但是它确会告诉系统每当有新数据传递时，系统应唤醒app。如此，此键高效地允许应用运行于后台以处理位置更新。
+
+关于如何在你的app中利用以上各服务，参考Location and Maps Programming Guide。
+### 3.3.3 播放及录制后台音频
+持续播放或录制音频的应用(尽管应用正运行于后台)可注册以在后台执行这些任务。你在Xcode工程的Capabilities标签页使能自Background模式的支持。(也可以在应用的Info.plist文件包括UIBackgroundModes键及其audio值来使能此支持)于后台播放音频内容的应用必须播放有声内容且不能静音。
+
+后台音频应用的典型实例包括：
+- 音乐播放器app
+- 录音机(音频录制)app
+- 支持于AirPlay音频及视频录制的app
+- VoIP app
+
+当UIBackgroundModes键包含audio值后，当应用移动到后台时，系统的media框架自动阻止对应的app被被挂起。只要它正在播放音频或视频内容或录制音频内容，应用便继续运行于后台。然而，如果录制或播放停止了，系统则挂起应用。
+
+你可以利用任一系统audio框架来work with后台的音频内容，并且利用这些框架的过程不会改变(is unchanged)。(对于over AirPlay的视频播放，你可以利用Media Player或AV Foundation框架来呈现你的视频。)因为当播放媒体文件时，你的app未被挂起，所以尽管app处于后台，回调操作却正常。但是，在你的回调内部，你应仅做必要的工作来提供用于播放的数据。比如说，一个数据流音频应用将需要从它的服务器下载音乐流数据并推出用于播放的当前音频样例。应用不应执行任何与播放无关的多余任务。
+
+因为不止一个应用可能支持音频，系统要决定在任意给定的时刻，哪个app被允许播放或录制视频。前台应用通常有对音频操作的优先级。可能有不止一个后台app被允许播放音频，那么此决定就基于每个app音频会话对象的配置。你应当恰当地配置app的音频会话对象，并与系统框架谨慎合作以处理中断和其它与音频类型相关的通知。关于如何为后台执行配置音频会话对象，见Audio Session Programming Guide。
+### 3.3.4 实现一个VoIP应用
+一个VoIP应用允许用户利用网络连接而非设备的蜂窝服务拨打电话。如此，这样一款app需要维持一个稳定的网络连接以便它能接入呼入电话及其它相关数据。系统允许VoIP应用被挂起并为它们提供监测socket的能力，而非保持它们一直处于唤醒状态。当呼入的traffic被探测到，系统唤醒此VoIP应用并返回socket的控制予它。
+
+为配置一个VoIP应用，你必须完成以下几件事：
+- 1.在Xcode工程的Capabilities标签页之Background模式部分，使能对VoIP的支持。(也可以在app的Info.plist文件包含UIBackgroundModes键及voip值来使能此支持。)
+- 2.配置一个app socket用于VoIP。
+- 3.在切换到后台模式前，调用**setKeepAliveTimeout:handler:**方法来安装一个周期性执行的处理器(handler)。你的应用可利用此处理器为维持它的服务连接。
+- 4.配置你的音频会话以处理出/入的转变(transition to and from active use)。
+
+在**UIBackgroundModes**键包含voip值让系统知道，它应允许app根据管理网络socket的需要运行于后台。有此key的应用在系统启动后也能立即重启于后台以确保VoIP服务经常可用。
+
+大多数VoIP应用也需要配置为后台audio应用以传递音频while in the background。所以，你应当给UIBackgroundModes键包含audio和voip值。如果你未做此步骤，当应用处于后台时，它不能播放或录制音频。关于UIBackgroundModes键的更多信息，见Information Property List Key Reference。
+
+关于实现一个VoIP应用所必须采取的步骤(信息)，见“开发一款VoIP应用的窍门”一节。 
+### 3.3.5 适时地取回少量内容
+需要周期性检查新内容的应用(app)可以请求系统唤醒它们以便它们能够为此内容初始化一个取回操作。为支持此模式，在**Xcode**工程内Capabilities标签页之Background模式部分使能Background取回项。(也可以在应用的Info.plist文件包含UIBackgroundModes键及其fetch值来使能此支持。)使能此模式并不能保证系统会于任意时刻给你的app执行后台取回任务的机会。系统必须平衡你的app取回内容的需要、其它app的需要以及系统自身三者之间的关系。在访问这些信息后，当有行事的好机会时，系统会给这些应用时间。
+
+当一个好机会出现，系统唤醒或启动你的app进入后台并调用应用委托(app delegate)的**application:performFetchWithCompletionHandler:**方法。利用此方法检查新内容，并且如果内容可用，便初始化一个下载操作。下载新内容一经完成，你必须执行提供的completion handler块(block)，传入一个暗示内容是否可用的结果。执行此块告诉系统它可以将你的app移回挂起状态，并评估其功耗使用量。Apps that download small amounts of content quickly,and accurately reflect when they had content available to download,are more likely to receive execution time in the future than apps that take a long time to download their content or that claim content was available but then do not download anything.
+
+当下载任意内容时，推荐的做法是你利用NSURLSession类来初始化并管理你的下载。关于如何利用此类来管理上传及下载任务，见**URL Loading System Programming Guide**。
+### 3.3.6 使用推送通知初始化一项下载
+
 ### 3.3.7 在后台下载Newsstand内容
+
 ### 3.3.8 与外接设备通信
+
 ### 3.3.9 与一台蓝牙设备通信
 
 ## 3.4 Getting the User's Attention While in the Background
@@ -211,7 +270,7 @@ List3-1展示了当应用切换到后台时如何开始一个长时间运行(lon
 ### 5.3.8 保留App的高层次状态
 ### 5.3.9 保存及恢复状态信息的小窍门
 
-## 5.4 开发一款VoIP App的窍门
+## 5.4 开发一款VoIP应用的窍门
 ---
 
 ### 5.4.1 为VoIP使用配置Socket
