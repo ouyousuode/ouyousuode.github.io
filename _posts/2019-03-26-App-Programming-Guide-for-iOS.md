@@ -201,13 +201,37 @@ foreground-only和background location服务皆利用标准的位置Core Location
 
 当下载任意内容时，推荐的做法是你利用NSURLSession类来初始化并管理你的下载。关于如何利用此类来管理上传及下载任务，见**URL Loading System Programming Guide**。
 ### 3.3.6 使用推送通知初始化一项下载
+当新内容针对你的app可用时，如果你的服务器向用户的设备发送推送(push)通知，你可以请求系统于后台运行你的app以便它可以立即开始下载新内容。此后台模式意欲何为呢？其意图是最小化流逝的时间量，即当用户看到一个push通知于你的app能够展示相关内容之间的时间。大抵用户看到通知的同时，app便被唤醒，但是仍然给予多于你拥有的时间。
 
+为支持此后台模式，在Xcode工程内Capabilities标签页的Background模式部分使能Remote通知选项。(也可以在应用的Info.plist文件包含UIBackgroundModes键及其remote-notification值来使能此支持。)
+
+为一推送通知触发下载操作，此通知的负载必须包括对应值为1的content-available键。当这个键存在时，系统在后台唤醒此应用(或启动其进入后台)并调用应用委托(delegate)的**application:didReceiveRemoteNotification:fetchCompletionHandler:**方法。此方法的实现部分应下载相关的内容并将其融入app。
+
+当下载任意内容时，推荐的做法是利用**NSURLSession**类来初始化并管理你的下载。关于如何利用此类来管理上传与下载任务，见**URL Loading System Programming Guide**。
 ### 3.3.7 在后台下载Newsstand内容
+一个下载新杂志或报纸的Newsstand app可注册于后台执行这些下载。在Xcode工程内Capabilities标签页的Background模式部分使能对报刊下载的支持。(也可以在应用的Info.plist文件包含**UIBackgroundModes**键及其newsstand-content值来使能此支持。)系统启动你的app，如果你的app尚未运行，当此键存在时，以便它可以初始化此新事务的下载！
 
-### 3.3.8 与外接设备通信
+当利用Newsstand Kit框架来初始化一次下载任务时，系统为你的app处理此下载过程。即使你的app被挂起或终止了，系统仍继续下载文件。当下载操作完成后，系统迁移此文件至你的app沙盒(sandbox)并通知你的app。如果应用当前未运行，此通知将其唤醒并给它一个机会以处理这新下载的文件。如若下载过程有错误，你的app也被唤醒以处理它们。
 
-### 3.3.9 与一台蓝牙设备通信
+关于如何利用Newsstand Kit框架下载内容，见NewsstandKit Framework Reference。
+### 3.3.8 与外接附件通信
+当app被挂起后，如果附件传递了一个更新，与外接附件合作的app可请求被唤醒。对某类以规律间隔传递数据的附件而言，如心率监测器，此支持的重要性不言而喻。在Xcode工程内Capabilities标签页的Background模式部分使能对外部附件通信的支持。(也可以在应用的Info.plist文件包含**UIBackgroundModes**键及其external-accessory值来使能此支持。)当你使能此模式后，外部附件框架并不关闭与附件的活跃会话。(在iOS 4及其更早的版本中，当app被挂起后，这些会话会被自动关闭。)当来自附件的新数据到达后，框架(framework)唤醒你的app以便它可以处理此数据。系统也唤醒应用来处理附件连接及断开通知。
 
+支持后台处理附件更新情形的任意app必须遵循少许基本准则：
+- 应用必须提供一个借口，此接口允许用户来开始及停止附件更新事件的传送。此接口应当视情况打开或关闭此附件会话。
+- 一经唤醒，app有大概10秒钟来处理数据。理想情形下，它应当尽可能快地处理数据并允许它自身再次被挂起。然而，如果需要更多时间，app可利用**beginBackgroundTaskWithExpirationHandler:**方法来申请额外的时间；但是，仅当情况非当不可时，才如此行事。
+
+<br/>
+### 3.3.9 与一台蓝牙附件通信
+当app被挂起后，如果外设传递了一个更新消息，与蓝牙外设合作的app可请求被唤起。对某类以规律间隔传递数据的蓝牙附件而言，如蓝牙式心率带，此支持非常重要。在Xcode工程内Capabilities标签页的Background模式部分使能对使用蓝牙附件的支持。(也可以在应用的Info.plist文件包含**UIBackgroundModes**键及其bluetooth-central值来使能此支持。)当使能此模式后，**Core Bluetooth**框架为相应外设保持开放活跃的会话。除此之外，自外设到达的新数据引起设备唤醒app以便它可以处理此数据。系统也唤醒app以处理附件连接及断开的通知。
+
+在iOS 6，因蓝牙附件，app也可以外设模式运行。为充当一台蓝牙附件设备，必须在Xcode工程内Capabilities标签页的Background模式部分使能对此模式的支持。(也可以在应用的Info.plist文件包含**UIBackgroundModes**键及其bluetooth-peripheral值来使能此支持。)使能此模式让Core Bluetooth框架于后台暂时唤醒app，以便它可以处理与附件相关的请求。因此类事件被唤醒的app应当尽可能快地处理它们并返回，以便应用可被再次挂起。
+
+支持于后台处理Bluetooth数据的任何app必须是基于会话的并遵循少许基本准则：
+- 应用必须提供一个接口，此接口允许用户开始及停止蓝牙事件的传递。此接口应当于恰当时打开或关闭会话。
+- 一经被唤醒，app有大约10秒钟来处理此数据。理想情况下，它应当尽可能快地处理此数据并允许自身能再次被挂起。然而，如果需要更多的时间，app可以利用**beginBackgroundTaskWithExpirationHandler:**方法来申请额外的时间；但是，这属于最后的机会，非到万不得已，勿用。
+
+<br/>
 ## 3.4 Getting the User's Attention While in the Background
 ---
 
