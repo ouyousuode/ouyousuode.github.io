@@ -336,6 +336,86 @@ DISPATCH_SOURCE_TYPE_WRITE
 
 handle与mask参数到期望值依赖你正创建的dispatch源类型。比如，signal源类型会用signal号码作为handle。
 
+当有趣的事情发生为dispatch source后，queue就是事件处理block将入队的队列。需用**dispatch_source_set_event_handler()**设置handler block：
+``` Objective-C
+void dispatch_source_set_event_handler(dispatch_source_t source,
+                         void (^block)(void));
+```
+dispatch source创建于挂起状态(suspended)状态。在为它们调用dispatch_resume()前，它们一直无所事事。这让你完成所有关于source的配置工作而无须担心它们背着你擅作主张。当你处理完某个dispatch source之后，你需要**dispatch_source_cancel()**它：
+``` Objective-C
+void dispatch_source_cancel(dispatch_source_t source);
+```
+也可以设置一个handler block用于dispatch source被取消时：
+``` Objective-C
+void dispatch_source_set_cancel_handler(dispatch_source_t source,
+                         void (^block)(void));
+```
+像监测mach端口和文件描述符这样的源(source)类型需要一个"取消handler"，可于其中关闭文件描述符。如果在"取消handler"运行前关闭文件描述符，这可能会导致竞争条件，此种情况下，此文件描述符重用于另一个文件，而恰逢有一个要运行的block，如此便可读写这个完全不同的文件了。
+
+取消(cancellation)不会中断任意当前正在运行的handler block。故而，通过调用**dispatch_source_testcancel()**在handler内部测试取消(cancellation)与否:
+``` Objective-C
+void dispatch_source_testcancel(dispatch_source_t source);
+```
+如果源(source)已被取消，此方法会返回一个非零值。也需要为你的dispatch源设置一个handler。这个handler是可以安排到你于**dispatch_source_create()**指定队列中的一个block。
+``` Objective-C
+void dispatch_source_set_event_handler(dispatch_source_t source,
+                          void (^block)(void));
+```
+在此handler内部，你可以查询此源。比方说，你可以得到用以创建此handler的handle和mask参数值：
+``` Objective-C
+uintptr_t dispatch_source_get_handle(dispatch_source_t source);
+unsigned long dispatch_source_get_mask(dispatch_source_t source);
+```
+你也可以利用**dispatch_source_get_data()**获得针对每个handler的pending "data"，比如，在一个fd上可读的字节数或者某信号已发出的次数。
+``` Objective-C
+unsigned long dispatch_source_get_data(dispatch_source_t source);
+```
+下图列出了不同的dispatch源以及它们的moving部分。
+
+<img src="/images/posts/2018-12-09/dispatchSourceTypes.jpg">
+
+### 22.10.1 Dispatch源之信号
+彷佛我们已经没有了足够的信号处理API，GCD则添加了它自己的。那就是说，这可能是在OS X和iOS上处理信息的最简单方式。源类型为DISPATCH_SOURCE_SIGNAL，handle是信号数字，并且mask未用到，故留置为0。当一个SIGUSR1信号传递给应用后，此代码会将其打印在主队列上。
+
+<img src="/images/posts/2018-12-09/dispatch_source_signal.png">
+即使与kqueue相较，这也是一种处理信号的非常简洁的方式。注意：这并未取代现存的信号处理机制。你仍旧可以kqueue此信号。不要忘记**SIG_IGN**此信号以便默认的信号处理行为不会杀掉你的进程。仍须注意到：在handler开始工作前，不得不**dispatch_resume()**它。
+### 22.10.2 Dispatch源之文件读取
+很像kqueue的EVFILT_READ，DISPATCH_SOURCE_TYPE_READ将监测文件描述符(file descriptor)并且告诉你何时可读。handle是文件描述符；未曾用到mask，所以给它传个zero。**dispatch_source_get_data()**返回的数据是可从descriptor读取的统计完毕的字节数！此为一个最小的read buffer大小，但系统并不保证它将实际读取这个数目的字节。Apple建议使用非阻塞I/0并处理可能出现的错误情况。这与kqueue不同，在阻塞前，它告诉你可以读取的字节数。以下代码从标准输入读取并随它们进入，打印读取的字符：
+
+<img src="/images/posts/2018-12-09/dispatch_source_file_read.png">
+注意：标准输入文件描述符被设定成了**非阻塞模式**。当有需读取的数据时，事件handler block最终运行于一个后台线程上。在这，它只是读取放入buffer的最大数量；当然，如果可用字节数比buffer size小，那就只读取这些可用字节。一旦到达文件末尾，此源(dispatch source)会取消它自己，导致cancellation handler开始运行，其结果为handler关闭文件描述符且释放dispatch source ！
+### 22.10.3 Dispatch源之文件写入
+文件写入源工作起来像kqueue的EVFILT_WRITE。这些源监测文件描述符，为了可供写入点buffer空间。dispatch source handle是文件描述符；未用到mask参数，所以置为0.
+
+使用write源比用kqueue困难了点儿，因为源不会告诉你阻塞前可写入多少数据。负责DISPATCH_SOURCE_TYPE_WRITE dispatch源的文件描述符应被设置为非阻塞I/O，并且你应处理任何被删减的写入或可能发生的错误。
+### 22.10.4 Dispatch源之定时器
+定时器源是一种需将event handler block周期性提供给queue的dispatch源，利用给予**dispatch_source_set_timer()**的interval参数：
+``` Objective-C
+void dispatch_source_set_timer(dispatch_source_t source,
+                               dispatch_time_t start,
+							   uint64_t interval,uint64_t leeway);
+```
+系统会尽最大努力及时地将event handler block提交到queue，但是，block实际运行的时间可能稍晚些！start是定时器的初始启动时间。使用DISPATCH_TIME_NOW以立即启动定时器。interval以纳秒计，并且告诉定时器源其定时器的时间间隔。leeway是给系统的一个提示，即它可推迟定时器的调度以帮助全局的系统性能。此值也以纳秒计。当然，对所有的定时器而言，即使你用一个0秒的leeway，也会有一些延迟；因为，从根上讲，OS X就不是一款实时操作系统。
+
+定时器会一直重复直到程序退出或**dispatch_source_cancel()**被调用。如果你想要一款一次即休的定时器，让此定时器的event handler取消它自己即可！
+
+当创建dispatch源时，未曾用到handle和mask参数，故均应设为0。自**dispatch_source_get_data()**返回的数据是定时器被激发的次数，当然从evnet handler block最后一次调用算起。以下代码将以2秒的频率向标准输出打印“timer”。当然了，直到dispatch源被resume，定时器才真正启动。
+
+<img src="/images/posts/2018-12-09/dispatch_source_timer.png">
+### 22.10.5 Dispatch源之定制
+通过指定一种DISPATCH_SOURCE_TYPE_DATA_ADD源类型来创建定制的源。也要像配置其它几种源那样，配置它们。利用**dispatch_source_merge_data()**来触发它们：
+``` Objective-C
+void dispatch_source_merge_data(dispatch_source_t source,
+                                unsigned long data);
+```
+data是一个无符号长整型数，它被合并到已经积累的数据中。只有被合并的数据量非0时，源才被触发。因此，如果你想确保source会触发，就必须确保提供的数据量非零。数据源的event handler每次调用后，数据缓冲器即被清零。
+
+如果被并入的数据与你并无相干，并且你仅想触发此源，那么，自不必担心类型或数据。仅仅创建一个定制源，草建handlers并用一个非零值触发它即可！
+### 22.10.6 Dispatch源之表象之下
+Dispatch源实际上是附带些小物件儿的dispatch queue。这就解释了它们有一个目标队列属性以及一个意义非凡的suspend count属性。除了定时器和定制化source之外的每个源，均以被表示为一个添加到一个单一kqueue中的kevent结束。这个kqueue被一名GCD队列管理者拥有。如果你尝试去追踪一枚kqueue并不支持的文件描述符，GCD会败下阵来，只能利用**select()**。
+
+管理者队列自己负责处理定时器及定制化源。它们利用伪-kevent以适配管理者队列的kevent中的设计。Dispatch定时器被保存在两个列表中，分别对应walltime或clocktime中的一种。列表以升序排列；以一名哨兵值作终止，此哨兵有一个DISPATCH_TIME_NOW的启动值！
+
 ## 22.12  GCD或者NSOperation ?
 现在，已见识到了构建代码以支持面向任务并行化的两种不同方式，即NSOperation和Grand Central Dispatch。
 
@@ -345,3 +425,7 @@ NSOperation倾向于使代码更分散。实现一个操作的代码通常在它
 
 如果你需要在后台完成一些工作，你需要慎重考虑使用GCD还是NSOperation以拆分这些工作。当然了，离原生线程越远，你会越高兴。
 
+以上内容是围绕GCD"是什么"以及"怎样用"来展开的，是站在client的角度；然则，我们也可以从实现者的角度，深入理解其内部实现原理。怎么办呢？Apple开放了这部分源代码，可以先找一个早期版本拆解其实现思路，比如[libdispatch-84.5.1](https://opensource.apple.com/tarballs/libdispatch/)；然后，再打开最新版，比较二者间差别。
+
+<img src="/images/posts/2018-12-09/libdispatch-84.5.1_0.png">
+<img src="/images/posts/2018-12-09/libdispatch-84.5.1_1.png">
