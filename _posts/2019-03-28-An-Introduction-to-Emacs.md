@@ -31,7 +31,7 @@ self-documenting意味着您可以随时使用特殊命令(称为帮助命令)�
 
 customizable则意味着您可以通过简单的方式轻松更改Emacs命令的行为。例如，如果您正使用编程语言，其注释以“<-”开头并以“->”结尾，则可以告诉Emacs注释操作命令以使用这些字符串。再举一例，您可以将基本光标移动命令(向上、向下、向左和向右)重新绑定到自己感觉舒服的键盘上的任意键。
 
-extensible意味着可以超越简单的自定义并创建全新的命令。这些新命令只是用Lisp语言编写的程序，此程序由Emacs自己的Lisp解释器运行。甚至可以在编辑会话中重新定义现有命令，而无需重新启动Emacs。Emacs内的绝大多数编辑命令均是用Lisp编写的；少数例外情况，虽可以用Lisp编写，但为效率计，使用了C语言。编写扩展的工作是编程，但是非程序员可以在之后使用它。如果你想学习Emacs Lisp编程，可以参考[**An Introduction to Programming in Emacs Lisp**](https://www.gnu.org/software/emacs/manual/eintr.html)。
+extensible意味着可以超越简单的自定义并创建全新的命令。这些新命令只是用Lisp语言编写的程序，此程序由Emacs自己的Lisp解释器运行。甚至可以在编辑会话中重新定义现有命令，而无需重新启动Emacs。Emacs内的绝大多数编辑命令均是用Lisp编写的；少数例外情况，虽可以用Lisp编写，但为效率计，使用了C语言。编写扩展的工作是编程，但是非程序员可以在之后使用它。如果你想学习Emacs Lisp编程，可以参考[An Introduction to Programming in Emacs Lisp](https://www.gnu.org/software/emacs/manual/eintr.html)。
 
 想学Emacs Lisp编程吗？确实想学！试想，在使用Emacs时，想添加一个功能A，自己竟能顺手实现之；或者能在已有别人的(代码)版本基础上改进之。这是一件多么美好的事情！在编写扩展时，可以参考[GNU ELPA Packages](http://elpa.gnu.org/packages/)内比较成熟的代码。关于如何学习Lisp编程，可以参考Richard Stallman给出的[How to Learn Programming](http://www.stallman.org/stallman-computing.html)建议。
 
@@ -45,9 +45,14 @@ extensible意味着可以超越简单的自定义并创建全新的命令。这�
 - [Advanced Programming in the UNIX Environment](https://www.amazon.com/Advanced-Programming-UNIX-Environment-3rd/dp/0321637739/ref=sr_1_1?crid=IVFR9I9OK2WG&keywords=advanced+programming+in+the+unix+environment&qid=1563114529&s=books&sprefix=Advanced+Programming%2Cstripbooks%2C365&sr=1-1)
 - [Computer Systems:A Programmer's Perspective](https://www.amazon.com/Computer-Systems-Programmers-Perspective-3/dp/9332573905/ref=sr_1_1?crid=26R37UPMPNMY5&keywords=computer+systems+a+programmers+perspective&qid=1563114627&s=books&sprefix=Computer+Sys%2Cstripbooks%2C336&sr=1-1)
 - [Computer Organization and Design:The Hardware/Software Interface](https://www.amazon.com/Computer-Systems-Programmers-Perspective-3/dp/9332573905/ref=sr_1_1?crid=26R37UPMPNMY5&keywords=computer+systems+a+programmers+perspective&qid=1563114627&s=books&sprefix=Computer+Sys%2Cstripbooks%2C336&sr=1-1) 
+- [Cracking the Coding Interview:189 Programming Questions and Solutions](https://www.amazon.com/Cracking-Coding-Interview-Programming-Questions/dp/0984782850/ref=sr_1_3?crid=2N0VDCZTXL6ZB&keywords=cracking+the+coding+interview&qid=1563119008&s=gateway&sprefix=Cracking+the+%2Caps%2C322&sr=8-3)
 - [Structure and Interpretation of Computer Programs](https://www.amazon.com/Structure-Interpretation-Computer-Programs-Engineering/dp/0262510871/ref=sr_1_1?crid=1G1TMT5CKRSEL&keywords=structure+and+interpretation+of+computer+programs&qid=1563115165&s=books&sprefix=Struc%2Cstripbooks%2C982&sr=1-1)
+- ...
+<br/>
 
+在以上书单中，Structure and Interpretation of Computer Programs是比较有趣的；因为它诠释内容的示例编程语言是Scheme。Emacs Lisp、Common Lisp和Scheme都属于Lisp语言的方言。
 
+<img src="/images/posts/2019-03-28/Structure_and_Interpretation_of_Computer_Programs.gif">
 <img src="/images/posts/2019-03-28/emacs@blueberry.png">
 
 
