@@ -78,6 +78,7 @@ enum {
 ``` Objective-C
 - (void) waitUntilAllOperationsAreFinished;
 ```
+<br/>
 
 ### 21.1.2  Threading issues
 因为非并发操作运行在它们自己的线程上，你需要认识到在operation上使用的API线程安全性问题。比如，你不可能线程安全地从其它线程设置**NSTextField**的值；因为所有的**UI**操作必须在主线程完成。
@@ -86,11 +87,35 @@ enum {
 ## 21.2  MandelOpper
 Mandelbrot集合(曼德布洛特集合是在复平面上组成分形的点集合，一种分形图案，曾被称为“上帝的指纹”，可见何其瑰丽多姿)是一种在程序员群体间令人喜爱的图形化消遣；它是可产生特别酷图像的分形几何构造。生成Mandelbrot集合是一个计算敏感型的计算过程，这就引发了对并行计算的需要。MandelOpper应用会计算一个Mandelbrot集合并将之显示在一个窗口中；它使用simple-lifetime **NSOperation**类的实例来完成实际的计算任务。
 
-<img src="/images/posts/2019-02-04/mandelOpper.png">
+<img src="/images/posts/2019-02-04/mandelOpper_running.png">
+<img src="/images/posts/2019-02-04/mandelOpper_done.png">
+下图展示了通常的类布局，**MandelOpperAppDelegate**是典型的Cocoa应用控制器，它协调用户界面以及初始化Mandelbrot计算。**Bitmap**类持有一些**CalcOperation**操作将写入像素颜色的字节。每个**CalcOperation**会计算一行像素。**BitmapView**则显示**Bitmap**的内容。
 ### 21.2.1  Bitmap
+**Bitmap**封装一数组的字节，给予调用者某特定像素行的起始地址，以及生成一个可用于绘制的image representation。像素是以RGBA形式、4-byte大小的值；当然，其中R(ed)，G(reen)，B(lue)及A(lpha,即透明度)每个元素对应一个比特。
 
+在Xcode创建一个新的Cocoa应用，将之命名为MandelOpper。为Bitmap.h及Bitmap.m创建源文件。下图为Bitmap.h:
+
+<img src="/images/posts/2019-02-04/Bitmap_h.png">
+编辑Bitmap.m时，添加初始化器、基本访问器以及清理方法。将bitmap的内存(内容)初始化为Ox55，并为所有像素点赋予一个半透明的灰色颜色值。
+
+<img src="/images/posts/2019-02-04/Bitmap_m_0.png">
+其中，**-baseAddressForLine:**返回某特定行像素居于内存中的地址。这只是一个基本的指针数学问题，假定每个像素4字节。**CalcOperation**将用此基(base)地址来搞清楚它应在哪开始放置这些像素值。最后，**-imageRep**将用于绘制的像素缓冲区包装在**NSBitmapImageRep**内！
+
+<img src="/images/posts/2019-02-04/Bitmap_m_1.png">
 ### 21.2.2  BitmapView
+这些像素有了栖身之所。现在，它们需要一个可以展现自我的舞台。创建一个名为**BitmapView**的**NSView**子类。编辑头文件(BitmapView.h)，勾连起bitmap以及给调用者一个设置bitmap以绘制的方式。
 
+<img src="/images/posts/2019-02-04/BitmapView_h.png">
+编辑BitmapView.m以包含必需的头文件，随即实现**setBitmap:**方法：
+
+<img src="/images/posts/2019-02-04/BitmapView_m.png">
+在任一calculation操作完成后，视图均需重绘自身。通常调用[view setNeedsDisplay: YES]即可。不幸地是，**-setNeedsDisplay:**并非线程安全的。通常情况下，你将利用一个**-performSelectorOnMainThread:**方法来实现此目的，但此类方法仅让你传入一个对象参数，而不能是BOOL值。Cocoa不会做“autoboxing”，即自动将一个原生C语言类型封装为一个对象类，因此，以**NSValue**封装一个BOOL值这条路也行不通。为解决这个问题，添加一个仅执行**setNeedsDisplay:YES**但不含任何参数的方法，以便此方法可经由其它线程调用：
+``` Objective-C
+- (void) rdl_setNeedsDisplay {
+	[self setNeedsDisplay: YES];
+}
+```
+然后，再添加**-drawRect:**方法，它会用一个黑色矩形填充视图的bounds和frame，也绘制bitmap的内容。
 ### 21.2.3  CalcOperation
 
 ### 21.2.4  MandelOpperAppDelegate
