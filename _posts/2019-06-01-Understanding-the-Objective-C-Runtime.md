@@ -13,10 +13,45 @@ title: 理解Objective-C Runtime
 ## Objective-C Runtime是开源项目
 Objective-C Runtime是一项开源项目，并可随时从[http://opensource.apple.com](https://opensource.apple.com)。事实上，除了阅读苹果公司公布的关于它的文档之外，阅读其Runtime源代码是探究其工作机制的方法之一。你可以通过以下链接下载针对Mac OS X 10.6.2版本的Runtime源代码[objc4-437.1.tar.gz](https://opensource.apple.com/source/objc4/objc4-437.1/)。
 ## 动态语言vs静态语言
+Objective-C是一门面向运行时的语言，这意味着应由哪个对象执行消息是在经编译、链接之后，直至运行时才能确定下来。这便为你提供了很大的灵活性，因为可根据需要将消息重定向到适当的对象，甚至可以交换方法实现，等等。这需要一个运行时，它可以内省对象来查看它们响应与否并恰当地分派方法。如果我们把它与**C**这样的语言对比，在**C**中，你从**main()**方法开始，然后从此处起，它几乎是一项自上而下的设计，遵循着你已写就的代码之逻辑并执行代码中的函数。**C**结构不能将执行函数的请求转发到其它目标。例如，如下所示的一段**C**语言代码：
 
+<img src="/images/posts/2019-06-01/helloWorld_c.png">
+在经过编译器解析、优化之后，变成如下的一段汇编代码：
+
+<img src="/images/posts/2019-06-01/helloWorld_s.png">
+然后，把它与库文件链接到一起，最终会生成一个可执行文件。此过程与Objective-C依赖Objective-C Runtime库编译、链接程序的过程相似。在我们最初认识Objective-C时，在一个最浅显的层面上，我们被告知发生于Objective-C括号代码类似于
+``` Objective-C
+[self doSomethingWithVar;var1];
+```
+被翻译为
+``` Objective-C
+objc_msgSend(self,@selector(doSomethingWithVar:),var1);
+```
+但是，除此之外，我们对Objective-C Runtime的工作机制一无所知。
 ## 何为Objective-C Runtime ？
-
+Objective-C Runtime是一个运行时库，这是一个主要以**C**和汇编语言编写的库，使**C**具有了面向对象能力(以创建Objective-C)。这意味着它可以加载类信息，也可实现方法分发及转发等等...Objective-C Runtime创建了使Objective-C面向对象编程成为可能的所有支持结构！
 ## Objective-C Runtime相关术语
+所以，在我们继续深入之前，让我们共同梳理一下相关术语，以便我们能在同一层面讨论问题。
+### 术语之Runtime
+Mac及iPhone开发者关心的有两个运行时：现代运行时(Modern Runtime)和传统运行时(Legacy Runtime)。现代运行时涵盖了所有64位Mac OS X应用及iPhone应用；而传统运行时则包括余下的所有32位的Mac OS X应用。
+### 术语之Method(方法)
+此包含两类方法：实例方法，像**-(void)doFoo;**一样以“-”开头，并操作于对象实例；类方法，似**+(id)alloc**这般以“+”开头，当然只能对类自身操作。方法看起来和**C**语言的函数很像，其内部是为执行一项小任务的一组代码，像下面这样：
+``` Objective-C
+- (NSString *)movieTitle {
+	return @"Futurama: Into the Wild Green Yonder";
+}
+```
+### 术语之Selector(选择器)
+
+### 术语之Message(消息)
+
+### 术语之Class(类)
+
+### 术语之Block(块)
+
+### 术语之IMP(方法实现)
+
+### 术语之Objective-C Class
 
 ## 类定义对象抑或自身是对象？如何实现？
 
