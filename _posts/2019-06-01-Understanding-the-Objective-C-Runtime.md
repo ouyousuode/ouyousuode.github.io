@@ -41,18 +41,41 @@ Mac及iPhone开发者关心的有两个运行时：现代运行时(Modern Runtim
 	return @"Futurama: Into the Wild Green Yonder";
 }
 ```
+
 ### 术语之Selector(选择器)
+Objective-C中的选择器本质上是一个**C**语言数据结构，它充任识别你想某对象执行之方法的一种手段！在运行时内的定义类似于这样：
+``` Objective-C
+typedef struct objc_selector *SEL;
+```
+使用时，则这样：
+``` Objective-C
+SEL aSel = @selector(movieTitle);
+```
 
 ### 术语之Message(消息)
-
+``` Objective-C
+[target getMovieTitleForObject:obj];
+```
+一条Objective-C消息是“[]”内所有的内容，它由接收消息的目标对象、你想执行的方法以及发送给方法的任意参数三部分组成。Objective-C消息尽管类似于**C**函数，但终究不同。事实是，你向某对象发送一条消息，并不意味着此对象会执行它。对象可以检查谁是消息的发送者，并据此以决定是执行一不同的方法，还是转发此消息给一个不同的目标对象。
 ### 术语之Class(类)
-
+如果你在Runtimen内查找类，会发现如下定义：
+<img src="/images/posts/2019-06-01/Class.png">
+这有几件事要阐明。这段代码中有Objective-C类及对象的结构体定义。而objc_object拥有的所有内容仅是定义为isa的一个类指针，就是我们常说的“isa指针”。这个isa指针是所有Objective-C Runtime均需要的，用以检查对象并查看它是什么类，然后开始看当你是消息对象时能否响应选择器。最后，我们看到了**id**指针。默认情况下，id指针除了告诉我们它们时Objective-C对象之外，并未告知关于Objective-C对象的任何信息。当你有一个id指针时，你可以向对象询问它的类，看看它是否能响应一个方法，等等。然后当你知道你所指向的对象是何方神圣后，可更有针对性地进行操作。
 ### 术语之Block(块)
-
+在**LLVM/Clang**文档中，我们可以看到关于Block的介绍：
+<img src="/images/posts/2019-06-01/Block.png">
+Block被设计为与Objective-C运行时兼容，因此可视其为对象。所以，它们可以响应像-retail、-release及-copy等等之类的消息。
 ### 术语之IMP(方法实现)
-
+``` Objective-C
+typedef id (*IMP)(id self,SEL _cmd,...);
+```
+IMP是编译器为我们生成的指向方法实现的函数指针。如果你刚接触Objective-C，稍后再了解它即可；不过，我们马上就可以看到，Objective-C运行时是如何调用方法的。
 ### 术语之Objective-C Class
-
+那么，一个Objective-C类中都有什么呢？Objective-C中类的基本实现如下：
+<img src="/images/posts/2019-06-01/Objective-C_Class.png">
+但是，运行时需要记录更多内容：
+<img src="/images/posts/2019-06-01/Objective-C_Class_Runtime.png">
+我们可以看到，一个类有到它的父类、名字、实例变量、方法、缓存以及声称遵守的协议之引用！运行时在响应你的类或实例的消息时需要这些信息。
 ## 类定义对象抑或自身是对象？如何实现？
 
 ## 为什么我们要继承Apple的类库？
