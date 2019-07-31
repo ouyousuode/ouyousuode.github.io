@@ -41,7 +41,7 @@ Mac及iPhone开发者关心的有两个运行时：现代运行时(Modern Runtim
 	return @"Futurama: Into the Wild Green Yonder";
 }
 ```
-<br/>
+
 ### 术语之Selector(选择器)
 Objective-C中的选择器本质上是一个**C**语言数据结构，它充任识别你想某对象执行之方法的一种手段！在运行时内的定义类似于这样：
 ``` Objective-C
@@ -51,9 +51,9 @@ typedef struct objc_selector *SEL;
 ``` Objective-C
 SEL aSel = @selector(movieTitle);
 ```
-<br/>
+
 ### 术语之Message(消息)
-<br/>
+
 ``` Objective-C
 [target getMovieTitleForObject:obj];
 ```
@@ -69,7 +69,7 @@ SEL aSel = @selector(movieTitle);
 <img src="/images/posts/2019-06-01/Block.png">
 Block被设计为与Objective-C运行时兼容，因此可视其为对象。所以，它们可以响应像-retail、-release及-copy等等之类的消息。
 ### 术语之IMP(方法实现)
-<br/>
+
 ``` Objective-C
 typedef id (*IMP)(id self,SEL _cmd,...);
 ```
