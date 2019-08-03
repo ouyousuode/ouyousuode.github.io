@@ -260,8 +260,65 @@ if([drawView lockFoucsIfCanDraw]) {
 }
 ```
 ### 20.2.2 Cocoa及线程安全
+Foundation及AppKit框架的一部分是线程安全的，然有些却不是。通常情况下，不可变对象是线程安全的，可以被多个线程使用。可变对象不是线程安全的，也不应被多个线程使用。在假定对象的可变性之前，你必须对如何创建对象小心翼翼，例如，考虑一个采用**NSString**作参数的方法。通常，**NSString**是不可变的。但是，鉴于继承关系，一个调用者可以合法地创建一个**NSMutableString**并把它喂给一个采用**NSString**作参数的方法。同样的方式，线程间共享不可变容器是安全的，可变容器则不可！
 
+用户界面对象是非线程安全，应仅用于主线程。通常情况下，你应假设一个对象为非线程安全的，除非它是有明确记录的(线程安全)。
 ### 20.2.3 Objective-C @synchronized块
+当你告诉编译器使用原生Objective-C异常后，无论在Xcode中进行勾选还是给编译器-fobjc-exceptions标记，你都要使用Objective-C线程同步操作器。
 
+@synchronized()指令锁了操作于某个特定对象的一段代码。一次只能有一个线程操作此块代码中的对象。使用此同一对象的其它线程将被阻塞至@synchronized块退出。
+
+@synchronized()采用单个变量，它可以是任意Objective-C对象。你可以使用存储于实例变量中的对象，你可以使用self，又或者你甚至可以使用一个类对象(class object)。如果你正在类方法中使用@synchronized(self)，你将与类对象@synchronized。@synchronized(someObject)行为就像一个递归的互斥锁。一个线程可以在不同的块中使用相同的对象，期间，这些块与相同的对象一起同步。扔自@synchronized()块内的异常将自动释放锁。
 ## 20.3 深入学习：Thread Local Storage
+有时，拥有一个专用于线程的存储是很方便的。在上文的basics.m程序，你可以把ThreadInfo栈的内容藏进线程局部存储而不是在函数调用栈上。线程局部存储行为类似于全局变量，但对于线程而言，它是私有的！errno被存储于线程局部存储以便每一个线程有它自己的errno！
+
+为使用线程局部存储，利用**pthread_key_create()**初始化一个pthread_key_t：
+``` Objective-C
+int pthread_key_create(pthread_key_t *key,
+				void (*destructor)(void *));
+```
+这会创建一个抽象键。通常，你用描述性名称命名变量，或者将此键与字典中的描述性字符串相关联，像图Thread local storage展示的那样！当线程退出时，析构函数被调用，以便动态内存(或其它资源)可被清理。
+
+通过**pthread_setspecific()**设置一个线程局部值：
+``` Objective-C
+int pthread_setspecific(pthread_key_t key,const void *value);
+```
+以及利用**pthread_getspecific()**获得对应的值：
+``` Objective-C
+void *pthread_getspecific(pthread_key_t key);
+```
+<img src="/images/posts/2019-02-25/thread_local_storage.jpeg">
+如果你用着**NSThread**呢，可以利用
+``` Objective-C
+- (NSMutableDictionary *)threadDictionary;
+```
+要将内容放入线程局部存储内，只需将内容存储在字典中即可！此为一**NSThread**实例方法，因此你需要通过[NSThread currentThread]找到你当前的**NSThread**对象。
 ## 20.4 深入学习：读/写锁
+Cocoa和pthreads都提供读/写锁。此二者允许同时由许多读取器读取数据结构，但是一次仅允许一个线程写访问。
+
+pthread_rwlock_t工作起来像pthread_mutex_t，但是伴有一对额外的调用。这有细节:
+``` Objective-C
+pthread_rwlock_init(pthread_rwlock_t *lock,
+		const pthread_rwlockattr_t *attr);
+```
+OS X为定义PTHREAD_RWLOCK_INITIALIZER，因此你不能静态地创建它们。
+``` Objective-C
+int pthread_rwlock_destroy(pthread_rwlock_t *lock);
+```
+你可以指定想要的锁定，而不是使用**lock()**：
+``` Objective-C
+int pthread_rwlock_rdlock(pthread_rwlock_t *rwlock);
+
+int pthread_rwlock_tryrdlock(pthread_rwlock_t *rwlock);
+
+int pthread_rwlock_wrlock(pthread_rwlock_t *rwlock);
+
+int pthread_rwlock_trywrlock(pthread_rwlock_t *rwlock);
+```
+解除锁定，倒是简单，利用**pthread_rwlock_unlock()**即可：
+``` Objective-C
+int pthread_rwlock_unlock(pthread_rwlock_t *rwlock);
+```
+一般而言，使用读/写锁可能是一个坏想法，因为它会加倍实际锁操作的次数。读/写锁可以用一把互斥锁及两个条件变量来实现。除非你有一些确乎“昂贵”的数据结构，否则，读/写锁定操作的开销将超过你正在保护的操作。考虑到这一情况，有些时候它们非常有用，特别是当有很多“读者”，却没有很多修改，恰恰访问数据结构很费时的时候！
+
+
