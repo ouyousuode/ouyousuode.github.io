@@ -131,7 +131,28 @@ sigwatcher.m是一款命令行工具，它向kqueue注册了多个信号，然�
 
 EVFILT_WRITE过滤器以类似的方式工作。当收到文件描述符的写事件时，事件结构的data字段将包含写缓冲区中剩余的空间量，也就是阻塞前可以写入的空间大小。当读取断开连接时，该过滤器也将设置EV_EOF。
 ## 16.6 用于文件系统监控的kqueue
+通常当你听到于网络讨论的kqueue时，其十有八九是关于监控文件系统的。你可以用EVFILT_VNODE来查看文件或目录中的更改，并且对这些变化作出反应。你可能想查看目录中的更改，随即挑选出已放入当前目录的任何文件。你还可以通过等待向文件中写入数据来实现高效的**tail -f**功能。
 
+用到的过滤器是EVFILT_VNODE。vnode(虚拟节点的简称)是内核数据结构；它包含有关文件或文件夹的信息；内核为每个活跃文件或文件夹分配了唯一的vnode。vnode是VFS(内核中的虚拟文件系统)的一部分；它提供关于特定文件系统实现的抽象。你可以在vnode上监视许多事件；这些事件有位标志表示；可以在事件结构的过滤器标志中按位“或”感兴趣的事件。当收到通知时，你可以按位“与”过滤器标志来查看究竟发生了什么事。
+
+以下是一些与EVFILT_VNODE相关的不同事件：
+- NOTE_DELETE  对文件调用了**unlink()**函数。
+- NOTE_WRITE   由于**write()**操作，文件内容已被更改。
+- NOTE_EXTEND  文件的体积变大了。
+- NOTE_ATTRIB  文件的属性发生了改变。
+- NOTE_LINK    文件的硬链接计数已更改。如果对文件创建了新的符号链接，则不会触发此操作。
+- NOTE_RENAME  文件被重命名了。
+- NOTE_REVOKE  通过**revoke()**系统调用撤销了对文件的访问，或者底层文件系统已卸载。
+<br/>
+
+**dirwatcher**是一件命令行工具，它采用一组目录作为程序参数。打开这些目录中的每一个成员，使用NOTE_WRITE过滤器标志将结果文件描述符放入kqueue中。当目录改变时，比如有文件加入或移除，**kevent()**将返回报告哪个目录已更改！本程序随即打印出已更改目录的名称。
+
+因为**dirwatcher**将指向目录名称的指针放入了事件的用户data指针字段，所以映射更改事件到目录名称很简单。程序也能捕获SIGINT信号来完成干净的关闭动作。很多种类的事件可以混合匹配在相同的kqueue中。你可以用事件结构的user数据字段来确定事件种类是什么，**dirwatcher**做了什么，又或者查看过滤器域来判别哪个filter产生了这个事件！
+<img src="/images/posts/2019-03-01/dirwatcher_0.png">
+<img src="/images/posts/2019-03-01/dirwatcher_1.png">
+<img src="/images/posts/2019-03-01/dirwatcher_2.png">
+
+<img src="/images/posts/2019-03-01/dirwatcher_result.png">
 ## 16.7 kqueues和Runloops
 
 ## 16.8 fsevents
@@ -149,11 +170,13 @@ EVFILT_WRITE过滤器以类似的方式工作。当收到文件描述符的写�
 ## 16.14 FSEvents API
 
 ### 16.14.1 Creating the stream
+
 ### 16.14.2 Hook up to the runloop
 
 ## 16.15 实例
 
 ## 附：拓展阅读
+
 - [kqueue - Wikipedia](https://en.wikipedia.org/wiki/Kqueue)
 - [Kqueue: A generic and scalable event notification facility](https://en.wikipedia.org/wiki/Kqueue)
 - [FreeBSD source code of the **kqueue()** system call](http://bxr.su/FreeBSD/sys/kern/kern_event.c#sys_kqueue)
