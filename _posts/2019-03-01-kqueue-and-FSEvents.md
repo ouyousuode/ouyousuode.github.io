@@ -6,7 +6,7 @@ title: 第16章 kqueue和FSEvents
 ===============================
 迄今为止，看到的几项技术均可追溯到Unix的早期。一些API是笨重且难以正确使用到，比如信号处理；有些则是笨重且难以扩展到，比如**select()**和**poll()**。
 
-在2000年，FreeBSD工程团队创建了缩写为kqueue的Kernel Queues来解决早期API中短处。Apple在Mac OS X 10.3纳入了kqueues并在10.6中对其做了扩展。kqueues是内核使用的一种统一通知机制，它可以通知你的程序之所感兴趣的事件。
+在2000年，FreeBSD工程团队创建了缩写为kqueue的Kernel Queues来解决早期API中的短处。Apple在Mac OS X 10.3纳入了kqueues并在10.6中对其做了扩展。kqueues是内核使用的一种统一通知机制，它可以通知你的程序之所感兴趣的事件。
 
 <img src="/images/posts/2019-03-01/kqueue_kernel_filters.jpeg">
 如上图所示，在内核内部是很多的过滤器。当内核工作时，它告诉这些过滤器正发生着什么。图中有一个过滤器用于进程处理，另一个用于网络栈，再一个则与文件系统相关，诸如此类。每一个过滤器都有一组它观测的感兴趣的事件，比如出现在某socket上的数据，一个程序已经**fork()**了，某信号已被发出了，又或者一个文件已添加到某目录！
@@ -41,11 +41,11 @@ Snow Leopard引入了对kevent结构及调用的64位版本。struct kevent64_s�
 struct kevent64_s {
     uint64_t     ident;  /* identifier for this event */
     int16_t      filter; /* filter for event */
-	uint64_t     flags;  /* general flags */
-	uint32_t     fflags; /* filter-specific flags */
-	int64_t      data;   /* filter-specific data */
-	uint64_t     udata;  /* opaque user data identifier */
-	uint64_t     ext[2]; /* filter-specific extensions */
+    uint64_t     flags;  /* general flags */
+    uint32_t     fflags; /* filter-specific flags */
+    int64_t      data;   /* filter-specific data */
+    uint64_t     udata;  /* opaque user data identifier */
+    uint64_t     ext[2]; /* filter-specific extensions */
 }
 ```
 除了更大的指针大小之外，主要区别是struct kevent64_s有两个额外的64位值，此二者用于传递特定于过滤器的信息。以下是所有这些数字域的介绍：
@@ -106,14 +106,31 @@ sigwatcher.m是一款命令行工具，它向kqueue注册了多个信号，然�
 
 <img src="/images/posts/2019-03-01/sigwatcher_0.png">
 <img src="/images/posts/2019-03-01/sigwatcher_1.png">
-编译运行！一则终端窗口用于运行程序；再打开一则终端窗口，用于向**sigwatcher**发送信号。
+编译运行！一则终端窗口用于运行程序；再打开一则终端窗口，向**sigwatcher**发送信号。
 
 <img src="/images/posts/2019-03-01/sigwatcher_result_0.png">
 <img src="/images/posts/2019-03-01/sigwatcher_result_1.png">
+## 16.5 用于Socket监控的kqueue
+与信号处理API一样，用于监控套接字和其它文件描述符的API也可能是笨重且低效的。**select()**是Mac OS X平台上最常用的函数，用于确定套接字的活跃度(它还连接着吗?)及查看套接字上是否有任何活动(我能否无阻塞地从此处读取)。
 
-## 16.5 kqueues for Socket Monitoring
+**select()**及其功能等效的对应**poll()**之问题在于它是无状态调用。每次你调用**select()**或**poll()**，你都得告诉内核你感兴趣的文件描述符是什么。内核随后拷贝描述符列表进自己的内存空间，做它的任意工作以测试其活性和活动情况，然后再把内容拷贝回程序的地址空间来让程序知道正发生着什么。
 
-## 16.6 kqueues for File System Monitoring
+这方面的主要问题是可伸缩型。如果你正在处理几百或成千上万个文件描述符，你必须每次都向内核询问所有这些事，即便只有很小一部分真的有什么事发生。大容器服务器应用程序通常会发现自己花费大量的CPU时间在对**select()**的FD_SET维护上。
+
+**select()**技术的其它问题是便利性。当**select()**告诉你文件描述符有数据要读取时，你不得不循环检查返回的FD_SET以查找感兴趣的文件描述符。接着，你必须尝试一次**read()**操作看看连接是否仍开放着。如果连接仍处于打开状态，你却不清楚有多少可读取的数据。你不得不猜测要读取多少，通常利用一个硬编码参数，且如果超过该数量，则循环读取。
+
+当利用kqueue来监控套接字时，这两类问题都得以解决。你用**kevent()**把所有感兴趣的套接字都注册上，接着，随后的**kevent()**调用将准确地告诉你哪个套接字有活动。事件中包括要读取的数据量。然后，你可以通过一次**read()**来吃下这些数据，而不是利用多次读取并将读回的数据拼接在一起。
+
+为套接字(或文件、或pipe)上的读操作，利用EVFILT_READ过滤器。它利用一枚文件描述符作为struct kevent标识符。你可以利用**listen()**套接字和正被**accept()**的套接字。当**kevent()**返回后，事件的data字段包含内核缓冲区中等待读取的数据量！
+
+这种行为被称为“级别触发(level-triggered)”事件，因为该事件是基于缓冲器中的数据级别触发的。如果有任何数据要从套接字读取，你将会得到来自EVFILT_READ过滤器的通知。这允许你从套接字读取方便的字节数，说出消息的大小，把剩余的数据放在那！下一次**kevent()**被调用时，你将被告之未读取数据的剩余部分。
+
+其它过滤器被称为使用“边缘触发(edge-triggered)”事件，当感兴趣的实体改变状态时，你会收到通知。这在EVFILT_VNODE过滤器中更常用，如下所述。
+
+说回EVFILT_READ，如果套接字已经关闭，过滤器回在flags字段设置EV_EOF标志，并在事件的fflags字段设置errno。EV_EOF被设置在事件标志中但是套接字缓冲器中仍有待处理的数，是可能的！
+
+EVFILT_WRITE过滤器以类似的方式工作。当收到文件描述符的写事件时，事件结构的data字段将包含写缓冲区中剩余的空间量，也就是阻塞前可以写入的空间大小。当读取断开连接时，该过滤器也将设置EV_EOF。
+## 16.6 用于文件系统监控的kqueue
 
 ## 16.7 kqueues和Runloops
 
