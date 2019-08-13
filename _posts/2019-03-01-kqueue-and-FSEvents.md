@@ -174,7 +174,18 @@ EVFILT_WRITE过滤器以类似的方式工作。当收到文件描述符的写�
 ### 16.14.2 Hook up to the runloop
 
 ## 16.15 实例
+fsevents.m显示自上次运行以来启动驱动器发生的所有历史事件。然后，随着新事件发生，也会显示。为使事情简单些，在看到20件新鲜事后，程序退出。当程序退出时，它保存设备UUID和最后一个事件ID到用户默认值(user defaults)。
 
+<img src="/images/posts/2019-03-01/fsevents_0.png">
+<img src="/images/posts/2019-03-01/fsevents_1.png">
+<img src="/images/posts/2019-03-01/fsevents_2.png">
+<img src="/images/posts/2019-03-01/fsevents_3.png">
+<img src="/images/posts/2019-03-01/fsevents_4.png">
+<img src="/images/posts/2019-03-01/fsevents_5.png">
+运行后，开始监测新事件：
+
+<img src="/images/posts/2019-03-01/fsevents_result_0.png">
+<img src="/images/posts/2019-03-01/fsevents_result_1.png">
 ## 附：拓展阅读
 
 - [kqueue - Wikipedia](https://en.wikipedia.org/wiki/Kqueue)
