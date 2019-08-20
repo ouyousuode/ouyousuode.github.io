@@ -52,7 +52,4 @@ extensible意味着可以超越简单的自定义并创建全新的命令。这�
 
 在以上书单中，Structure and Interpretation of Computer Programs是比较有趣的；因为它诠释内容的示例编程语言是Scheme。Emacs Lisp、Common Lisp和Scheme都属于Lisp语言的方言。
 
-<img src="/images/posts/2019-03-28/Structure_and_Interpretation_of_Computer_Programs.gif">
 <img src="/images/posts/2019-03-28/emacs@blueberry.png">
-
-
