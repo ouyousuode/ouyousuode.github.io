@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 第二个iOS App
+title: 利用SQLite管理iOS应用中的数据
 ---
 {{page.title}}
 ==========================
