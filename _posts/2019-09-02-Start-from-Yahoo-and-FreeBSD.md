@@ -23,9 +23,10 @@ Yahoo!起家于斯坦福大学，其服务跑在运行OSF的DEC Alpha盒子和�
 
 我们面临的一项重大技术挑战是面对快速增长的服务规模。展望未来，我们对使用SMP来获取更高的性价比非常有兴趣。从性价比角度看，其它平台(比如,Alpha)上的FreeBSD也很有趣。我们也在尝试让FreeBSD提供其它服务，比如，大型可靠的RAID文件服务器。总体而言，我们发现FreeBSD在性能表现、稳定性、技术支持以及价格方面都非常出色。发现FreeBSD两年后，我们还有找到要改用其它产品的原因！(by David Filo,Co-Founder of Yahoo!)
 
-除了Yahoo!，我们再来看看WhatsApp与FreeBSD的渊源。2018年，Wired杂志采访了WhatsApp联合创始人Brian Acton,期间谈到，为何使用FreeBSD而非Linux？答案是，俩创始人以前就有使用FreeBSD的经验；再者，与Linux相比较，FreeBSD简单、稳定！为何使用Erlang编程语言而非其它？答案是，(它在行业中)基础扎实，为近实时通信设计；虽为通用型语言，但在高并发情况下表现优异！
+除了雅虎，我们再来看看WhatsApp与FreeBSD的渊源。2018年，Wired杂志采访了WhatsApp联合创始人Brian Acton,期间谈到，为何使用FreeBSD而非Linux？答案是，俩创始人以前就有使用FreeBSD的经验；再者，与Linux相比较，FreeBSD简单、稳定！为何使用Erlang编程语言而非其它？答案是，(它在行业中)基础扎实，为近实时通信设计；虽为通用型语言，但在高并发情况下表现优异！
 
-翻一翻WhatsApp的两位创始人之履历，就会发现，WhatsApp和FreeBSD的缘起更顺理成章。Brian Acton于1996年成为Yahoo Inc的44号员工；而Jan Koum在1997年更是因FreeBSD被Yahoo!雇佣为一名infrastructure工程师。2014年，Jan Koum向FreeBSD基金会捐款100万美元；2016年，再捐50万美元。从Jan Koum于Facebook(11/17/2014)发布的捐款声明中，我们更是可以看出Jan Koum对FreeBSD的“感激”之情。
+翻一翻WhatsApp的两位创始人之履历，就会发现，WhatsApp和FreeBSD的结缘更顺理成章。Brian Acton于1996年成为Yahoo Inc的第44号员工；而Jan Koum在1997年更是因FreeBSD被Yahoo!雇佣成为一名infrastructure工程师。2014年，Jan Koum向FreeBSD基金会捐款100万美元；2016年，再捐50万美元。从Jan Koum于Facebook(11/17/2014)发布的捐款声明中，我们更是可以看出Jan Koum对FreeBSD的“感激”之情。
+
 <img src="/images/posts/2019-09-02/Jan_Koum.png">
 
 诚然，FreeBSD和Erlang皆为很棒的工具。但是，这并不意味着鼓励大家都选用它俩作为自己的开发环境，或者非要利用FreeBSD+Erlang来搭建后台服务。因为，即使向普通厨师提供了一流的烹饪工具和上等的食材，他亦无法做出美味佳肴。关键还是看人！
