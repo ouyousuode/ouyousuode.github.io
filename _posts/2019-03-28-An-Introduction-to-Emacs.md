@@ -9,7 +9,7 @@ Richard的一句“<font face="Monospace">I mean,why not just use Vim over Emacs
 
 <img src="/images/posts/2019-03-28/GNU_Emacs.png">
 
-使用手册是这样介绍的，“<font face="Monospace">the advanced,self-documenting,customizable,extensible editor Emacs</font>”。我们说它advanced，因为它能完成的，并非只是针对文本内容的简单插入与删除。它可以控制子进程，自动缩进程序，以及一次显示多个文件等等。Emacs编辑命令根据字符、单词、行、句子、段落和页面以及各编程语言中的表达式和注释进行操作。
+使用手册道，<font face="Monospace">the advanced,self-documenting,customizable,extensible editor Emacs</font>!我们评价它advanced，因为它能完成的，并非只是针对文本内容的简单插入与删除。它可以控制子进程，自动缩进程序，以及一次显示多个文件等等。Emacs编辑命令根据字符、单词、行、句子、段落和页面以及各编程语言中的表达式和注释进行操作。
 
 self-documenting意味着您可以随时使用特殊命令(称为帮助命令)来查找您的选项，或查找任何命令的功能，或查找与给定主题相关的所有命令。
 
