@@ -22,7 +22,6 @@ title: 那些年读过的文章
 
 ## 已读
 
-<font face="Monospace">
 * [Hash table tradeoffs: CPU, memory, and variability](https://medium.com/@leventov/hash-table-tradeoffs-cpu-memory-and-variability-22dc944e6b9a)
 * [Smalltalk is not about objects, it’s about messaging](http://lists.squeakfoundation.org/pipermail/squeak-dev/1998-October/017019.html)
 * [Why I Love B2B over B2C for Startups and Entrepreneurs](https://www.atrium.co/blog/b2b-vs-b2c/?utm_source=wanqu.co&utm_campaign=Wanqu+Daily&utm_medium=website)
@@ -59,4 +58,3 @@ title: 那些年读过的文章
 * [Conditional probability and Bayes' theorem](https://eli.thegreenplace.net/2018/conditional-probability-and-bayes-theorem/)
 * [Sam Altman - How To Be Successful](https://blog.samaltman.com/how-to-be-successful)
 * [Building an app that your co-workers might actually use - Start simply, gather feedback, iterate, and then get your app noticed](https://medium.com/slack-developer-blog/building-an-app-that-your-co-workers-might-actually-use-a0022b54fa4b)
-</font>
