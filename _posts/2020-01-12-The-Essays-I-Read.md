@@ -6,7 +6,7 @@ title: 那些年读过的文章
 ============================
 
 ## 待读
-<br/>
+
 * [Letter to Shareholders by Jeff Bezos](https://ir.aboutamazon.com/annual-reports)
 
 * [Warren Buffett's Letters to Berkshire Shareholders](http://www.berkshirehathaway.com/letters/letters.html)
@@ -33,12 +33,13 @@ title: 那些年读过的文章
 <br/>
 
 ## 已读
-<br/>
+
 * [<font face="Monospace">Hash table tradeoffs:CPU,memory,and variability</font>](https://medium.com/@leventov/hash-table-tradeoffs-cpu-memory-and-variability-22dc944e6b9a)
 
 * [Alan Kay:Smalltalk is not about objects,it’s about messaging](http://lists.squeakfoundation.org/pipermail/squeak-dev/1998-October/017019.html)
 
 * [A Conversation with Alan Kay - ACM Queue](https://queue.acm.org/detail.cfm?id=1039523)
+
 * [A Conversation with Arthur Whitney - ACM Queue](https://queue.acm.org/detail.cfm?id=1531242)
 
 * [Why I Love B2B over B2C for Startups and Entrepreneurs](https://www.atrium.co/blog/b2b-vs-b2c/?utm_source=wanqu.co&utm_campaign=Wanqu+Daily&utm_medium=website)
@@ -50,6 +51,7 @@ title: 那些年读过的文章
 * [My education at Olin College](https://physicstoday.scitation.org/do/10.1063/PT.5.2015/full/)
 
 * [Samuel Freilich has worked for ITA Software (at Google) since the day after he graduated from Olin College in 2008](http://olin.edu/blog/career-and-graduate-stories/post/google-veteran-sam-freilich-08/)
+
 * [A Programmer’s Regret:Neglecting Math at University](https://awalterschulze.github.io/blog/post/neglecting-math-at-university/)
 
 <br/>
@@ -79,9 +81,9 @@ title: 那些年读过的文章
 * [WhatsApp donates 1 Million Dollars to the FreeBSD Foundation](https://www.freebsdnews.com/2014/11/19/whatsapp-donates-1-million-dollars-freebsd-foundation/)
 
 <br/>
-* [<font face="Monospace">Programming languages and How to learn programming by Richard Stallman</font>](https://stallman.org/stallman-computing.html)
+* [<font face="Monospace">Programming languages and How to learn programming</font>](https://stallman.org/stallman-computing.html)
 
-* [My Lisp Experiences and the Development of GNU Emacs by Richard Stallman](https://www.gnu.org/gnu/rms-lisp.en.html)
+* [My Lisp Experiences and the Development of GNU Emacs](https://www.gnu.org/gnu/rms-lisp.en.html)
 
 * [EMACS:The Extensible,Customizable Display Editor](https://www.gnu.org/software/emacs/emacs-paper.html)
 
@@ -90,14 +92,14 @@ title: 那些年读过的文章
 * [Computers I have known and loved](https://hack.org/mc/computers.html)
 
 <br/>
-* [How Gmail Happened:The Inside Story of Its Launch 10 Years Ago](https://time.com/43263/gmail-10th-anniversary/)
+* [<font face="Monospace">How Gmail Happened:The Inside Story of Its Launch 10 Years Ago</font>](https://time.com/43263/gmail-10th-anniversary/)
 
 * [The Technology by Paul Buchheit](http://paulbuchheit.blogspot.com/2014/07/the-technology.html)
 
 <br/>
-* [<font face="Monospace">My Life in Technology As Told at the Computer History Museum by Stephen Wolfram</font>](https://writings.stephenwolfram.com/2016/04/my-life-in-technology-as-told-at-the-computer-history-museum/)
+* [<font face="Monospace">My Life in Technology As Told at the Computer History Museum/font>](https://writings.stephenwolfram.com/2016/04/my-life-in-technology-as-told-at-the-computer-history-museum/)
 
-* [Seeking the Productive Life:Some Details of My Personal Infrastructure by Stephen Wolfram](https://writings.stephenwolfram.com/2019/02/seeking-the-productive-life-some-details-of-my-personal-infrastructure/)
+* [Seeking the Productive Life:Some Details of My Personal Infrastructure](https://writings.stephenwolfram.com/2019/02/seeking-the-productive-life-some-details-of-my-personal-infrastructure/)
 
 * [On Starting a Long-Term Company by Stephen Wolfram](https://www.stephenwolfram.com/publications/starting-long-term-company/)
 
