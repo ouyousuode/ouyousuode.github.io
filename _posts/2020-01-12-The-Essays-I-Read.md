@@ -92,12 +92,7 @@ title: 那些年读过的文章
 * [Computers I have known and loved](https://hack.org/mc/computers.html)
 
 <br/>
-* [<font face="Monospace">How Gmail Happened:The Inside Story of Its Launch 10 Years Ago</font>](https://time.com/43263/gmail-10th-anniversary/)
-
-* [The Technology by Paul Buchheit](http://paulbuchheit.blogspot.com/2014/07/the-technology.html)
-
-<br/>
-* [<font face="Monospace">My Life in Technology As Told at the Computer History Museum/font>](https://writings.stephenwolfram.com/2016/04/my-life-in-technology-as-told-at-the-computer-history-museum/)
+* [<font face="Monospace">My Life in Technology As Told at the Computer History Museum</font>](https://writings.stephenwolfram.com/2016/04/my-life-in-technology-as-told-at-the-computer-history-museum/)
 
 * [Seeking the Productive Life:Some Details of My Personal Infrastructure](https://writings.stephenwolfram.com/2019/02/seeking-the-productive-life-some-details-of-my-personal-infrastructure/)
 
@@ -112,6 +107,10 @@ title: 那些年读过的文章
 * [<font face="Monospace">The Friendship that Made Google Huge:Coding together at the same computer,Jeff Dean and Sanjay Ghemawat changed the course of the company—and the Internet</font>](https://www.newyorker.com/magazine/2018/12/10/the-friendship-that-made-google-huge)
 
 * [Tom Griffiths - A reading list on Bayesian methods](http://cocosci.princeton.edu/tom/bayes.html)
+
+* [How Gmail Happened:The Inside Story of Its Launch 10 Years Ago](https://time.com/43263/gmail-10th-anniversary/)
+
+* [The Technology by Paul Buchheit](http://paulbuchheit.blogspot.com/2014/07/the-technology.html)
 
 * [My Approach to Getting Dramatically Better as a Programmer](https://malisper.me/my-approach-to-getting-dramatically-better-as-a-programmer/?utm_source=wanqu.co&utm_campaign=Wanqu+Daily&utm_medium=website)
 
