@@ -30,6 +30,10 @@ title: 那些年读过的文章
 * [Building a YouTube MP3 Downloader with Exodus,FFmpeg and AWS Lambda](https://intoli.com/blog/youtube-mp3-downloader/)
 
 * [Optimizing a breadth-first search](https://www.snellman.net/blog/archive/2018-07-23-optimizing-breadth-first-search/)
+
+* [How I make $400/month with my technical eBook](https://twitter.com/SahinKevin/status/1216343661459451906)
+
+* [<font face="Monospace">Was ist Freiheit der Kritik? Von Ludwig Marcuse August 1963</font>](https://www.zeit.de/1963/31/was-ist-freiheit-der-kritik)
 <br/>
 
 ## 已读
