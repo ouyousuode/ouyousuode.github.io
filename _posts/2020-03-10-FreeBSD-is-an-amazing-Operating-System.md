@@ -10,11 +10,11 @@ title: FreeBSD是一款令人称道的操作系统
 
 我想那一年是1999年末或2000年年中，有一天我在最喜欢的书店翻看电脑书籍，发现了Greg Lehey于1999年出版的[The Complete FreeBSD](https://openlibrary.org/books/OL8732144M/The_Complete_FreeBSD)第三版。随书还附带着4张FreeBSD 3.3光盘。
 
-我在1998年就已经熟悉了GNU/Linux，并且我正在将家里和公司的所有服务器和桌面操作系统从Microsoft Windows迁移到GNU/Linux；最初是Red Hat Linux，后来是Debian GNU/Linux，它最终成为我多年来最喜欢的GNU/Linux发行版。
+我在1998年就已经熟悉GNU/Linux了，并且我正在将家里和公司的所有服务器和桌面操作系统从Microsoft Windows迁移到GNU/Linux，最初是Red Hat Linux，后来是Debian GNU/Linux，后者也最终成为我多年来最喜欢的GNU/Linux发行版。
 
-当首次看到Greg Lehey所著The Complete FreeBSD一书时，我记得注意到了首页上的文字，上面写着“The Free Version of Berkeley Unix”和“坚如磐石的稳定性”，我立刻就被吸引住了！那是怎么一回事儿呢？一款免费的Unix操作系统！并且如磐石般的稳定性？这一切听起来棒极了！
+当首次看到Greg Lehey所著《The Complete FreeBSD》时，我记得注意到了首页上的文字，上面写着“The Free Version of Berkeley Unix”和“坚如磐石的稳定性”，我立刻就被吸引住了！那是怎么一回事儿呢？一款免费的Unix操作系统！并且如磐石般的稳定性？这一切听起来棒极了！
 
-<img src=“/images/posts/2020-03-10/the-complete-freebsd.jpg”>
+<img src="/images/posts/2020-03-10/the-complete-freebsd.jpg">
 我当即买下了这本书，并且于很长一段时间里，它成了我最喜欢的阅读材料(尽管我未做任何与Unix相关的事情)。
 
 我感到惊讶的是，我以前从未听闻过FreeBSD，因为它从1993年就已经存在了，但是因为我对GNU/Linux的经验，至少另一款“类Unix”操作系统于我而言不会陌生如“路人”，而且也确实不陌生！
@@ -68,9 +68,9 @@ FreeBSD则不是那样的。FreeBSD是一款完整的操作系统，由一个对
 
 **更新于2020-01-21:**如果FreeBSD要用作桌面操作系统，它也需要第三方软件、X视窗系统、窗口管理器以及桌面环境。我的意思是，FreeBSD不是由不同群体编写的工具之集合，通常有着相互冲突的利益和优先级，比如Linux内核、GNU C库等等。
 
-**更新于2020-01-21:**有人指出，在FreeBSD项目中也存在利益冲突，我想到的一个例子可能是Matthew Dillion与其它FreeBSD开发人员之间的冲突；因为他在性能问题上与其它FreeBSD开发者意见不一，最终达成了在FreeBSD 4.8-stable基础上的fork，并将其命名为DragonFly BSD。但是，我最初的声明可能被误解了。我不认为BSD中的此类问题等同于完全不同的项目之间的冲突，比如Linux内核和GNU C库。Linux内的严重冲突可能导致操作系统无法正常运行；因项目的结构之缘故，前者情形在BSD项目是不可能发生的。在FreeBSD上，争议由核心团队通过[投票](https://www.freebsd.org/internal/core-vote.html)来解决，而在OpenBSD问题上，项目负责人Theo de Raadt拥有最终发言权。如果某人不同意，他要么接受此最终裁决，要么像Matthew最终做的那样，或像Theo de Raadt对NetBSD所做的那样，自由地fork项目。这与我想表达的GNU/Linux内发生的事情非常之不同！
+**更新于2020-01-21:**有人指出，在FreeBSD项目中也存在利益冲突，我想到的一个例子可能是Matthew Dillion与其它FreeBSD开发人员之间的冲突；因为他在性能问题上与其它FreeBSD开发者意见不一，最终完成了在FreeBSD 4.8-stable基础上的fork，并将其命名为DragonFly BSD。但是，我最初的声明可能被误解了。我不认为BSD中的此类问题等同于完全不同的项目之间的冲突，比如Linux内核和GNU C库。Linux内的严重冲突可能导致操作系统无法正常运行；因项目的结构之缘故，前者情形在BSD项目是不可能发生的。在FreeBSD上，争议由核心团队通过[投票](https://www.freebsd.org/internal/core-vote.html)来解决，而在OpenBSD问题上，项目负责人Theo de Raadt拥有最终发言权。如果某人不同意，他要么接受此最终裁决，要么像Matthew最终做的那样，或像Theo de Raadt对NetBSD所做的那样，自由地fork项目。这与我想表达的GNU/Linux内发生的事情非常之不同！
 
-无论你是一位在使用已发行了一段时间之GNU/Linux的用户，或是一个已经找到了最喜欢的GNU/Linux发行版之GNU/Linux用户，也或者甚至是一名Microsoft Windows用户，甚至一名MacOS用户，无论如何，我都强烈建议你试试FreeBSD。但是在此之前，花一些时间研究研究FreeBSD文档，如何理解了它是如何工作的，你将从系统获得最大之收益。多接触接触[IRC频道](https://wiki.freebsd.org/IRC/Channels)、[FreeBSD邮件列表](https://www.freebsd.org/community/mailinglists.html)或[FreeBSD论坛](https://forums.freebsd.org)上的人士，你会发现许多(对自己)大有帮助之人。
+无论你是一位在使用已发行了一段时间之GNU/Linux的用户，或是一个已经找到了最喜欢的GNU/Linux发行版之GNU/Linux用户，也或者甚至是一名Microsoft Windows用户，甚至一名MacOS用户，无论如何，我都强烈建议你试试FreeBSD。但是在此之前，花一些时间研究研究FreeBSD文档，如果理解了它是如何工作的，你将从系统获得最大之收益。多接触接触[IRC频道](https://wiki.freebsd.org/IRC/Channels)、[FreeBSD邮件列表](https://www.freebsd.org/community/mailinglists.html)或[FreeBSD论坛](https://forums.freebsd.org)上的人士，你会发现许多(对自己)大有帮助之人。
 
 我强烈推荐Michael W.Lucas的著作[Absolute FreeBSD](https://www.amazon.com/Absolute-FreeBSD-3rd-Complete-Guide/dp/1593278926/ref=nav_signin?dchild=1&keywords=FreeBSD&qid=1593707822&s=books&sr=1-1&)，他是一位网络/安全工程师，有着丰富的在FreeBSD上使用高可用系统之经验。Michael的书详细介绍了FreeBSD操作系统。这本书写得很好，包含众多相关细节。
 
