@@ -1,6 +1,6 @@
 ---
 layout: post
-title: [WWDC 2020]Advancements in the Objective-C Runtime
+title: WWDC2020之Advancements in the Objective-C Runtime
 ---
 {{page.title}}
 ======================
