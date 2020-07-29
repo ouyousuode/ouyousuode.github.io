@@ -2,6 +2,7 @@
 layout: post
 title: [WWDC 2020]Advancements in the Objective-C Runtime
 ---
+{{page.title}}
 ======================
 
 <img src="/images/posts/2020-07-10/WWDC_2020_Hello.png">
