@@ -77,7 +77,7 @@ Sticking to these APIs is really important,because any code that tried to access
 
 All of the information in these structure is available through official APIs.There are functions like *class_getName* and *class_getSuperclass*.When you use these APIs to access this information,you know they'll keep working no matter what we change behind the scenes.All of these APIs can be found in the Objective-C Runtime documentation on [developer.apple.com](https://developer.apple.com/documentation/objectivec/objective-c_runtime?language=objc).Next,let's dive a little deeper into these class data strtuctures,and take a look at another change: relative method lists.
 
-<img src="/images/posts/2020-07-10/Relative_Method_Lists.png">
+<img src="/images/posts/2020-07-10/Relative_Method_Lists_title.png">
 
 Every class has a list of methods attached to it.When you write a new method on a class,it gets added to the list.
 
@@ -109,7 +109,7 @@ Here we show the three method table entries pointing into location in their bina
 
 Now note that a class method entry from a binary only ever points to method implemenations within that binary.There is no way to make a method that has its metadata in one binary and the code implementing it in another.That means the method list entries don't actually need to be able to refer to the entire 64-bit address space.They only need to be able to refer to functions within their own binary,and those will always be nearby.
 
-<img src="/images/posts/2020-07-10/Relative_method_lists_0.png">
+<img src="/images/posts/2020-07-10/Relative_method_lists_offset.png">
 
 So instead of an absolute 64-bit address,they can use a 32-bit relative offset within the binary.And that's a change that we've made this year.This has several advantages.Firstly,the offsets are always the same,no matter where the image is loaded into memory,so they don't have to be fixed up after they're loaded from disk.And because they don't need to be fixed up,they can be held in true read-only memory,which is more secure.
 
