@@ -1,6 +1,6 @@
 ---
 layout: post
-title: The Power of Hashing
+title: 认识Hashing
 ---
 {{page.title}}
 ===============================
