@@ -7,17 +7,17 @@ title: 第22章  Grand Central Dispatch
 
 多线程编程时常是非常困难的。你有竞争条件，虽说可通过加锁以修正，但是选取一个恰当锁粒度以阻止所有线程序列化同一个代码路径却非常困难。锁太大，它们会强制序列化；锁太小，则必须重复加锁/解锁。而且并行算法也比串行算法更难以理解，或者至少不像对串行算法那般熟悉。
 
-<img src="/images/posts/2018-12-09/theTraditionalLockingModel.jpg">
+<img src="/images/posts/2018-12-09/traditional_locking_model.png">
 上图即展示了一个典型场景。这有多个线程，它们都在等着处理一些敏感的数据结构。通过使用锁，临界区(critical sections)就被序列化了。此后，线程阻塞至锁可用，方才操作这些敏感的数据结构。
 
 Mac OS X 10.6及iOS 4引入了Grand Central Dispatch(GCD),它本质上使用了队列机制。它提供一种从事大块工作且序列化它们的方式，这些大块工作表现为block的形式。But does this undo all the work you have done with threads以充分利用多核的优势吗？纯粹地看，是的！
 
-<img src="/images/posts/2018-12-09/workingWithASerialQueue.jpg">
+<img src="/images/posts/2018-12-09/working_with_a_serial_queue.png">
 上图展示了GCD的世界观。你有一个串行队列，这个队列呢控制着对敏感数据结构的访问。操纵数据结构的所有工作仅发生在一个线程中，因此你无需处理加锁事项。通过把工作块(block)放入队列，单个线程即可执行在数据结构上的操作。
 
 如果操作是用后即不理类型，the thread can go off an do more work while the sensitive queue gets drained。如果线程需要等着工作完成，它就可以等待直至工作干完，再做其它事。即使在这种情形下，性能也不比等着一个鹬蚌相争的锁差！实际上，GCD的性能优越性是板上钉钉的。一旦你把工作放入队列(以FIFO/先进先出顺序处理工作流)了，你的工作定能得到处理。非但如此，如果你添加了更多的队列，那你就有更多作并行化的机会。
 
-<img src="/images/posts/2018-12-09/multipleSerialQueues.jpg">
+<img src="/images/posts/2018-12-09/multiple_serial_queues.png">
 此图展现了两个不同的有队列保护的敏感数据结构及把工作单元放入队列的几个线程。每一个数据结构都是串行化访问且未加锁的。通过一些这样面对队列的数据结构，你可以有很好的程序范围内的并行化实现！Apple称此种结构为"并发性海洋中的串行化小岛(islands of serialization in a sea of concurrency)"。程序可优化多处理器的使用以便充分利用用户机器上的可用多核心。随着时间的推移，相信越来越多的应用会这么做。
 
 个别的程序没有系统级的资源消耗。扩展并发度以最优化使用机器上的可用计算资源需要对硬件有充足的认识。GCD与内核合作，因此，它可从系统层面了解谁在竞争计算资源，以及可合理安排任务以便拥有最大吞吐量。简言之，GCD可以承诺的是：如果你给他工作了，它会确保(合理范围内)尽可能快地执行它们。
@@ -40,14 +40,14 @@ Dispatch队列是GCD的基础数据结构。一个队列就是包含work项的�
 
 记住这三个全局队列是仅有的并发运行队列是非常重要的。串行队列以FIFO方式来分派及完成任务，而全局队列只是以FIFO的方式分派它们。每个串行队列都需要一个目标队列，这个目标队列是工作最终得到调度以运行的地方。可以让串行队列靶定(target)其它的串行队列。只要队列链条到达了全局队列，分派的工作就能得以完成。像下图展示的这般：
 
-<img src="/images/posts/2018-12-09/dispatchQueueArchitecture.jpg">
+<img src="/images/posts/2018-12-09/dispatch_queue_architecture.png">
 一个串行队列的优先级取决于它的目标队列的优先级。通过靶定一个串行队列到默认优先级全局队列上，它的work项就终以调度在默认优先级队列的工作队列中。重新靶定串行队列到高优先级全局队列将导致任意已入队却还未以默认优先级调度的work项运行在高优先级全局队列中(这句太长了)！
 
 串行队列是非常轻量级的数据结构，其体积以比特计而非几KB。但凡对设计有益，可创建任意多有专门用途的队，因为无须担心对其数据结构的管理工作。线程却没这么让人省心，它属于相当重量级的数据结构。那就是说，除非你有理由非得要串行运行work项，比如确保同一时间仅有单独一个线程操纵资源；否则，你应当直接将work项入队到一个全局队列中。
 ## 22.3  面向对象设计
 虽然GCD纯以C语言实现，但是它是一个面向对象库。基本的GCD类型是指向不透明(opaque)数据结构的指针，然而也涉及到一个继承模型。dispatch对象的基类是dispatch_object_t。你从不会直接创建一个dispatch_object_t对象；相反，你创建比如队列(source)、源(source)及组(group)这样具体的对象。这也有几个类似dispatch_time_t、dispatch_once_t这样的类型，它们并非对象却属于半透明的标量类型。
 
-<img src="/images/posts/2018-12-09/dispatchClassesAndFunctions.jpg">
+<img src="/images/posts/2018-12-09/dispatch_classes_and_functions.png">
 ## 22.4  Dispatch API
 ### 22.4.1 API之队列
 在你可以在队列上调度任务前，你需要掌握一个队列。可以利用
@@ -372,7 +372,7 @@ unsigned long dispatch_source_get_data(dispatch_source_t source);
 ```
 下图列出了不同的dispatch源以及它们的moving部分。
 
-<img src="/images/posts/2018-12-09/dispatchSourceTypes.jpg">
+<img src="/images/posts/2018-12-09/dispatch_source_types.png">
 
 ### 22.10.1 Dispatch源之信号
 彷佛我们已经没有了足够的信号处理API，GCD则添加了它自己的。那就是说，这可能是在OS X和iOS上处理信息的最简单方式。源类型为DISPATCH_SOURCE_SIGNAL，handle是信号数字，并且mask未用到，故留置为0。当一个SIGUSR1信号传递给应用后，此代码会将其打印在主队列上。
