@@ -131,6 +131,7 @@ Delegation是一种设计模式，在此模式内，一个对象发送消息给�
 - 每个iOS应用必须有一个application委托对象；在此应用，它是由Single View App模板提供的HelloWorldAppDelegate类的一个实例。除了执行定制的配置任务，应用委托可处理application级别的事件，因为它参与响应者链(responder chain)。在本指导中，不必执行特定的配置任务或处理任何app级别的时间，因此无需对HelloWorldAppDelegate源文件做任何修改。
 - 当用户结束键入内容时，稍后添加的text field需要告诉它的委托。为帮助实现此目的，需确保视图控制器对象(即HelloWorldViewController)遵循*UITextFieldDelegate*协议。
 
+<br/>
 ## 2.3 Model-View-Controller使代码更易于编写及重用
 ---
 Model-View-Controller(MVC)设计模式为应用中的对象定义了三种角色。
@@ -343,7 +344,7 @@ Hello World View Controller场景已经包含一个视图，现在向它添加�
   
 @end
 ```
-
+<br/>
 # 5 实现视图控制器
 这有几个需要实现视图控制器的部分：为用户名添加一个属性，实现changeGreeting:方法，以及确保当用户点击Done时键盘会消失。
 ## 5.1 为用户名添加属性值
@@ -397,7 +398,7 @@ Hello World View Controller场景已经包含一个视图，现在向它添加�
 @synthesize textField = _textField;
 @synthesize label = _label;
 ```
-
+<br/>
 ## 5.2 实现changeGreeting:方法 
 ---
 在"To add action for the button"部分，配置了按钮以便“当用户点击它时，它发送一条changeGreeting:消息给视图控制器”。作为响应，你想视图控制器在标签上显示用户在文本域输入的文本。特别地，changeGreeting:应当：
@@ -425,7 +426,7 @@ Hello World View Controller场景已经包含一个视图，现在向它添加�
 
 }
 ```
-
+<br/>
 ## 5.3 配置视图控制器为文本域的委托
 ---
 如果构建运行应用，应当发现当单击按钮时，标签显示"Hello,World"。如果你选择文本域开始键入内容，应当发现仍然没有办法暗示已经完成输入且dismiss键盘。
@@ -491,7 +492,7 @@ iOS用户对运行在基于iOS设备的app外观及感觉有很高的期望。�
 
 最最重要的事务是尝试新想法以及多做实验。官网有很多可以寻求灵感的代码样例，也有帮助理解概念和编程接口的文档。
 
-## 6.3 添加单元测试
+## 6.4 添加单元测试
 ---
 当创建本指导中的工程时，并未选择“Include Unit Tests”。当开发真正的应用程序时，包含测试是非常重要的。在某些方面，可将测试当成封装设计原则的映射(counterpart)：测试确保如果一个方法的实现细节变化了，此方法是否仍能像通告般工作。
 
