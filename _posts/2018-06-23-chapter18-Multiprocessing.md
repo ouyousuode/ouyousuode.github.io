@@ -15,7 +15,7 @@ title: 第18章  多进程
 
 可以将调度器认为是拥有很多带优先级进程的一个列表。这些不被阻塞的进程以优先级的顺序放入一个运行队列(run loop)中。当要运行一个新进程时，调度器从队列头部取出一个进程，使之运行，直到因某些原因被阻塞或者时间片过期了，再将它放回到队列中。
 
-<img src="/images/posts/2018-06-23/scheduler_Small.jpg">
+<img src="/images/posts/2018-06-23/Scheduler.png">
 你可利用uptime命令来检查run queue的平均长度。
 
 <img src="/images/posts/2018-06-23/uptime.png">
@@ -48,7 +48,7 @@ fork()制作一份当前运行进程的拷贝，并且它是很少的可返回�
 
 作为父进程的一份拷贝，子进程继承了父进程的内存、打开的文件、真实有效的用户及组ID、当前的工作目录、信号掩码、文件模式创建掩码、环境、资源限制以及任意附带的共享内存段。此拷贝行为可被展示为：
 
-<img src="/images/posts/2018-06-23/fork_Small.jpg">
+<img src="/images/posts/2018-06-23/fork_before_after.png">
 拷贝这许多数据听起来较费时，但是macOS采用快捷方式。它在父子进程间共享原始拷贝，延迟进行备份到非复制不可而非立即复制父进程的内存空间。此过程利用的是一种称为copy on write的技术，也叫COW。
 
 <img src="/images/posts/2018-06-23/copyOnWrite.png">
@@ -64,7 +64,7 @@ fork()制作一份当前运行进程的拷贝，并且它是很少的可返回�
 
 其它的知识点与打开的文件如何在两个进程间共享有关。父子进程在内核中共享相同的文件表入口，如下所示的那样。这就意味着打开文件的所有属性都是共享的，比如当前偏移量。这通常是一种被期望的行为——当你想让父子进程打印到相同的标准输出时，每当打印，每个进程会增长在文件的偏移量，因此它们可以避免相互改写。However,it can also be confusing when your file offsets move from underneath you and you were not expecting them to。与文件表事务相关的是the state of the buffers for buffered I/O。The buffered I/O buffers in the parent's 地址空间 get duplicated across the fork。如果fork前缓冲期中有数据，父子进程可以打印两次缓冲期中的数据，这可能不是我们想要的结果。
 
-<img src="/images/posts/2018-06-23/filesAfterFork_Small.jpg">
+<img src="/images/posts/2018-06-23/Files_after_fork.png">
 注意上述极简程序中前有下划线的exit()方法。它行为如exit(),关闭文件描述符，做些一般性的清理工作，但是它不会冲刷文件流缓冲期，因此你不必担心它会为你冲刷带有复制数据的缓冲器。在此程序实例中，printf()中的新行(newline)为我们冲刷缓冲器。
 
 也请注意在退出前父进程小睡了一会儿。当子进程记录信息时，这提高了它仍未子进程的父亲角色的可能性。在子进程写信息前，如果父进程退出了，那此子进程的父亲将为进程1。删除sleep()行，重新编译运行后，你可以观察到这种行为。由于输出依赖竞争条件，所以有可能运行几次后才能看到这种情况。
@@ -122,7 +122,8 @@ fork后的大多数情况是，你只是想运行其它程序。exec()函数族�
 
 这里有几个exec()的变种，它们随具体情形而定，例如，你如何指定要运行的文件，如何指定程序参数，以及如何指定新程序的环境变量。
 
-<img src="/images/posts/2018-06-23/execVariants_Small.jpg">
+<img src="/images/posts/2018-06-23/exec_variants.png">
+
 如何解读这些名称:
 - p  如果给定文件名包含斜杠，则它被用作路径。否则，此调用使用PATH环境变量来做shell式的程序查找。
 - P  像p一样，但是使用提供的"/sbin:/bin:/usr/sbin:/usr/bin"这样的字符串而非PATH环境变量。
@@ -157,7 +158,7 @@ pipe()用两个连接在一起的文件描述符(fd)来填充files数组，写�
 - 父进程从filedes[0]读取此程序的输出。在子进程退出后，它的文件描述符被关闭，一旦缓存的数据被排干了，从filedes[0]读取就能返回文件的结尾。
 - 最后，父进程wait()子进程终止以收割之。
 
-<img src="/images/posts/2018-06-23/pipeAndFork.png">
+<img src="/images/posts/2018-06-23/pipe_and_fork.png">
 可使用多个pipe把多个程序的输入和输出链接到一起。根据此原理，我们可以编写一个等同于如下功能的程序：
 grep -i mail /usr/share/dict/words | tr '[:lower:]' '[:upper:]'。
 什么意思呢？是将从/usr/share/dict/words获得的包含mail的单词转换成大写形式。

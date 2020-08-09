@@ -92,16 +92,16 @@ Unix系统有一个称之为sort的应用程序，它读取标准输入的数据
 <img src="/images/posts/2018-07-16/sortThem.jpg">
 为准确起见，我们不会在实际应用中这样做排序。NSArray类有几个优雅的方式做排序。这只是一个应用其它进程的简单示例。以下为此程序nib文件的对象示意图：
 
-<img src="/images/posts/2018-07-16/sortThemNibFile_Small.jpg">
+<img src="/images/posts/2018-07-16/SortThem_nib_file.jpg">
 创建一个Cocoa Application类型的新工程并将之命名为SortThem。编辑工程附带的ViewController.h文件，设置outlets和action。
 
 <img src="/images/posts/2018-07-16/viewControllerHeader.jpg">
 编辑Main.storyboard文件。拖拽两个NSTextView对象和一个NSButton到IB窗口。将右边text view的属性设置为non-editable:
 
 <img src="/images/posts/2018-07-16/layingOutTheSortThemWindow.jpg">
-在动手写代码前，看一样如下的对象示意图。
+在动手写代码前，看一眼如下的对象示意图。
 
-<img src="/images/posts/2018-07-16/sortThemObjectDiagram_Small.jpg">
+<img src="/images/posts/2018-07-16/SortThem_object_diagram.png">
 在Xcode中，在ViewController.m内添加-sort:方法。
 
 <img src="/images/posts/2018-07-16/viewControllerImplementation.jpg">
@@ -120,7 +120,7 @@ Unix系统有一个称之为sort的应用程序，它读取标准输入的数据
 <img src="/images/posts/2018-07-16/viewControllerHeaderTraceRoute.jpg">
 编辑Main.storyboard。拖拽一个NSTextView,一个NSTextField以及一个NSButton到故事板中。把他们与ViewController连接好，当然也要把button的action连接到startStop:。NSTask运行后的移动信息流为：
 
-<img src="/images/posts/2018-07-16/traceRoute_Small.jpg">
+<img src="/images/posts/2018-07-16/trace_Route.jpg">
 编辑实现代码，使之看起来像这样：
 
 <img src="/images/posts/2018-07-16/viewControllerImplementationTraceRoute_00.jpg">
