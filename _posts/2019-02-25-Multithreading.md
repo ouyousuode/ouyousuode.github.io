@@ -24,10 +24,10 @@ void *someFunction(void *someArg);
 - arg 为给予startRoutine的参数。
 <br/>
 
-当某个线程被创建时，系统为此线程创建一个私有栈，类似于main函数调用栈。像Thread stacks图中所示的那样。线程用此栈作函数调用管理及局部变量存储之用。
+当某个线程被创建时，系统为此线程创建一个私有栈，类似于main函数调用栈。像Figure 20.1中所示的那样，线程用此栈作函数调用管理及局部变量存储之用。
 
-<img src="/images/posts/2019-02-25/thread_stacks.jpeg">
-线程就像进程，因为它们有一个返回值给创建线程者。利用类似于为进程的**waitpid()**机制，你可使用**pthread_join()**来与特定线程会和。
+<img src="/images/posts/2019-02-25/Figure_20_1_Thread_stacks.png">
+线程神似进程，因为它们有一个返回值给创建线程者。利用类似于为进程的**waitpid()**机制，你可使用**pthread_join()**来与特定线程会和。
 ``` Objective-C
 int pthread_join(pthread_t threadID,void **valuePtr);
 ```
@@ -35,9 +35,7 @@ int pthread_join(pthread_t threadID,void **valuePtr);
 ``` Objective-C
 int pthread_detach(pthread_t threadID);
 ```
-有时，称这个被分离的线程为“守护线程”，因为它们像守护进程般独立运行！成为这样一个线程的常用语法是调用pthread_detach(pthread_self());以将自身转变为一个守护线程。
-
-以下basics.m这个小程序便衍生出了几个线程。其中，有些被分离(detached)了；有些未如此，便需被等待：
+有时，称这个被分离的线程为“守护线程”，因为它们像守护进程般独立运行！成为这样一个线程的常用语法是调用pthread_detach(pthread_self());以将自身转变为一个守护线程。以下basics.m这个小程序便衍生出了几个线程。其中，有些被分离(detached)了；有些未如此，便需被等待：
 
 <img src="/images/posts/2019-02-25/basics_0.png">
 <img src="/images/posts/2019-02-25/basics_1.png">
@@ -56,8 +54,7 @@ for(i = 0;i < Thread_COUNT;i++) {
 	info->index = i;
 	info->numberToCountTo = (i + 1) * 2;
 	...
-	result = pthread_create(&threads[i].threadID,NULL,
-					threadFunction,&info);
+	result = pthread_create(&threads[i].threadID,NULL,threadFunction,&info);
 }
 ```
 接着，**threadFunction**将拷贝它想要的数据。但是，这里需要考虑三种情况：
@@ -69,9 +66,9 @@ for(i = 0;i < Thread_COUNT;i++) {
 
 正确同步化是难以做到的，并且问题也会是难以调试的。在安全数据访问与高效访问之间有一条线，这也是线程化编程比人们臆想的难得多的主要原因。为帮助解决这些问题，pthread API提供了一些同步机制，特别是互斥锁和条件变量。
 ### 20.1.3 互斥锁
-互斥锁用于序列化访问代码的关键部分，这意味着当互斥锁被恰当使用时，只有一个正执行的线程可访问那段代码，如A mutex图示那样。所有想运行此代码的其它线程将被阻塞至原线程结束。结束后，一任意线程即被选中来运行此代码片段。
+互斥锁用于序列化访问代码的关键部分，这意味着当互斥锁被恰当使用时，只有一个正执行的线程可访问那段代码，如Figure 20.2图示那样。所有想运行此代码的其它线程将被阻塞至原线程结束。结束后，一任意线程即被选中来运行此代码片段。
 
-<img src="/images/posts/2019-02-25/a_mutex.jpeg">
+<img src="/images/posts/2019-02-25/Figure_20_2_A_mutex.png">
 对一段代码使用互斥锁消除了此代码可能有的任何并发性，而这恰恰是起初使用线程的主要动机。因此，你希望此锁尽可能地短！需清醒认识到，虽然互斥锁控制对代码的访问，但是，你只是用它来控制对数据的访问！
 
 互斥锁的数据类型为pthread_mutex_t。你可以声明它们为局部变量、全局变量、或者为它们**malloc()**内存。有两种方式来初始化互斥锁。第一种方式为使用一个静态初始化器，对一个单例形式的互斥锁较为方便，当然此单例是你想在某函数外部持有的。
@@ -121,8 +118,8 @@ pthread_mutex_lock(mutexB);
 pthread_mutex_lock(mutexA);
 ```
 
-<img src="/images/posts/2019-02-25/deadlock.jpeg">
-图Deadlock展示了像如下到执行路径:
+<img src="/images/posts/2019-02-25/Figure_20_3_Deadlock.png">
+Figure 20.3展示了像如下到执行路径:
 - 线程1锁定了A。它得以抢占。
 - 线程2锁定了B。它得以抢占。
 - 线程1尝试去锁定B。它阻塞了。
@@ -162,11 +159,9 @@ int pthread_cond_wait(pthread_cond_t *cond,
 ``` Objective-C
 int pthread_cond_signal(pthread_cond_t *cond);
 ```
-当前被阻塞在**pthread_cond_wait()**的单个线程会醒来(利用pthread_cond_broadcast()可唤醒所有被阻塞的线程)。需认识到，**pthread_cond_wait()**可以假返回。在继续执行之前，你应经常检查value of your condition。
+当前被阻塞在**pthread_cond_wait()**的单个线程会醒来(利用pthread_cond_broadcast()可唤醒所有被阻塞的线程)。需认识到，**pthread_cond_wait()**可以假返回。在继续执行之前，你应经常检查value of your condition。好了，那么“value of your condition”到底是什么呢？考虑Figure 20.4中的场景，一台web服务器的请求队列！
 
-好了，那么“value of your condition”到底是什么呢？考虑图server request queue中的场景，一台web服务器的请求队列！
-
-<img src="/images/posts/2019-02-25/server_request_queue.jpeg">
+<img src="/images/posts/2019-02-25/Figure_20_4_Server_request_queue.png">
 一个线程阻塞在**accept()**调用上，等待新链接。当一个新链接进入时，它被放在请求队列的尾端。同时，connection线程在闲转，将最顶端的条目拉出队列并处理他们。这是经典的“生产者/消费者”问题的一个版本，也是每本并发编程书籍都会讨论的知识点。
 
 相对于请求队列，“accept”和“connection”线程可以各有两种状态。
@@ -200,12 +195,10 @@ signal the accept thread;
 process the request;
 ```
 <br/>
-
 如果你不想无限期地阻塞，你可利用**pthread_cond_timedwait()**为条件变量的等待指定一个超时：
 ``` Objective-C
-int pthread_cond_timedwait(pthread_cond_t *cond,
-                           pthread_mutex_t *mutex,
-						   const struct timespec *abstime);
+int pthread_cond_timedwait(pthread_cond_t *cond,pthread_mutex_t *mutex,
+	const struct timespec *abstime);
 ```
 通过填写这个数据结构来指定timeout：
 ``` Objective-C
@@ -214,9 +207,7 @@ struct timespec {
 	long  tv_nsec;  // nanoseconds
 }
 ```
-**pthread_timed_condwait()**与**select()**类似调用之不同之处在于前者的timeout是一个绝对值，而非相对值。这就使得处理虚假唤醒简单得多，因为你不必每次重新计算其等待间隔。
-
-webserve-thread.m代码描述了一台简单的web服务器，它有一个使用条件变量的请求队列：
+**pthread_timed_condwait()**与**select()**类似调用之不同之处在于前者的timeout是一个绝对值，而非相对值。这就使得处理虚假唤醒简单得多，因为你不必每次重新计算其等待间隔。webserve-thread.m代码描述了一台简单的web服务器，它有一个使用条件变量的请求队列：
 
 <img src="/images/posts/2019-02-25/webserve-thread_0.png">
 <img src="/images/posts/2019-02-25/webserve-thread_1.png">
@@ -237,7 +228,7 @@ webserve-thread.m代码描述了一台简单的web服务器，它有一个使用
 ``` Objective-C
 + (void)detachNewThreadSelector: (SEL)aSelector
                        toTarget: (id)aTarget
-					 withObject: (id)anArgument;
+                     withObject: (id)anArgument;
 ```
 aSelector是一个选择器，它描述了aTarget可以接收的方法。aSelector的签名是：
 ``` Objective-C
@@ -259,6 +250,7 @@ if([drawView lockFoucsIfCanDraw]) {
 	[drawView unlockFocus];
 }
 ```
+
 ### 20.2.2 Cocoa及线程安全
 Foundation及AppKit框架的一部分是线程安全的，然有些却不是。通常情况下，不可变对象是线程安全的，可以被多个线程使用。可变对象不是线程安全的，也不应被多个线程使用。在假定对象的可变性之前，你必须对如何创建对象小心翼翼，例如，考虑一个采用**NSString**作参数的方法。通常，**NSString**是不可变的。但是，鉴于继承关系，一个调用者可以合法地创建一个**NSMutableString**并把它喂给一个采用**NSString**作参数的方法。同样的方式，线程间共享不可变容器是安全的，可变容器则不可！
 
@@ -274,10 +266,9 @@ Foundation及AppKit框架的一部分是线程安全的，然有些却不是。�
 
 为使用线程局部存储，利用**pthread_key_create()**初始化一个pthread_key_t：
 ``` Objective-C
-int pthread_key_create(pthread_key_t *key,
-				void (*destructor)(void *));
+int pthread_key_create(pthread_key_t *key,void (*destructor)(void *));
 ```
-这会创建一个抽象键。通常，你用描述性名称命名变量，或者将此键与字典中的描述性字符串相关联，像图Thread local storage展示的那样！当线程退出时，析构函数被调用，以便动态内存(或其它资源)可被清理。
+这会创建一个抽象键。通常，你用描述性名称命名变量，或者将此键与字典中的描述性字符串相关联，像Figure 20.5展示的那样！当线程退出时，析构函数被调用，以便动态内存(或其它资源)可被清理。
 
 通过**pthread_setspecific()**设置一个线程局部值：
 ``` Objective-C
@@ -287,7 +278,7 @@ int pthread_setspecific(pthread_key_t key,const void *value);
 ``` Objective-C
 void *pthread_getspecific(pthread_key_t key);
 ```
-<img src="/images/posts/2019-02-25/thread_local_storage.jpeg">
+<img src="/images/posts/2019-02-25/Figure_20_5_Thread_local_storage.png">
 如果你用着**NSThread**呢，可以利用
 ``` Objective-C
 - (NSMutableDictionary *)threadDictionary;
@@ -308,11 +299,8 @@ int pthread_rwlock_destroy(pthread_rwlock_t *lock);
 你可以指定想要的锁定，而不是使用**lock()**：
 ``` Objective-C
 int pthread_rwlock_rdlock(pthread_rwlock_t *rwlock);
-
 int pthread_rwlock_tryrdlock(pthread_rwlock_t *rwlock);
-
 int pthread_rwlock_wrlock(pthread_rwlock_t *rwlock);
-
 int pthread_rwlock_trywrlock(pthread_rwlock_t *rwlock);
 ```
 解除锁定，倒是简单，利用**pthread_rwlock_unlock()**即可：
