@@ -78,7 +78,7 @@ static pthread_mutex_t myMutex = PTHREAD_MUTEX_INITIALIZER;
 另一种方法是取一块pthread_mutex_t大小的内存，利用**pthread_mutex_init()**初始化此内存块：
 ``` Objective-C
 int pthread_mutex_init(pthread_mutex_t *mutex,
-				const pthread_mutexattr_t *attr);
+                       const pthread_mutexattr_t *attr);
 ```
 像**pthread_create()**一样，不在此处讨论具体的属性。当你为每个数据结构加一把互斥锁时，你将会用到**pthread_mutex_init()**。当你用**pthread_mutex_init()**初始化完成一个锁时，需使用**pthread_mutex_destroy()**以释放它的资源：
 ``` Objective-C
@@ -153,7 +153,7 @@ int pthread_cond_destroy(pthread_cond_t *cond);
 来销毁它！互斥锁与条件变量是相关联的。为使用条件变量，你锁定相关联的互斥锁，接着当你感兴趣的条件是false时，调用**pthread_cond_wait()**:
 ``` Objective-C
 int pthread_cond_wait(pthread_cond_t *cond,
-			pthread_mutex_t *mutex);
+                      pthread_mutex_t *mutex);
 ```
 互斥锁被自动解开，且此调用阻塞。当其它线程调用**pthread_cond_signal()**时，
 ``` Objective-C
@@ -195,6 +195,7 @@ signal the accept thread;
 process the request;
 ```
 <br/>
+
 如果你不想无限期地阻塞，你可利用**pthread_cond_timedwait()**为条件变量的等待指定一个超时：
 ``` Objective-C
 int pthread_cond_timedwait(pthread_cond_t *cond,pthread_mutex_t *mutex,
@@ -250,7 +251,7 @@ if([drawView lockFoucsIfCanDraw]) {
 	[drawView unlockFocus];
 }
 ```
-
+<br/>
 ### 20.2.2 Cocoa及线程安全
 Foundation及AppKit框架的一部分是线程安全的，然有些却不是。通常情况下，不可变对象是线程安全的，可以被多个线程使用。可变对象不是线程安全的，也不应被多个线程使用。在假定对象的可变性之前，你必须对如何创建对象小心翼翼，例如，考虑一个采用**NSString**作参数的方法。通常，**NSString**是不可变的。但是，鉴于继承关系，一个调用者可以合法地创建一个**NSMutableString**并把它喂给一个采用**NSString**作参数的方法。同样的方式，线程间共享不可变容器是安全的，可变容器则不可！
 
@@ -290,7 +291,7 @@ Cocoa和pthreads都提供读/写锁。此二者允许同时由许多读取器读
 pthread_rwlock_t工作起来像pthread_mutex_t，但是伴有一对额外的调用。这有细节:
 ``` Objective-C
 pthread_rwlock_init(pthread_rwlock_t *lock,
-		const pthread_rwlockattr_t *attr);
+                    const pthread_rwlockattr_t *attr);
 ```
 OS X为定义PTHREAD_RWLOCK_INITIALIZER，因此你不能静态地创建它们。
 ``` Objective-C
