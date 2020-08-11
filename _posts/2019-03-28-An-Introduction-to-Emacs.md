@@ -15,7 +15,7 @@ self-documenting意味着您可以随时使用特殊命令(称为帮助命令)�
 
 customizable则意味着您可以通过简单的方式轻松更改Emacs命令的行为。例如，如果您正使用编程语言，其注释以‘<-’开头并以‘->’结尾，则可以告诉Emacs注释操作命令以使用这些字符串。再举一例，您可以将基本光标移动命令(向上、向下、向左和向右)重新绑定到自己感觉舒服的键盘上的任意键。
 
-extensible意味着可以超越简单的自定义并创建全新的命令。这些新命令只是用Lisp语言编写的程序，此程序由Emacs自己的Lisp解释器运行。甚至可以在编辑会话中重新定义现有命令，而无需重新启动Emacs。Emacs内的绝大多数编辑命令均是用Lisp编写的；少数例外情况，虽可以用Lisp编写，但为效率计，使用了C语言。编写扩展的工作是编程，但是非程序员可以在之后使用它。如果你想学习Emacs Lisp编程，可以参考An Introduction to Programming in Emacs Lisp](https://www.gnu.org/software/emacs/manual/eintr.html)。
+extensible意味着可以超越简单的自定义并创建全新的命令。这些新命令只是用Lisp语言编写的程序，此程序由Emacs自己的Lisp解释器运行。甚至可以在编辑会话中重新定义现有命令，而无需重新启动Emacs。Emacs内的绝大多数编辑命令均是用Lisp编写的；少数例外情况，虽可以用Lisp编写，但为效率计，使用了C语言。编写扩展的工作是编程，但是非程序员可以在之后使用它。如果你想学习Emacs Lisp编程，可以参考[An Introduction to Programming in Emacs Lisp](https://www.gnu.org/software/emacs/manual/eintr.html)。
 
 想学Emacs Lisp编程吗？确实想学！试想，在使用Emacs时，想添加一个功能A，自己竟能顺手实现之；或者能在已有别人的(代码)版本基础上改进之。这是一件多么美好的事情！在编写扩展时，可以参考[GNU ELPA Packages](http://elpa.gnu.org/packages/)内比较成熟的代码。关于如何学习Lisp编程，可以参考Richard Stallman给出的[How to Learn Programming](http://www.stallman.org/stallman-computing.html)建议。
 
@@ -43,7 +43,7 @@ extensible意味着可以超越简单的自定义并创建全新的命令。这�
 
 在以上书单中，Structure and Interpretation of Computer Programs是比较有趣的；因为它诠释内容的示例编程语言是Scheme。而Emacs Lisp、Common Lisp和Scheme都属于Lisp语言的方言。编程语言也是语言，既为语言，便与思维紧密相关。从定义看，思维是人脑借助于语言对客观事物的概括和间接的反应过程！
 
-在学习某门外语时，我们不仅了解此(语言使用)民族的历史传承、文化传统，更是在学习(或言习惯)他们的思维方式，比如时间思维。在德语中，德语名词有单复数、四个格、三个性别，并且德语的冠词及形容词需要随同其修饰的名词之性数格变化。如此这般也还好，痛苦之处在于长句特别多；均从句套从句，据说“有学者在翻译黑格尔的德文原版著作时，翻到第三页居然还没找到一枚句号。”但是，甭管这句子多长、连得多远，这句话在结束时还能拉回来；什么意思呢？无论走多远，都记得初衷，都遵循一个逻辑链条。这样的语言特点就训练此民族的长远(时间)思维。
+在学习某门外语时，我们不仅了解此(语言使用)民族的历史传承、文化传统，更是在学习(或言习惯)他们的思维方式，比如时间思维。在德语中，德语名词有单复数、四个格、三个性别，并且德语的冠词及形容词需要随同其修饰的名词之性数格变化。如此这般也还好，痛苦之处在于长句特别多；均从句套从句，据说‘有学者在翻译黑格尔的德文原版著作时，翻到第三页居然还没找到一枚句号’。但是，甭管这句子多长、连得多远，这句话在结束时还能拉回来；什么意思呢？无论走多远，都记得初衷，都遵循一个逻辑链条。这样的语言特点就训练此民族的长远(时间)思维。
 
 而编程语言就是程序员的思维方式。使用某些语言时，会强化面向过程的思考模式；使用另一些语言则促使你使用面向对象的方式来思考软件。不止如此，Lisp专家、世界上首个互联网应用程序Viaweb开发者之一、Y Combinator创办者Paul Graham在《On Lisp》中提到‘In Lisp, you don't just write your program down toward the language, you also build the language up toward your program.’(在Lisp中，你不仅是根据语言向下构造程序，也可以根据程序向上构造语言。)这便是自顶向下(top-down design)程序设计与自底向上(bottom-up design)设计之区别。
 
