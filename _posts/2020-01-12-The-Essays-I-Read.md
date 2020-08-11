@@ -6,7 +6,6 @@ title: 那些年读过的文章
 ============================
 <img src="/images/posts/2020-01-12/Reading.jpeg">
 ## 待读
-
 Jeff Bezos [Letter to Shareholders](https://ir.aboutamazon.com/annual-reports)
 Warren Buffett [Letters to Berkshire Shareholders](http://www.berkshirehathaway.com/letters/letters.html)
 [What's a senior engineer's job?](https://jvns.ca/blog/senior-engineer/?utm_source=wanqu.co&utm_campaign=Wanqu+Daily&utm_medium=website)
@@ -23,7 +22,6 @@ FFmpeg [Building a YouTube MP3 Downloader with Exodus,FFmpeg and AWS Lambda](htt
 [Was ist Freiheit der Kritik? Von Ludwig Marcuse August 1963](https://www.zeit.de/1963/31/was-ist-freiheit-der-kritik)
 
 ## 已读
-
 [Hash table tradeoffs:CPU,memory,and variability](https://medium.com/@leventov/hash-table-tradeoffs-cpu-memory-and-variability-22dc944e6b9a)
 [Alan Kay:Smalltalk is not about objects,it’s about messaging](http://lists.squeakfoundation.org/pipermail/squeak-dev/1998-October/017019.html)
 ACM Queue [A Conversation with Alan Kay](https://queue.acm.org/detail.cfm?id=1039523)
@@ -56,7 +54,7 @@ Richard Stallman [EMACS:The Extensible,Customizable Display Editor](https://www.
 [Computers I have known and loved](https://hack.org/mc/computers.html)
 
 Stephen Wolfram [My Life in Technology As Told at the Computer History Museum](https://writings.stephenwolfram.com/2016/04/my-life-in-technology-as-told-at-the-computer-history-museum/)
-Stephen Wolfram [Seeking the Productive Life:Some Details of My Personal Infrastructure](https://writings.stephenwolfram.com/2019/02/seeking-the-productive-life-some-details-of-my-personal-infrastructure/)
+Stephen Wolfram [Seeking the Productive Life](https://writings.stephenwolfram.com/2019/02/seeking-the-productive-life-some-details-of-my-personal-infrastructure/)
 Stephen Wolfram [On Starting a Long-Term Company](https://www.stephenwolfram.com/publications/starting-long-term-company/)
 
 Paul Graham [Life is Short](http://www.paulgraham.com/vb.html)
