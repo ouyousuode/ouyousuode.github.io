@@ -21,6 +21,7 @@ title: 那些年读过的文章
 * [Optimizing a breadth-first search](https://www.snellman.net/blog/archive/2018-07-23-optimizing-breadth-first-search/)
 * [How I make $400/month with my technical eBook](https://twitter.com/SahinKevin/status/1216343661459451906)
 * [Was ist Freiheit der Kritik? Von Ludwig Marcuse August 1963](https://www.zeit.de/1963/31/was-ist-freiheit-der-kritik)
+
 <br/>
 
 ## 已读
@@ -35,6 +36,7 @@ title: 那些年读过的文章
 * [My education at Olin College](https://physicstoday.scitation.org/do/10.1063/PT.5.2015/full/)
 * Lisp [Samuel Freilich has worked for ITA Software (at Google) since the day after he graduated from Olin College in 2008](http://olin.edu/blog/career-and-graduate-stories/post/google-veteran-sam-freilich-08/)
 * [A Programmer’s Regret:Neglecting Math at University](https://awalterschulze.github.io/blog/post/neglecting-math-at-university/)
+
 <br/>
 * [Reducing FOOMs in the Facebook iOS app](https://engineering.fb.com/ios/reducing-fooms-in-the-facebook-ios-app/)
 * [Looking at Model-View-Controller in Cocoa](https://www.cocoawithlove.com/blog/mvc-and-cocoa.html)
@@ -44,24 +46,29 @@ title: 那些年读过的文章
 * [SQLite Tutorial for iOS:Making Our App](https://www.raywenderlich.com/3136-sqlite-tutorial-for-ios-making-our-app)
 * [Why many developers still prefer Objective-C to Swift](https://www.hackingwithswift.com/articles/27/why-many-developers-still-prefer-objective-c-to-swift)
 * [iOS Developers Need to Know Objective-C](https://www.bignerdranch.com/blog/ios-developers-need-to-know-objective-c/)
+
 <br/>
 * FreeBSD [why GNU grep is fast](https://lists.freebsd.org/pipermail/freebsd-current/2010-August/019310.html)
 * FreeBSD [Yahoo! and FreeBSD by David Filo,Co-Founder of Yahoo!](http://zer0.org/daemons/yahoobsd.html?utm_source=wanqu.co&utm_campaign=Wanqu+Daily&utm_medium=website)
 * FreeBSD [WhatsApp's Co-Founder on How the App Became a Phenomenon](https://www.wired.com/2015/10/whatsapps-co-founder-on-how-the-iconoclastic-app-got-huge/)
 * FreeBSD [WhatsApp donates 1 Million Dollars to the FreeBSD Foundation](https://www.freebsdnews.com/2014/11/19/whatsapp-donates-1-million-dollars-freebsd-foundation/)
+
 <br/>
 * Richard Stallman [Programming languages and How to learn programming](https://stallman.org/stallman-computing.html)
 * Richard Stallman [My Lisp Experiences and the Development of GNU Emacs](https://www.gnu.org/gnu/rms-lisp.en.html)
 * Richard Stallman [EMACS:The Extensible,Customizable Display Editor](https://www.gnu.org/software/emacs/emacs-paper.html)
 * [A CEO's Guide to Emacs](https://www.fugue.co/blog/2015-11-11-guide-to-emacs.html)
 * [Computers I have known and loved](https://hack.org/mc/computers.html)
+
 <br/>
 * Stephen Wolfram [My Life in Technology As Told at the Computer History Museum](https://writings.stephenwolfram.com/2016/04/my-life-in-technology-as-told-at-the-computer-history-museum/)
 * Stephen Wolfram [Seeking the Productive Life:Some Details of My Personal Infrastructure](https://writings.stephenwolfram.com/2019/02/seeking-the-productive-life-some-details-of-my-personal-infrastructure/)
 * Stephen Wolfram [On Starting a Long-Term Company](https://www.stephenwolfram.com/publications/starting-long-term-company/)
+
 <br/>
 * Paul Graham [Life is Short](http://www.paulgraham.com/vb.html)
 * Paul Graham [Six Principles for Making New Things](http://www.paulgraham.com/newthings.html)
+
 <br/>
 * Google [The Friendship that Made Google Huge:Coding together at the same computer,Jeff Dean and Sanjay Ghemawat changed the course of the company—and the Internet](https://www.newyorker.com/magazine/2018/12/10/the-friendship-that-made-google-huge)
 * Google [How Gmail Happened:The Inside Story of Its Launch 10 Years Ago](https://time.com/43263/gmail-10th-anniversary/)
