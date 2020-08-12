@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title: 求最大子序列和问题
 ---
 {{page.title}}
