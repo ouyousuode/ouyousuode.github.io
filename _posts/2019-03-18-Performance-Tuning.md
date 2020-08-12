@@ -20,13 +20,15 @@ title: 第10章  性能优化
 <img src="/images/posts/2019-03-18/computerForLocality.png">
 for循环的一个简单颠倒便可导致10倍的性能惩罚！第一个循环遵循了数组内存管理的方式。此循环访问临近的字节，因此随着它走遍数组，它有良好的locality of reference表现。内存页仅被访问一次；在循环体停止操纵一个页上的内存后，此页将不再使用。第二个循环体工作起来像穿越横纹(Bad memory access pattern所示)。每次通过循环，使数组用到的每页都被访问一次。如此每页均处于warm状态(会一直处于内核的数据结构内)，导致内核持续刷新它的least-recently-used页列表，这种情况给虚拟内存系统造成很大压力。第一个循环对内核更友好的原因在于，一旦工作完成便不再接触当前页。一旦页被移除内核的数据结构，它便不再可见。
 
-<img src="/images/posts/2019-03-18/memoryAccessPattern.jpg">
+<img src="/images/posts/2019-03-18/Figure_10_1.png">
+<img src="/images/posts/2019-03-18/Figure_10_2.png">
 #### 内存之缓存
 提高性能的一个常用手段是缓存化；此之后，可保持对已加载或计算过的数据访问。如果你不仔细些，这项技术也会有一些缺点，即系统占据过多的虚拟内存及分页化现象。回想：最近未被访问过的内存可被paged out到硬盘，那么RAM中的空间就可被其它进程使用了。iOS设备不会page数据到硬盘，因此dirty页是常驻内存的。
 
-如果你选择缓存信息，最好将缓存数据和描述缓存数据的元数据(metadata)分开。你不会想使用像Bad locality of reference那样的结构，它将缓存数据和元数据混合到了一块。相反，像Good locality of reference那样组织你的数据。保持元数据待在一起，因为当你穿越(walk through)缓存区域找寻期望的对象时，会有良好的locality of reference。你甚至可以做自己的虚拟内存形式：如果一个cache entry已经有段时间未被用到了，或者你得到了一个iOS内存告警，你可将此团数据移除内存；当然，当需要时，再次将其加载进内存。
+<img src="/images/posts/2019-03-18/Figure_10_3.png">
+如果你选择缓存信息，最好将缓存数据和描述缓存数据的元数据(metadata)分开。你不会想使用像Figure 10.3那样的结构，它将缓存数据和元数据混合到了一块。相反，像Figure 10.4那样组织你的数据。保持元数据待在一起，因为当你穿越(walk through)缓存区域找寻期望的对象时，会有良好的locality of reference。你甚至可以做自己的虚拟内存形式：如果一个cache entry已经有段时间未被用到了，或者你得到了一个iOS内存告警，你可将此团数据移除内存；当然，当需要时，再次将其加载进内存。
 
-<img src="/images/posts/2019-03-18/localityOfReference.jpg">
+<img src="/images/posts/2019-03-18/Figure_10_4.png">
 #### 内存之Memory is the New I/O
 促使程序员缓存读自硬盘数据的动因时访问硬盘I/O极耗时间资源。等待一次硬盘I/O读取可耗费数十万(甚至更多)个CPU循环，而这段时间本可另作其它更好的用途。
 
