@@ -36,8 +36,8 @@ for循环的一个简单颠倒便可导致10倍的性能惩罚！第一个循环
 
 与强力计算相比较，“precalculate and store in memory”技术可能已到瓶颈。CPU可促使一些计算比从内存获取快得多，查找表可强制更多重要数据移出CPU缓存。技术笔记继续提到“In one example,vector code that converts unsigned char data to float and then applies a 9th order polynomial to it is still marginally faster than hand turned scalar code that does a lookup into a 256 entry lookup table containing floats.”
 
-<img src="/images/posts/2019-03-18/busStructure.png">
-<img src="/images/posts/2019-03-18/memoryHierarchy.png">
+<img src="/images/posts/2019-03-18/cache_memories.png">
+<img src="/images/posts/2019-03-18/example_of_memory_hierarchy.png">
 距CPU逻辑单元最近到缓存(Level-1 Cache)有一个存放指令的区域，但是每个核仅有32到64KB大小。像会增加代码长度的优化操作可能会被移出此缓存。它成为了一个在代码体积与存取数据间的平衡艺术。有时，trial-and-error是观察何种技术可致最佳性能的一种方式，尤其是如果你有高性能科学建模或需要快速处理大数据(如处理视频)任务时。
 
 C语言的Semantics(语义学、词义学)可达到智能优化的目的，尤其是与内存有关时。如果编译器清楚某块内存是被如何访问的，它便可以将数值缓存在寄存器中，甚至可以避免加载已被加载过的数据。因为C语言有指针，there can be aliasing problem。在进程的某处有个指针，它正指向编译器本可优化访问的一块内存。这也是为什么有些没有指针的语言(像FORTRAN)可以执行更彻底优化的原因。
