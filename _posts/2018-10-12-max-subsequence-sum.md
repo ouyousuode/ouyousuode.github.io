@@ -15,23 +15,23 @@ title: 求最大子序列和问题
 
 接下来，即有趣的最大子序列和问题了。
 
-<img src="/images/posts/2018-10-12/maxSubsequenceSum.jpg">
+<img src="/images/posts/2018-10-12/problem_intro.jpeg">
 
 这个问题的吸引力在于，它有多种求解方式，而不同方式的时间复杂度又相差甚远。穷举法，是最容易想到的一种方法，即把所有子序列的和都列举出来，然后逐一比较便得结果。可参见此示意图：
 
-<img src="/images/posts/2018-10-12/exhaustiveAttackMethod.jpg">
+<img src="/images/posts/2018-10-12/Exhaustive_Attack_method.jpeg">
 
 此暴力求解之代码实现为：
 
-<img src="/images/posts/2018-10-12/maxSubsequenceSum_01_0.png">
+<img src="/images/posts/2018-10-12/max_Sub_Sum_01.png">
 
 该算法的正确性毋庸置疑。其运行时间为O(N^3),这完全取决于第30和31行，第31行由一个含于三重嵌套for循环中的O(1)语句组成。第27行上的循环大小为N，第二个循环大小为N-i，它可能要小，但也可能是N。我们必须假设最坏的情况，而这可能会使得最终的界限有些大。第三个循环的大小为j-i+1，我们也假设它的大小为N。因此，总数为O(1·N·N·N)=O(N^3)。所以，我们可以简单地认为它的算法复杂度为N^3。但是，
 
-<img src="/images/posts/2018-10-12/exhaustiveAttackMethodVariant.jpg">
+<img src="/images/posts/2018-10-12/Formula.jpeg">
 
 我们发现，第30和31行上的计算过分耗时了，所以将其优化为：
 
-<img src="/images/posts/2018-10-12/maxSubsequenceSum_02_0.png">
+<img src="/images/posts/2018-10-12/max_Sub_Sum_02.png">
 
 大体思路：以数组[-2,11,-4,13,-5,-3]为例，先从元素-2开始向右找，计算这一轮可能的最大子序列和；再从元素11向右找，计算此轮可能的最大子序列和，依次类推...
 
@@ -43,7 +43,7 @@ title: 求最大子序列和问题
 
 比如，输入4,-3,5,-2,-1,2,6,-2。其中前半部分的最大子序列之和为6(第1到第3)，后半部分到最大子序列和为8(第6到7)。包含最后一个元素的前半部分最大和为4(第1到4)，且后半部分包含第一个元素的最大和为7(第5到7)。因此，横跨着两部分且通过中间的最大和为4+7=11。其代码实现为：
 
-<img src="/images/posts/2018-10-12/maxSubsequenceSum_03_0.png">
+<img src="/images/posts/2018-10-12/max_Sub_Sum_03.png">
 
 第76到82行处理基准情况，如果left == right，那么只有一个元素，并且当该元素非负时它就是最大和子序列。left > right的情况是不可能出现的。
 
@@ -53,14 +53,14 @@ title: 求最大子序列和问题
 
 其余就是这两个递归调用的工作了，而且此两行求解大小为N/2的子序列问题(假设N是偶数)。因此，这两行每行花费T(N/2)个时间单元，共花费2T(N/2)个时间单元。所以，
 
-<img src="/images/posts/2018-10-12/timeFor_03.jpg">
+<img src="/images/posts/2018-10-12/time_of_Divide_and_Conquer.jpeg">
 
 此外，令人颇感惊艳的第四种算法为：
 
-<img src="/images/posts/2018-10-12/maxSubsequenceSum_04_0.png">
+<img src="/images/posts/2018-10-12/max_Sub_Sum_04.png">
 
 很明显，此算法的时间复杂度为O(N)。该算法的一个附带优点是：它只对数据进行一次扫描，一旦A[i]被读入并处理，它就不再被记忆。因此，如果数组在磁盘上，它可被顺序读入且不必在内存中存储数组的任何数据。
 
-至此，不禁叹服此为一本好书。也难怪，它属于“计算机科学丛书”(机械工业出版社)。关于此，有介绍“自1998年开始，华章分社就将工作重点放在了遴选、移译国外优秀教材上。经过多年的不懈努力，与Person,McGraw-Hill,Elsevier,MIT,John Wiley&Sons,Cengage等世界著名出版公司建立了良好的合作关系，从他们现有的数百种教材中甄选出Andrew S.Tanenbaum，Bjarne Stoustrup，Brain W.Kernighan，Dennis Ritchie，Jim Gray，Afred V.Aho，John E.Hopcroft，Jeffrey D.Ullman，Larry L.Peterson等大师名家的一批经典作品”，以“计算机科学丛书”为总称出版，供读者学习、研究及珍藏。
+至此，不禁叹服此为一本好书。也难怪，它属于“计算机科学丛书”(机械工业出版社)。关于此，有介绍“自1998年开始，华章分社就将工作重点放在了遴选、移译国外优秀教材上。经过多年的不懈努力，与Person,McGraw-Hill,Elsevier,MIT,John Wiley&Sons,Cengage等世界著名出版公司建立了良好的合作关系，从他们现有的数百种教材中甄选出**Brain W.Kernighan**,Dennis Ritchie,Jim Gray,Afred V.Aho,John E.Hopcroft,Jeffrey D.Ullman,Larry L.Peterson,John L.Hennessy,**Donald E.Knuth**等大师名家的一批经典作品”，以“计算机科学丛书”为总称出版，供读者学习、研究及珍藏。
 
-关于读书，曾文正公讲“盖士人读书，第一要有志，第二要有识，第三要有恒。有志则不甘为下流；有识则知学问无尽，不敢以一得自足，如河伯之观海，如牛蛙之窥天，皆无识者也；有恒则断无不成之事。此三者缺一不可”。要读经典，且“年无分老少，事无分难易，但行之有恒，自如种树畜养，日见其大而不觉耳”！
+关于读书，曾文正公讲“盖士人读书，第一要有志，第二要有识，第三要有恒。有志则不甘为下流；有识则知学问无尽，不敢以一得自足，如河伯之观海，如牛蛙之窥天，皆无识者也；有恒则断无不成之事。此三者缺一不可”。人生苦短，要读经典，期间遇到困难也无碍，要知道“年无分老少，事无分难易，但行之有恒，自如种树畜养，日见其大而不觉耳”！
