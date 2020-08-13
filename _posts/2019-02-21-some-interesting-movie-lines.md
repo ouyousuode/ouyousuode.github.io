@@ -7,27 +7,24 @@ title: 一些有趣的电影台词
 
 观影过后，无论此影片是改编自名著、当代畅销书、真人真事、抑或其它，可能总有几句台词，值得反复琢磨，比如：
 
-#### 《永无止境》(《Limitless》)
 <img src="/images/posts/2019-02-21/Limitless.png">
-
+#### 《永无止境》(Limitless)
 Against aggressive over-expanion? There aren't.Because there are no safeguards in human nature.We're wired to overreach.Look at history,all the countries that ever ruled the world.Portugal with this big massive navy.All they got now are salt cod and cheap condoms.And the Brits? Now they're just sitting on a dank little island fussing over their suits.
 
-No one's stopping and thinking,"Hey,we're doing pretty well.We got France,we got Poland,we got a big Swiss bank account.You know what? Let's not invade Russia in the winter.Let's go home,let's pop a beer,and let's live off the interest." 
+No one's stopping and thinking,“Hey,we're doing pretty well.We got France,we got Poland,we got a big Swiss bank account.You know what? Let's not invade Russia in the winter.Let's go home,let's pop a beer,and let's live off the interest.”<br/>
 
-#### 《点球成金》(《Moneyball:The Art of Winning an Unfair Game》)   
 <img src="/images/posts/2019-02-21/Moneyball.jpg">
-
+#### 《点球成金》(Moneyball: The Art of Winning an Unfair Game)   
 There is an epidemic failure within the game to understand what is really happening.And this leads people who run Major League Baseball teams to misjudge their player and mismanage their teams.People who run ball clubs,they think in terms of buying players.Your goal shouldn't be to buy players.
 
 Your goal should be to buy wins.And in order to buy wins,you need to buy runs.Baseball thinking is medieval.They are asking all the wrong questions.
 
 This is a code that I've written for our year-to-year projections.This is building in the intelligence that we have to project players.It's about getting things down to one number.Using the stats the way we read them,we'll find value in players that nobody else can see.
 
-People are overlooked for a variety of biased reasons and perceived flaws.Age,appearance,personality.Bill James and mathematics cut straight through that.Billy,of the 20,000 notable players for us to consider,I believe that there is a championship team of 25 people that we can afford,because everyone else in baseball undervalues them.
+People are overlooked for a variety of biased reasons and perceived flaws.Age,appearance,personality.Bill James and mathematics cut straight through that.Billy,of the 20,000 notable players for us to consider,I believe that there is a championship team of 25 people that we can afford,because everyone else in baseball undervalues them.<br/>
 
-#### 《华尔街之狼》(《The Wolf of Wall Street》) 
 <img src="/images/posts/2019-02-21/The_Wolf_of_Wall_Street_0.png">
-
+#### 《华尔街之狼》(The Wolf of Wall Street)
 The money does not just buy you a better life.Better food,better car,better person.It also makes you a better person.You can give generously to the church or the political party of your choice.You can save the fucking spotted owl with money.I always wanted to be rich.
 
 Let me tell you something.There is no nobility in poverty.I've been a rich man,and I've been a poor man,and I choose to rich every fucking time ! 'Coz at least as a rich man,when I have to face my problems,I show up in the back of the limo.Wearing $2000 suite,and $14000 gold fucking watch.If there anyone here thinks I am superficial of materialistic.Go get a job in fucking McDonalds,'cause that's where you fucking belong ! 
@@ -42,4 +39,24 @@ I want you to deal with your problems by becoming rich !
 
 摆脱已有的规则束缚，利用与众不同的视角重新解读现存的信息就能看到别人看不到的价值。似田忌赛马，通过重新解读，在整体资源处于劣势的情况下，创造出了局部的优势，进而有机会取得了整场战役的胜利。所以，台版译文《魔球：逆境中致胜的智慧》，很是贴切。
 
-《华尔街之狼》大意：钱不仅能帮你买到更好的生活、更好的食物、更好的车，还能帮你成为更好的人。你可以随心所欲地大肆捐钱给自己喜欢的教堂或政党...这世上，做穷人不光彩。我富过，也穷过，但每一次我都会选择做富人。因为至少有钱时，就算面对困难，我也是坐在豪车后座。如果有人觉得我肤浅或崇尚物质，那就去麦当劳找工作吧，因为那才是你的归属！付不起信用卡账单了吗？去赚钱吧！要被房东扫地出门了吗？去赚钱吧！你女朋友觉得你是个没用的loser吗？去赚钱吧！我想要让你们用钱解决一切问题！ ——》末尾一句，表明了对孔方兄的态度，钱是工具！
+《华尔街之狼》大意：钱不仅能帮你买到更好的生活、更好的食物、更好的车，还能帮你成为更好的人。你可以随心所欲地大肆捐钱给自己喜欢的教堂或政党...这世上，做穷人不光彩。我富过，也穷过，但每一次我都会选择做富人。因为至少有钱时，就算面对困难，我也是坐在豪车后座。如果有人觉得我肤浅或崇尚物质，那就去麦当劳找工作吧，因为那才是你的归属！付不起信用卡账单了吗？去赚钱吧！要被房东扫地出门了吗？去赚钱吧！你女朋友觉得你是个没用的loser吗？去赚钱吧！我想要让你们用钱解决一切问题！ ——》末尾一句，表明了对孔方兄的态度，钱是工具！<br/>
+
+<img src="/images/posts/2019-02-21/A_Beautiful_Mind.jpeg">
+#### 《美丽心灵》(A Beautiful Mind)
+(A blonde and her friends come.Recall the lessons of Adam Smith,the father of modern economics,'In competition,individual ambition serves the common good.'Exactly.Every man for himself,gentlemen.And those who strike out are stuck with her friends.)
+
+If we all go for the blonde,we block each other.Not a single one of us is gonna get her.So then we go for her friends,but they will all give us the cold shoulder...because nobody likes to be second choice.Well,what if no one goes for the blonde? We don't get in each other's way,and we don't insult the other girls.That's the only way we win.That's the only way we all get laid.
+
+Adam Smith said,the best result comes from everyone in the group doing what's best for himself,right ? Right,but **Incomplete**.Because the best result will come from everyone in the group doing what's best for himself and the group...Governing dynamics.Adam Smith was wrong.
+
+场景：一位美女和她的(姿色普通)朋友们到咖啡馆了，纳什的同学开始谈论如何约到这位美女。回想亚当•斯密,现代经济学之父那课，‘在竞争中，个人的雄心是为了公共的利益’。完全正确。先生们，人人都为自己，那些受打击者就和她的朋友在一起。
+
+如果我们全都去追美女，我们只会相互勾心斗角，却没有人能得到她。如果我们接着去追她的朋友们，她们肯定会非常冷淡，因为没有人愿意做她人的替代者。但是，如果我们都不去找那位美女，我们就不会阻挠彼此，也不会因此冒犯其他的女孩。这是我们唯一能全胜的办法，也是我们唯一全都能得到女伴的方法。
+
+亚当•斯密说过，最好的结果来自于‘群体里的每一个人都只做对他个人有利的事’，对吧？没错，但**不完整**。因为最好的结果来自于‘群体里的每一个人都只做对自己有利并且对群体也有利的事’...亚当•斯密是错的！——》结果就是，1950年，22岁的John Nash在普林斯顿大学以Non-cooperative Games为题的**27**页博士论文毕业。
+
+
+
+
+
+
