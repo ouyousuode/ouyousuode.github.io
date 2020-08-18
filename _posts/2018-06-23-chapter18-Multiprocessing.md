@@ -34,10 +34,10 @@ int pclose(FILE *stream);
 ```
 像system()一样，popen()调用一个shell来运行命令。下面是一个popen()开cal程序以获得当前日历的一个小程序。一切为了好玩的是，从cal的输出遭到了来自rev的行反转。
 
-<img src="/images/posts/2018-06-23/pcalCode_Small.png">
-./pcal 运行后，
+<img src="/images/posts/2018-06-23/pcalCode.png">
+./pcal 运行后，<br/>
 
-<img src="/images/posts/2018-06-23/resultOfPcal_Small.png">
+<img src="/images/posts/2018-06-23/resultOfPcal.png">
 popen手册指出它用了一个双向pipe，所以你可以指定一个读写模式(r+)以替代仅仅的一个r或者w。不幸的是，在实践中使用返回的stream既读又写可能无效果，因为它需要被popen的进程的合作。Use of a bidirectional stream can easily run afoul of the buffering done under the hood by the stream I/O functions.它也会引起死锁的诡异现象：your process could block writing data to the child process while it blocks wirting already-processed data back.进程既不会得到排干满缓冲器的机会，也不能不阻塞其它操作。如果你需要对子进程既读又写，那么你最好的选择是，要么重定向输出到一个文件，随后处理之；要么自己创建一个子进程，用两个pipe，一个用来读，另一个用来写。
 ## 18.3  fork
 在Unix中创建一个新进程，你必须先制作当前进程的一份拷贝。此拷贝可继续执行原进程的代码，或者可开始执行其它程序。系统调用fork()执行拷贝的过程：
@@ -51,13 +51,13 @@ fork()制作一份当前运行进程的拷贝，并且它是很少的可返回�
 <img src="/images/posts/2018-06-23/fork_before_after.png">
 拷贝这许多数据听起来较费时，但是macOS采用快捷方式。它在父子进程间共享原始拷贝，延迟进行备份到非复制不可而非立即复制父进程的内存空间。此过程利用的是一种称为copy on write的技术，也叫COW。
 
-<img src="/images/posts/2018-06-23/copyOnWrite.png">
+<img src="/images/posts/2018-06-23/copy_on_write.png">
 所有与父进程相关的物理页标记为只读。当一个进程试图向“复制的”内存的一个页进行写入时，此页先被拷贝出来以专用，然后每份拷贝都变成分离状态，就拥有了进程的可读写属性。做出这修改的进程依旧做着它想要的改变，而其它进程对此一无所知。这种技术极大地减少了操作系统在fork()上的工作量。
 
 前面提到的system()和open()这样的方便函数最终都要去调用fork(),但是，大多数情况下，与对fork()的恰当调用相比，它们使用更多资源，其原因在于它们需要调用一个shell来运行新进程。我们可以写fork一个子进程的极简程序：
 
 <img src="/images/posts/2018-06-23/fork.png">
-运行后，可看到：
+运行后，可看到：<br/>
 
 <img src="/images/posts/2018-06-23/resultOfFork.png">
 像Unix地面儿上的所有情况一样，这也有一些容易忽略的知识点。第一个就涉及到父子进程间的竞争条件：你无法保证谁会先运行。在子进程被调度前，你无法信赖父进程中运行于fork()之后的代码。
@@ -108,14 +108,14 @@ struct rusage {
 <img src="/images/posts/2018-06-23/resultOfStatus.png">
 在子进程的exit()和父进程的wait()中间，内核需要在某处存储子进程的状态和资源信息。它要立即处理子进程的大部分资源(内存、文件等等)，但是保留它的进程表入口，此包含需要提供给副进程的信息。进程亡了，但它的进程表入口仍继续存在：如此未死透的子进程以僵尸进程著称，不要与Objective-C的NSZombieEnabled内存调试功能混为一谈。Zombies(僵尸)显示在ps命令输出信息的括号内：
 
-<img src="/images/posts/2018-06-23/ps.png">
+<img src="/images/posts/2018-06-23/ps_output.png">
 偶尔的僵尸进程是不足为虑的。当它的父进程退出后，子进程重认进程1为父进程，此进程负责收割它。只有一种糟心的情形下，僵尸变得危险起来：如果一个程序持续地制造僵尸且不退出，那它就会填满整个进程表进而使机器变得无用。更可能的状况是，它会耗尽某个用户的进程限制，使此进程用户的帐户变得无用而并不影响他人。
 
 你怎知何时去调用wait()呢？当子进程退出后，系统发送一个SIGCHLD信号给它的父进程。此信号被默认忽略，但是，你可以设置一个handler并利用它设置一个子进程需要被等的标志。需要注意的是，父进程无法计数收到的每个SIGCHLD信号。因为当进程正在内核的run queue排队时，若干个子进程可能已然退出了。
 
 像在idle进程期间，你可能像继续忽略SIGCHLD信号并周期性地替代wait()。或者，你可用kqueue来监测进程的终止和SIGCHLD信号。通过传给ps的o选项ppid关键字，你可以看到父进程的进程ID：
 
-<img src="/images/posts/2018-06-23/ppid.png">
+<img src="/images/posts/2018-06-23/ps_options.png">
 在这，你能看到一些将/sbin/launched/作为父进程的守护进程。也有一个登录进程(父进程pid 397是Terminal.app)，还有其它像shell和emacs这样的程序。
 ## 18.5  exec
 fork后的大多数情况是，你只是想运行其它程序。exec()函数族用一个新进程替换当前正在运行的进程。你经常听到别人一起说fork()和exec()，由于它们俩很少分开使用。
