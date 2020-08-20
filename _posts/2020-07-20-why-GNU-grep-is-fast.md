@@ -5,11 +5,11 @@ title: 为何GNU grep如此之快？
 {{page.title}}
 ================================
 
-在浏览FreeBSD之mailing list时，看到GNU grep原作者写的[why GNU grep is fast](https://lists.freebsd.org/pipermail/freebsd-current/2010-August/019310.html)一文，篇幅不长但说清楚了原因。想来，可以翻译一下；不过，如果没有彻底理解其使用的**Boyer-Moore**算法以及编程技巧，单纯地*英译中*是没有意义的！为什么呢？因为这相当于：(你)识得文章中的每一个字，但是对这些字所连接成的段落之意，一无所知；如此一来，高级文盲而已！所以想着彻底理解其算法细节后，再做翻译。
+在浏览FreeBSD之mailing list时，看到GNU grep原作者写的[why GNU grep is fast](https://lists.freebsd.org/pipermail/freebsd-current/2010-August/019310.html)一文，篇幅不长但说清楚了原因。想来，可以翻译一下；不过，如果没有彻底理解其使用的**Boyer-Moore**算法以及编程技巧，单纯地*英译中*是没有意义的！为什么呢？因为这相当于：(你)识得文章中的每一个字，但是对这些字所连接成的段落之意，一无所知；如此一来，高级文盲而已！所以想着彻底理解其算法细节后，再做翻译。<br/>
 
-其实，用于pattern matching的优秀软件工具着实不少.比如，Udi Manber和Sun Wu在1994年出了一篇名为A Fast Algorithm for Multi-Pattern Searching的论文，并基于此算法开发了[**agrep**](https://www.tgries.de/agrep/)软件，此软件支持即便拼写错误了也无碍文本搜索的功能。因其开源，也早已被集成到[debian](https://manpages.debian.org/stretch/glimpse/agrep.1.en.html)工具集内。
+其实，用于pattern matching的优秀软件工具着实不少.比如，Udi Manber和Sun Wu在1994年出了一篇名为A Fast Algorithm for Multi-Pattern Searching的论文，并基于此算法开发了[**agrep**](https://www.tgries.de/agrep/)软件，此软件支持即便拼写错误了也无碍文本搜索的功能。因其开源，也早已被集成到[debian](https://manpages.debian.org/stretch/glimpse/agrep.1.en.html)工具集内。<br/>
 
-why GNU grep is fast这篇文章可当作自己深入学习String Matching的引子。这类问题在日常生活中太常见了，比如，在文本编辑器(Emacs,Vim,Word等等)中搜索要寻找的字符串；互联网搜索引擎要查找与查询相关的网页，用户想在网页上定位xxx出现的具体位置；哪怕是在手机通信录上查找xxx的联系方式......已然是构成应用程序功能之基础设施了，而且对其功能运行速度的追求是‘永无止境的’。假设在开发手机通信录app时，就会遇到“如何同时搜索多个字符串”的需求：联系人数较少时，普通算法就可以满足要求；但是，如果联系人数非常多呢(比如1000+)，那么对高级算法的需求就很迫切了。就比如，确实有能够同时搜索多个字符串的方法，什么呢？是Tries！《Algorithms on Strings,Trees and Sequences：Computer Science and Computational Biology》by Dan Gusfield一书便用了足足一章来讲解Multiple String Comparison之原理。希望自己能踏下心来，切实理解，以解决工作中遭遇此需求时之无力感！读经典好书，阅优秀源码。
+why GNU grep is fast这篇文章可当作自己深入学习String Matching的引子。这类问题在日常生活中太常见了，比如，在文本编辑器(Emacs,Vim,Word等等)中搜索要寻找的字符串；互联网搜索引擎要查找与查询相关的网页，用户想在网页上定位xxx出现的具体位置；哪怕是在手机通信录上查找xxx的联系方式......已然是构成应用程序功能之基础设施了，而且对其功能运行速度的追求是‘永无止境的’。假设在开发手机通信录app时，就会遇到“如何同时搜索多个字符串”的需求：联系人数较少时，普通算法就可以满足要求；但是，如果联系人数非常多呢(比如1000+)，那么对高级算法的需求就很迫切了。就比如，确实有能够同时搜索多个字符串的方法，什么呢？是Tries！《Algorithms on Strings,Trees and Sequences：Computer Science and Computational Biology》by Dan Gusfield一书便用了足足一章来讲解Multiple String Comparison之原理。希望自己能踏下心来，切实理解，以解决工作中遭遇此需求时之无力感！读经典好书，阅优秀源码。<br/>
 
 <img src="/images/posts/2020-07-20/Algorithms_on_Strings_Trees_and_Sequences.jpeg">
 
@@ -36,7 +36,7 @@ Once you have fast search, you'll find you also need fast input.<br/>
 
 GNU grep uses raw Unix input system calls and avoids copying data after reading it.<br/>
 
-Moreover, GNU grep AVOIDS BREAKING THE INPUT INTO LINES.  Looking for newlines would slow grep down by a factor of several times,because to find the newlines it would have to look at every byte!<br/>
+Moreover, GNU grep **avoids breaking the input into lines**.  Looking for newlines would slow grep down by a factor of several times,because to find the newlines it would have to look at every byte!<br/>
 
 So instead of using line-oriented input, GNU grep reads raw data into a large buffer, searches the buffer using Boyer-Moore, and only when it finds a match does it go and look for the bounding newlines.(Certain command line options like -n disable this optimization.)<br/>
 
