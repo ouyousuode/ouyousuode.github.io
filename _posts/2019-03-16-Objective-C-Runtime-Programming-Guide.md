@@ -43,9 +43,8 @@ Cocoa内的大部分对象是NSObject的子类，因此，这大部分对象继�
 本章描述消息表达式如何转换成`objc_msgSend`函数调用，以及如何依名称调取对应之方法。随即解释你如何利用`objc_msgSend`,并且(如果你有需要)如何避免动态绑定。
 
 ### 3.1 objc_msgSend函数
-在Objective-C，消息直到运行时才绑定到对应的方法实现。编译器将消息表达式`[receiver message]`转换为对消息传递函数`objc_msgSend`的调用。此函数将`receiver`和`message`中提到的方法名称，即方法选择器，作为它的两个主要参数:`objc_msgSend(receiver,selector);`。当然了，在`message`中传递的任意参数也交由`objc_msgSend`处置：<br/>
-`objc_msgSend(receiver,selector,arg1,arg2,...)`
-消息传递函数为动态绑定做了全部必要的工作：
+在Objective-C，消息直到运行时才绑定到对应的方法实现。编译器将消息表达式`[receiver message]`转换为对消息传递函数`objc_msgSend`的调用。此函数将`receiver`和`message`中提到的方法名称，即方法选择器，作为它的两个主要参数:`objc_msgSend(receiver,selector);`。当然了，在`message`中传递的任意参数也交由`objc_msgSend`处置。<br/>
+`objc_msgSend(receiver,selector,arg1,arg2,...)`消息传递函数为动态绑定做了全部必要的工作：
 - 它首先找到选择器(selector)所提及的程序(方法实现)。由于相同的方法可以通过不同的类加以实现，所以它找到的确切程序依赖receiver所属的class。
 - 然后，它调用该程序，将接收对象(指向其数据的指针)以及为该方法指定的任何参数传递给它。
 - 最后，它传递程序的返回值作为它自己的返回值。
@@ -83,33 +82,169 @@ Cocoa内的大部分对象是NSObject的子类，因此，这大部分对象继�
 
 使用`methodForSelector:`避开动态绑定节省了消息传递所需的大部分时间。然而，只有当一个特定的消息被重复多次时，这种节省(效果)才是显著的，如上面所示的for循环。请注意，`methodForSelector:`由**Cocoa**运行时系统提供；这并非Objective-C语言本身的特征。
 
-## 4 Dynamic Method Resolution
-### 4.1 Dynamic Method Resolution
+## 4 Dynamic Method Resolution动态方法解析
+本章描述如何动态地提供方法的实现。
+### 4.1 Dynamic Method Resolution动态方法解析
+在某些情况下，你可能动态地提供一个方法的实现。比如，Objective-C声明的属性特征包括@dynamic指令：`@dynamic propertyName;`告诉编译器将动态地提供与属性关联的方法。你可以实现`resolveInstanceMethod:`和`resolveClassMethod:`方法分别为实例和类方法的给定选择器动态地提供实现！
+
+Objective-C方法只是一个至少接受两个参数(`self`与`_cmd`)的**C**语言函数。你可以用函数`class_addMethod`将函数作为方法添加到类中。因此，给定以下功能：
+```
+void dynamicMethodIMP(id self, SEL _cmd) {
+	// implementation ....
+}
+```
+你可以利用`resolveInstanceMethod:`将它作为方法(称为resolveThisMethodDynamically)动态地添加到类中。<br/>
+<img src="/images/posts/2019-03-16/MyClass_0.png">
+<img src="/images/posts/2019-03-16/MyClass_1.png">
+转发方法和动态方法解析，两者在很大程度上是正交的。类有机会在转发机制启动之前动态解析一则方法。如果调用了`respondsToSelector:`或`instancesRespondToSelector:`，则动态方法解析器有机会首先为选择器提供一个**IMP**。如果你实现了`resolveInstanceMethod:`但是希望某特定的选择器实际上能通过转发机制得以转发，那么，对于此类选择器，返回NO即可！
+
 ### 4.2 Dynamic Loading 动态加载
+一个Objective-C程序可以在运行时(期间)加载并链接新的类及类别(category)。新代码被合并进程序，并与开始时加载的类和类别享受同等地位。<br/>
 
+动态加载可以用来做很多不同的事情。比如，**System Preferences**应用程序中的各种模块便是动态加载的。<br/>
 
+在**Cocoa**环境中，动态加载技术通常用于允许定制应用程序。其他人可以编写你的应用程序在运行时加载的模块——就像**Interface Builder**加载自定义调色板和**OS X System Preferences**应用程序加载自定义首选项模块一样。可加载模块扩展了应用程序的功能。它们以你允许却无法预料或定义之方式对此加以贡献。你提供框架，但其他人提供具体的实现代码。
+
+虽然有运行时函数可以在**Mach-O**文件内执行Objective-C模块的动态加载(`objc_loadModules`定义在`objc/objc-load.h`中)，但是，Cocoa的**NSBundle**类为动态加载提供了一个更为方便的接口——一个面向对象并集成了相关服务的接口。有关**NSBundle**类及其使用的信息，见**Foundation**框架参考中NSBundle类规范。关于Mach-O文件的信息，则参阅OS X ABI Mach-O File Format Reference。<br/>
 
 ## 5 消息转发
-### 5.1 Forwarding
-### 5.2 Forwarding and Multiple Inheritance
+向不处理消息的对象发送对应的消息是错误的。然而，在宣布错误之前，运行时系统给接收对象第二次机会以处理该消息。
+### 5.1 Forwarding转发
+如果你向一个不处理该消息的对象发送了此消息，在宣布错误之前，运行时系统会接收对象发送一条`forwardInvocation:`消息，以**NSInvocation**对象作为其唯一的参数——NSInvocation对象封装了原始消息和随其传递的参数。<br/>
+
+你可以实现`forwardInvocation:`方法来给消息一个默认响应，或者以其它方式避免此错误。顾名思义，`forwardInvocation:`通常用于转发消息到另一个对象。<br/>
+
+要了解转发的范围和意图，请想象一下场景：首先，假设你正在设计一个可响应一条名为`negotiate`消息的对象，并且希望它的响应中包含另一种对象的响应。你可以通过将`negotiate`消息传递给(你)实现的`negotiate`方法主体中的其它对象来轻松实现这一点。<br/>
+
+更进一步，假设你希望你的对象对`negotiate`消息的响应恰好是在另一个类中实现的响应。实现这一点的一种思路是让你的类从另一个类继承该方法。然而，如此安排事情许是不可能的。你的类和实现`negotiate`方法的类位于继承层次结构的不同分支中。很好的理由！<br/>
+
+即使你的类不能继承此`negotiate`方法，你仍然可以通过实现简单地将消息传递给另一个类之实例的方法这样的版本来‘借用’它：<br/>
+<img src="/images/posts/2019-03-16/negotiate.png">
+如此行事可能会有点麻烦，尤其是如果有很多条消息，你都想让你的对象传递给另一对象。你必须实现一则方法来覆盖(你)想从另一个类中借用的每一个方法。此外，在你编写代码时，不可能兼顾到你不知道的所有消息。这样的消息集合可能依赖于运行时的事件，并且它可能随着将来新方法和类的实现而改变。<br/>
+
+`forwardInvocation:`消息提供的第二次机会，为解决此问题提供了一种不那么特别的解决方案，并且是动态而非静态的！它是这样工作的：当一个对象不能响应一条消息，因它没有与消息中的选择器匹配之方法时，运行时系统通过发送一条`forwardInvocation:`消息来通知这个对象。每一个对象都从NSObject类那里继承了一个`forwardInvocation:`方法。但是，NSObject版本的方法仅仅是调用`doesNotRecognizeSelector:`。通过覆盖NSObject版本并实现自己的版本，可以利用`forwardInvocation:`提供的机会将消息转发给其它对象。<br/>
+
+要转发一条消息，`forwardInvocation:`要做的就是：<br/>
+- 确定消息应该发往何处，以及
+- 将其与原始参数一起发往到目的地
+
+可以使用`invokeWithTarget:`方法发送消息：<br/>
+<img src="/images/posts/2019-03-16/forwardInvocation.png">
+所转发消息之返回值将返回给原始发送者。所有类型的返回值都可以传递给发送者，包括ids、结构体和双精度浮点数等。<br/>
+
+`forwardInvocation:`方法可充任未识别消息的分发中心，将它们分发给不同的接收者。或者它可以是一座中转站，将所有的消息发往同一目的地。它可以将一条消息翻译为另一条，或者简单地‘吞下’一些信息(‘留中不发’)，如此也不会有回应和错误。`forwardInvocation:`方法还可以将几条消息合并成一声响应。`forwardInvocation:`之所作所为完全取决于实现者。然而，它提供了在转发链中链接对象的机会，为程序设计打开了可能性之门。<br/>
+
+注意：只有当消息未在名义接收者处调用现有方法时，`forwardInvocation:`才能加以处理消息。举例来说，如果你希望你的对象将`negotiate`消息转发给另一个对象，它自己就不能有`negotiate`方法。如果它自身拥有，则消息将永远不会到达`forwardInvocation:`处。有关转发和调用的更多信息，参见Fondation框架参考中的NSInvocation类规范。<br/>
+
+### 5.2 转发及多重继承
+转发模仿了继承，并且可以用来把多重继承的一些效果借给Objective-C程序。如图5-1所示，通过转发消息以实现响应的对象似乎‘借用’或‘继承’了在另一个类中定义的方法实现。<br/>
+
 <img src="/images/posts/2019-03-16/Figure_5-1_Forwarding.png">
+在此示意图中，Warrior类的一个实例将negotiate消息转发给Diplomat类的一个实例。Warrior会像Diplomat一样谈判(negotiate)。它似乎对`negotiate`消息做出了应有的回应，实际上它也确实做出了响应(尽管实际上是一名Diplomat在做这项工作)。<br/>
 
-### 5.3 Surrogate Objects
-### 5.4 Forwarding and Inheritance
+因此，转发消息的对象从继承层次结构的两个分支处‘继承’方法——它自己的分支和响应消息的对象所属之分支。在上面的例子中，Warrior类似乎继承了Diplomat以及它自己的父类。<br/>
 
+转发提供了你通常希望从多重继承中获得的大多数功能。然而，二者之间有一个重要区别：多重继承在一个对象中结合了不同的功能。它倾向于大型的、多面的对象。另一方面，转发给不同的对象赋予不同的职责。它将问题分解成更小的对象，但是以对消息发送者透明的方式关联这些对象！<br/>
 
-## 6 Type Encodings
+### 5.3 Surrogate Objects代理对象
+转发不仅模仿了多重继承，还使得开发代表或‘覆盖’更多实体对象的轻量级对象成为可能。代理代表另一个对象，并向他传递消息。<br/>
+
+在The Objective-C Programming Language的‘Remote Messaging’中讨论的代理(proxy)就是这样一种代理(surrogate)。代理(proxy)负责将消息转发给远程接收者的管理细节，确保通过连接以复制并检索参数值，等等。但是，它并没有尝试做其它事情；它没有复制远程对象的功能，只是给远程对象一个本地地址，一块它可以在另一个应用程序中接收消息的地方。<br/>
+
+其它种类的代理对象(surrogate object)也是可能的。例如，假设你有一个处理大量数据的对象，它可能会创建一张复杂的图像或读取磁盘上文件的内容。设置这个对象可能很耗时，所以你偏好在真正需要或系统资源暂时空闲时以惰性设置！同时，为了让应用程序中的其它对象正常工作，你至少需要一个(对象的)占位符。<br/>
+
+在这种情况下，你可以先创建一个轻量级的代理，而非完整的对象。这个对象可以自己完成一些事情，比如回答关于数据的问题，但是大多数情况下，它只是为更大的对象保留一处位置而已，时辰一到，便可向其转发消息。当代理(surrogate)的`forwardInvocation:`方法第一次接收到一条去往另一对象的消息时，它将确保该对象存在，并且在不存在之时创建它。较大对象的所有消息都是通过代理，因此，就程序的其它部分而言，代理和较大对象是相同的！<br/>
+### 5.4 Forwarding and Inheritance转发和继承
+虽然转发模拟了继承，但是NSObject类从未混淆这两者。像`respondsToSelector:`和`isKindOfClass:`这样的方法只关注继承层次，而不关心转发链。例如，如果一个Warrior对象被询问是否响应negotiate消息，
+```
+if ([aWarrior respondsToSelector:@selector(negotiate)]) 
+	......
+```
+答案是NO! 虽然它可以无误地接收negotiate消息并在某种意义上将它们转发给Diplomat做出响应。<br/>
+
+在许多情况下，NO是正确答案。但它可能也不是。如果你用转发来设置代理对象或扩展类的功能，那么转发机制应该像继承一样透明。如果你希望(你的)对象表现得好像它们真正继承了它们转发消息到的对象之行为，那么你需要重新实现`respondsToSelector:`和`isKindOfClass:`方法来包含你的转发算法：<br/>
+<img src="/images/posts/2019-03-16/respondsToSelector.png">
+除了`respondsToSelector:`和`isKindOfClass:`，`instancesRespondToSelector:`方法也应当反映其转发算法。若使用协议，同样应该将`conformsToProtocol:`方法添加到表中。类似地，如果一个对象转发它收到的任何远程消息，它应该有一个版本的`methodSignatureForSelector:`，它可以返回对最终响应已转发之消息的方法的准确描述；例如，如果一个对象能够将消息转发给它的代理，那么你将实现如下所示的`methodSignatureForSelector:`，<br/>
+<img src="/images/posts/2019-03-16/methodSignatureForSelector.png">
+你可以考虑将转发algorithm放在私有代码中的某个地方，并调用所有这些方法，当然也包括`forwardInvocation:`。<br/>
+
+注意：这是一种高级技术，仅适用于没有其它解决方案的情况。它不是用来代替继承的。如果你非得使用这项技术，须确保你已完全理解了进行转发的类和你要转发到的(目的地)类之行为。<br/>
+
+本节中提到的方法在Foundation框架参考中的NSObject类规范中进行了描述。有关`invokeWithTarget:`的信息，可参阅Foundation framework参考中的NSInvocation类规范。<br/>
+
+## 6 Type Encodings类型编码
+为助运行时系统一臂之力，编译器将每个方法的返回和参数类型编码成字符串，并把字符串同方法选择器相关联。它使用的编码方案在其它环境中也很有用，因此可以通过`@encode()`编译器指令公开使用。当给定一个类型规范时，`@encode()`返回一个针对该类型进行编码的字符串。该类型可以是基本类型，如`int`,指针,标记结构体或`union`,或者类名——事实上，可以用于**C**`sizeof()`运算符之参数的任何类型。<br/>
+```
+char *buf1 = @encode(int **);
+char *buf2 = @encode(struct key);
+char *buf3 = @encode(Rectangle);
+```
+下表列出了种种之类型代码。请注意，其中许多代码与你出于存档(archiving)或分发(distribution)目的对象进行编码时使用的代码重叠。但是，这里列出的一些代码是你在编写编码器(coder)时不能使用的，还有一些代码是你在编写并非由`@encode()`生成之编码器时，想要使用的。(有关为存档或分发而编码对象之更多信息，参见Foundation Framework参考中的NSCoder类规范)<br/>
 <img src="/images/posts/2019-03-16/Table_6-1_0.png">
 <img src="/images/posts/2019-03-16/Table_6-1_1.png">
+数组的类型代码用方括号括起来；数组内的元素数是紧接在开括号之后，数组类型之前指定的。例如，指向浮点数的12个指针的数组将被编码为`[12^f]`。<br/>
+
+结构体在大括号中指定，联合体(union)在括号内指定。首先列出结构题标签，然后依次列出等号和结构体字段之代码。例如，结构体<br/>
+<img src="/images/posts/2019-03-16/typedef_struct_example.png">
+的编码，如`{example=@*i}`。无论是定义的类型名称(Example)还是结构体标记(example)，只要传递给`@encode()`，均产生相同的编码结果。结构体指针的编码与结构体字段的编码携带相同数量的信息，`^{example=@*i}`。然而，另一个间接层次则删除了内部类型的规范:`^^{example}`。
+
+对象被视为结构体。例如，将NSObject类名传递给`@encode()`会产生编码：`{NSObject=#}`。NSObject类只声明一个实例变量，其类型为Class的`isa`。
+
+注意，虽然`@encode()`指令未返回它们，但是当它们用于声明协议中的方法时，运行时系统使用Table 6-2中列出的附加编码作为类型限定符。<br/>
 <img src="/images/posts/2019-03-16/Table_6-2_Objective-C_method_0.png">
 <img src="/images/posts/2019-03-16/Table_6-2_Objective-C_method_1.png">
 
-## 7 Declared Properties
-### 7.1 Property Types and Functions
-### 7.2 Property Type String
+## 7 Declared Properties属性声明
+当编译器遇到属性声明时，它会生成与封闭类、类别(category)或协议相关联的描述性元数据。你可以用函数来访问这些元数据，这些函数支持在类或协议上按名称查找属性，以`@encode`字符串的形式获取属性的类型，并以**C**字符串数组的形式复制属性的attributes列表。每个类和协议都有一个声明属性的列表。<br/>
+### 7.1 Property Types and Functions属性类型和函数
+Property结构体定义了属性描述符的不透明句柄,`typedef struct objc_property *Property;`。你可以用`class_copyPropertyList`和`protocol_copyPropertyList`分别检索与类(包括加载的类别/category)和协议相关联的属性数组：<br/>
+```
+objc_property_t *class_copyPropertyList(Class cls, unsigned int *outCount)
+objc_property_t *protocol_copyPropertyList(Protocol *proto, unsigned int *outCount)
+```
+又比如，给定以下类声明：<br/>
+```
+@interface Lender : NSObject {
+    float alone;
+}
+
+@property float alone;
+
+@end
+```
+你可以使用以下命令以获取属性列表：<br/>
+```
+id LenderClass = objc_getClass("Lender");
+unsigned int outCount;
+objc_property_t *properties = class_copyPropertyList(LenderClass, &outCount);
+```
+
+你也可以用`property_getName`函数来发现某属性的名称,可以使用`property_getAttributes`函数来发现属性的名称和`@encode`类型字符串, 还可以利用函数`class_getProperty`和`protocol_getProperty`分别在类和协议中获取对具有给定名称的属性之引用。<br/>
+```
+const char *property_getName(objc_property_t property)
+const char *property_getAttributes(objc_property_t property)
+objc_property_t class_getProperty(Class cls, const char *name)
+objc_property_t protocol_getProperty(Protocol *proto, const char *name, BOOL
+isRequiredProperty, BOOL isInstanceProperty)
+```
+将这些放在一起，您可以使用以下代码打印与类相关联的所有属性的列表:<br/>
+<img src="/images/posts/2019-03-16/LenderClass.png">
+
+### 7.2 Property Type String属性类型字符串
+您可以使用`property_getAttributes`函数来发现属性的名称、`@encode`类型字符串以及其他属性。该字符串以T开头，后跟`@encode`类型和逗号，以V结尾，后跟支持实例变量的名称。在这两者之间，属性由以下描述符指定，用逗号分隔:<br/>
 <img src="/images/posts/2019-03-16/Table_7-1_Declared_property_type_encodings.png">
 
 ### 7.3 Property Attribute Description Examples
+根据这些定义：
+```
+enum FooManChu { FOO, MAN, CHU };
+struct YorkshireTeaStruct { int pot; char lady; };
+typedef struct YorkshireTeaStruct YorkshireTeaStructType;
+union MoneyUnion { float alone; double down; };
+```
+下表显示了示例属性声明和由`property_getAttributes`返回的相应字符串:<br/>
 <img src="/images/posts/2019-03-16/property_getAttributes_0.png">
 <img src="/images/posts/2019-03-16/property_getAttributes_1.png">
 <img src="/images/posts/2019-03-16/property_getAttributes_2.png">
+
+<结束！>
