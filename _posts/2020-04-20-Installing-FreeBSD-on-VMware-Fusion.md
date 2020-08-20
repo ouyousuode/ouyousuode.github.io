@@ -5,7 +5,7 @@ title: 关于VMware安装FreeBSD后的若干问题
 {{page.title}}
 =======================
 
-下载*VMware Fusion Pro 11.5*及*FreeBSD 12.1-Release*中*Virtual Machine Images*类别之[FreeBSD-12.1-RELEASE-amd64.vmdk.xz](https://download.freebsd.org/ftp/releases/VM-IMAGES/12.1-RELEASE/amd64/Latest/)，案头备好参考资料：[《FreeBSD Handbook》](https://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/),本文档一直得以及时的更新，当前的版本已覆盖FreeBSD 12.1-Release和FreeBSD 11.3-Release；Michael W.Lucas所著《Absolute FreeBSD:The Complete Guide to FreeBSD》。
+下载*VMware Fusion Pro 11.5*及*FreeBSD 12.1-Release*中*Virtual Machine Images*类别之[FreeBSD-12.1-RELEASE-amd64.vmdk.xz](https://download.freebsd.org/ftp/releases/VM-IMAGES/12.1-RELEASE/amd64/Latest/)，案头备好参考资料：[《FreeBSD Handbook》](https://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/),本文档一直得以及时的更新，当前的版本已覆盖FreeBSD 12.1-Release和FreeBSD 11.3-Release；Michael W.Lucas所著《Absolute FreeBSD:The Complete Guide to FreeBSD》。<br/>
 
 <img src="/images/posts/2020-04-20/Absolute_FreeBSD_3rd_edition.png">
 <img src="/images/posts/2020-04-20/FreeBSD_Handbook.png">
@@ -32,7 +32,7 @@ Microsoft Windows和Red Hat Linux这样的操作系统倾向于把你可能需�
 
 当然，这段只是提到工程师的两位偶像工作中使用Emacs作为编辑器。而《*Concurrency in Go*》的作者*Katherine Cox-Buday*在提到使用何种软件时，则详述了选择Emacs的理由：It wouldn't make sense to start out with anything other than Emacs.I don't think there has been a piece of software which has had a larger impact on my life.I began using this about fifteen years ago,and it has followed me across operating systems,jobs,roles(I used to manage my teams),languages,and needs.Every time I start something new,Emacs has been there to make it just a little easier,and the more I do in it,the easier everything gets.I believe this power comes from Emacs being the closet thing we have to a working Lisp Machine.If you know a little **Emacs Lisp**,you can begin down the path of creating your own perfect tool which will grow with you,for life.
 
-Sitting on top of Emacs is **Org Mode**.It is the thing which made irrelevant my search for the perfect task management software.Like Emacs,you can mold it into whatever workflow works best for you at the time.Later,I discovered it is also a wonderful publishing platform.技术上说，它是一款我们最接近**Lisp Machine**的软件。情感上讲，它好处多多，可伴我们成长。因此，*pkg install emacs*，但是问题来了：
+Sitting on top of Emacs is **Org Mode**.It is the thing which made irrelevant my search for the perfect task management software.Like Emacs,you can mold it into whatever workflow works best for you at the time.Later,I discovered it is also a wonderful publishing platform.技术上说，它是一款我们最接近**Lisp Machine**的软件。情感上讲，它好处多多，可伴我们成长。 其实，抛开某些细腻、煽情的推荐语外，简单来讲，编程者喜欢Emacs的理由主要有两个：其一，Emacs自身就是个Elisp编程环境，是一位软件工程师的理想玩具；二则，Emacs基于开源，故我们可以随意改造它，令其为己所用。因此，*pkg install emacs*，但是问题来了：
 
 <img src="/images/posts/2020-04-20/pkg_install_emacs_fails.png">
 
