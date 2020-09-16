@@ -1,13 +1,13 @@
 ---
 layout: post
-title: 认识Hashing
+title: 略谈Hashing
 ---
 {{page.title}}
 ===============================
 
 Data structures are the building blocks of computer algorithms.A design of an algorithm is like a design of a building.One has to put all the rooms together in a way that is the most effective for the intended use of the building.To do that,it is not enough to know about functionality,efficiency,form and beauty.One needs a thorough knowledge of construction techniques.Putting a room in midair may achieve the desired effect,but it is not possible.Other ideas may be possible,but too expensive.In the same way,a design of an algorithm must be based on a thorough understanding of data structure techniques and costs.
 
-But when read '*3.7 Hashing and String*' in「*The Algorithm Design Manual*」by **Steven S.Skiena**.There is one interesting sentence "Hashing has a variety of clever applications beyond just speeding up searching.I once heard **Udi Manber**—then Chief Scientist at Yahoo—talk about the algorithms employed at his company.The three most important algorithms at Yahoo,he said,were *hashing,hashing,and hashing*."And where does the content of this sentence come from?
+But when read **3.7 Hashing and String** in「**The Algorithm Design Manual**」by **Steven S.Skiena**.There is one interesting sentence "Hashing has a variety of clever applications beyond just speeding up searching.I once heard **Udi Manber**—then Chief Scientist at Yahoo—talk about the algorithms employed at his company.The three most important algorithms at Yahoo,he said,were **hashing,hashing,and hashing**."And where does this sentence come from?
 
 <img src="/images/posts/2019-08-15/hashing_by_Udi_Manber.png">
 
