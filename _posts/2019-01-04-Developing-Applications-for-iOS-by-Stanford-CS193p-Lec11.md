@@ -4,7 +4,7 @@ title: Developing Applications for iOS 之UITableView,iPad
 ---
 {{page.title}}
 =========================
-<img src="/images/posts/2019-01-04/Stanford_CS193p,png"> <br/>
+<img src="/images/posts/2019-01-04/Stanford_CS193p.png"> <br/>
 Let's dive into UITableView.This is a very important class,because a lot of times the data you need to display in your applications comes in the form of a list.And TableView is basically a list view.It's a list of terms.
 
 <img src="/images/posts/2019-01-04/UITableView_intro.png"> <br/>
