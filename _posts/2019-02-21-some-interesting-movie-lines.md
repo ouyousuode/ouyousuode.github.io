@@ -55,3 +55,22 @@ Adam Smith said,the best result comes from everyone in the group doing what's be
 
 亚当•斯密说过，最好的结果来自于‘群体里的每一个人都只做对他个人有利的事’，对吧？没错，但**不完整**。因为最好的结果来自于‘群体里的每一个人都只做对自己有利并且对群体也有利的事’...亚当•斯密是错的！——》结果就是，1950年，22岁的John Nash在普林斯顿大学以Non-cooperative Games为题的**27**页博士论文毕业。<br/>
 
+<img src="/images/posts/2019-02-21/Molly_s_Game.jpg">
+#### 《茉莉的牌局》(Molly's Game)
+People have asked me what my goal was at that point,what was my endgame.Back then,I would've laughed at the question.I was raised to be a champion.My goal was to win.At what and against whom ? Those were just details.<br/>
+
+My game had a tricky ecosystem.These guys could buy anything but here in this room you couldn't buy your win.You couldn't buy me,you couldn't buy the girls and you couldn't buy a seat at the table.There's nothing as sweet as a win you have to work for.And the wins and losses were compelling and they were real.Of course it helped that the players were gambling addicts. <br/>
+
+It had to end sometime.I just thought it would be on my time.The game had given me an identity,respect,and a defined place in a world that was inaccessible and in one irrational heartbeat it was taken away.I was irrelevant and forgotten overnight.<br/>
+
+It'd been two weeks since I lost the game and I made an appointment to see someone because now the humiliation and depression had given away to blinding anger at my powerlessness over the unfair whims of men.**It was that there weren't any rule.**These power moves weren't framed by right and wrong,just ego and vanity.Selfish whims with no regard for consequence.**No fairness,no justice.**And that giggling,cacking call from Player X.'**You are so fucked.**'I couldn't lose to that green-screened little shit and I didn't want a therapist to make me feel okay about it.**You know what makes me feel okay about losing ? Winning.** <br/>
+
+有人曾经问我「在那时我的目标是什么，我将会在何时结束这份工作」。在当时，我会嘲笑这个问题。我被鼓励去成为一名冠军。**我的目标就是赢**。至于在哪赢，以及赢得谁？这些只是小细节。<br/>
+
+我的牌局里的人鱼龙混杂。他们能买到任何东西，但在这个房间里，你买不到胜利。你买不到我，你也买不到(其他)女孩(服务人员)，你甚至买不到参加游戏的资格。没什么比自己挣来的胜利更美好了。输与赢都很有吸引力，而且很真实。当然，如果玩家有赌瘾就更好了。<br/>
+
+这牌局不可能长久地经营下去。只不过我认为「何时收手能由我来定」。这牌局给了我身份,尊重,和一个在我曾难以企及的社交圈中为圈内人所认可的地位，而这些在一瞬间均化为泡影。我一夜之间变成了没人在意的无名小卒。<br/>
+
+牌局经营失败已是两周前的事了。我预约了一位心理医生，因为那时的屈辱感和失落感已被一种莫名的愤怒所取代;愤怒是因为男人可以为所欲为，而我却无能为力。**我认识到世间本无规则而言**。他们的权力得以行使并非因为对或错，不过是他们的自负和虚荣心使然罢了。他们恣意妄为，不顾后果。一切都毫无公平与公正可言。更为可恶的，还有X玩家打来的那通充满贱笑的电话，「你是真废了！」我才不想在那个贱男人面前认输呢，更不想按心理医生要求的那样去放下。你知道「在失败时，我怎样才能舒心吗？」**去赢回来**！
+
+
