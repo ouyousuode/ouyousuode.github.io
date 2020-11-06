@@ -73,4 +73,11 @@ It'd been two weeks since I lost the game and I made an appointment to see someo
 
 牌局经营失败已是两周前的事了。我预约了一位心理医生，因为那时的屈辱感和失落感已被一种莫名的愤怒所取代;愤怒是因为男人可以为所欲为，而我却无能为力。**我认识到世间本无规则而言**。他们的权力得以行使并非因为对或错，不过是他们的自负和虚荣心使然罢了。他们恣意妄为，不顾后果。一切都毫无公平与公正可言。更为可恶的，还有X玩家打来的那通充满贱笑的电话，「你是真废了！」我才不想在那个贱男人面前认输呢，更不想按心理医生要求的那样去放下。你知道「在失败时，我怎样才能舒心吗？」**去赢回来**！
 
+<img src="/images/posts/2019-02-21/Gold.jpg">
+#### 《金爆内幕》(Gold)
+The only truth here is, when everybody's getting rich, nobody gives a shit about the truth. Come the fuck on. All anyone had to do was look, open their eyes. Man the-the gold was wrong, the find was too good. There were red flags everywhere. Why did no one look ? 'Cause on one wanted to fucking know. We all wanted to believe. Me,you,fucking everybody. Why ? Because we were all making so much fucking money,man. That's the truth. That's been going on for fucking centuries.<br/>
+
+唯一的真相是，只要能发财，没人在乎真相是什么。拜托，人们只需要仔细看看，睁开眼看看。样品中的金子是错的，金矿储量又过于巨大。有太多的疑点。为什么没人仔细看呢？因为没人想知道发生的事情。我们都愿意相信。你,我，所有人.为什么呢？因为我们都认为能发大财。这就是真相！千百年来一直如此。<br/>
+
+<img src="/images/posts/2019-02-21/Gold_cartoon.jpg">
 
