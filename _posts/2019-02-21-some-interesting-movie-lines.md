@@ -5,13 +5,37 @@ title: 一些有趣的电影台词
 {{page.title}}
 ====================
 
-观影过后，无论此影片是改编自名著、当代畅销书、真人真事、抑或其它，可能总有几句台词，值得反复琢磨，比如：
+观影过后，无论该影片是改编自名著、当代畅销书、真人真事、抑或编剧从0打造，可能总有几句台词，值得反复琢磨，比如：<br/>
+
+<img src="/images/posts/2019-02-21/Blackjack_2008.jpg">
+#### 《决胜21点》(21: Blackjack)
+Prof Mickey: We're gonna call this game show host problem, all right? Ben, suppose you're on a game show. And you are given a chance to choose from three different doors, all right? Now, behind one of the door is a new car. Behind the other two, goats. Which door would you choose, Ben? (我们把这个游戏称为节目主持人难题吧。本，假设你正参加一个游戏节目。你有机会从三扇不同的门里选择一扇，其中一扇门后🈶️一辆新车，而另两扇后面各有一头山羊。本，你要选择哪扇呢？) <br/>
+
+Student Ben: Door number one.(1号门)<br/>
+
+Prof Mickey: Ben chooses door number one. All right, now, the game show host, who, by the way, knows what's behind all the other doors, decides to open another door. Let's say he chooses door number three. Behind which sits a goat. Now, Ben, game show host comes up to you. He says, "Ben, do you want to stay with door number one or go with door number two ? " Now, is it your interest to switch your choice ? (本选择了1号门。顺便提一句，主持人知道门后的秘密，这时，他决定打开另一扇门，比如他打开了3号门，结果门后是一头山羊。现在，主持人向你走来，他说「本，你想坚持选择1号门呢，还是想换成2号门。」现在的问题是，改变选择是否对你有利？)<br/>
+
+Student Ben: Yeah.(是的，改变选择)<br/>
+
+Prof Mickey: Well, wait. Remember, the host knows where the car is, so how do you know he's not playing a trick on you ? Trying to use reverse psychology to get you to pick a goat ? (等一下，记住，主持人知道那辆车在哪里，那么，你如何判断他是否在耍你？或许他利用逆反心理诱使你选择一头山羊？)<br/>
+
+Student Ben: Well, I wouldn't really care. I mean, may answer's based on **statistics**. Based on variable change.(我并不介意，因为我的答案是基于**统计学**;基于变量变化。)<br/>
+
+Prof Mickey: Variable change ? But he just asked you a simple question.(变量变化？但他只不过问了个简单的问题。)<br/>
+
+Student Ben: Yeah, which changed everything.(是的，但是这一问改变了所有)<br/>
+
+Prof Mickey: Enlighten us.(来，给我们开开窍。)<br/>
+
+Student Ben: Well, when I was originally asked to choose a door, I had a 33.3% chance of choosing right. But after he opens one of the doors and then re-offers me the choice, it's now 66.7% if I choose to switch. So, yeah, I'll take door number two, and thank you for that extra 33.3%.(当一开始，他让我选择一扇门时，我有33.3%的几率选对。但当他打开了其中一扇门，然后又让我选时；现在，如果我选择换一扇门，选对的几率是66.7%。那我当然选2号门，并且谢谢你多给我33.3%的机会。)<br/>
+
+Prof Mickey: Exactly. People, remember, if you don't know which door to open, always account for variable change. Now, see, most people wouldn't take the switch out of paranoia, fear, emotions. But Mr Campbell, he kept emotions aside and let simple **math** get his ass into a brand-new car ! (完全正确！大家记住，如果你不知道选哪扇门的话，永远要记得考虑变量的变化。这种情况下，因为偏执,恐惧和感情用事，大部分人都不会改变选择。但是，坎贝尔先生把感情放在了一边，让简单的数学知识为他挣得了一辆崭新的汽车！)<br/>
 
 <img src="/images/posts/2019-02-21/Limitless.png">
 #### 《永无止境》(Limitless)
-Against aggressive over-expanion? There aren't.Because there are no safeguards in human nature.We're wired to overreach.Look at history,all the countries that ever ruled the world.Portugal with this big massive navy.All they got now are salt cod and cheap condoms.And the Brits? Now they're just sitting on a dank little island fussing over their suits.<br/>
+Against aggressive over-expanion? There aren't. Because there are no safeguards in human nature. We're wired to overreach. Look at history, all the countries that ever ruled the world. Portugal with this big massive navy. All they got now are salt cod and cheap condoms. And the Brits? Now they're just sitting on a dank little island fussing over their suits.<br/>
 
-No one's stopping and thinking,“Hey,we're doing pretty well.We got France,we got Poland,we got a big Swiss bank account.You know what? Let's not invade Russia in the winter.Let's go home,let's pop a beer,and let's live off the interest.”<br/>
+No one's stopping and thinking,“Hey,we're doing pretty well. We got France, we got Poland, we got a big Swiss bank account. You know what? Let's not invade Russia in the winter. Let's go home, let's pop a beer, and let's live off the interest.”<br/>
 
 <img src="/images/posts/2019-02-21/Moneyball.jpg">
 #### 《点球成金》(Moneyball: The Art of Winning an Unfair Game)   
@@ -21,7 +45,7 @@ Your goal should be to buy wins.And in order to buy wins,you need to buy runs.Ba
 
 This is a code that I've written for our year-to-year projections.This is building in the intelligence that we have to project players.It's about getting things down to one number.Using the stats the way we read them,we'll find value in players that nobody else can see.<br/>
 
-People are overlooked for a variety of biased reasons and perceived flaws.Age,appearance,personality.Bill James and mathematics cut straight through that.Billy,of the 20,000 notable players for us to consider,I believe that there is a championship team of 25 people that we can afford,because everyone else in baseball undervalues them.<br/>
+People are overlooked for a variety of biased reasons and perceived flaws. Age, appearance, personality. Bill James and mathematics cut straight through that. Billy, of the 20,000 notable players for us to consider, I believe that there is a championship team of 25 people that we can afford, because everyone else in baseball undervalues them.<br/>
 
 <img src="/images/posts/2019-02-21/The_Wolf_of_Wall_Street_0.png">
 #### 《华尔街之狼》(The Wolf of Wall Street)
