@@ -157,16 +157,111 @@ iOS应用程序运行在一个引用计数(reference count)的环境中。这意
 随着对块对象以及它们如何管理变量和内存之深入了解，终于到了进入「Chapter 2」了解被称为Grand Central Dispatch奇迹的时刻了。我们将在GCD中大量使用块对象，所以在进入下一章之前，请确保你已经真正理解了本章之内容。<br/>
 
 <img src="/images/posts/2019-01-24/Chapter_2.png">
+Grand Central Dispatch，简称GCD,是一个处理块对象的低层(low-level)C API。GCD的真正用途是将任务分派到多个内核，而不会让你(「程序员」)担心具体哪个内核正在执行哪个任务。在Mac OS X上，包括笔记本电脑等多核设备已经对用户开放很长时间了。随着iPad 2等多核设备的推出，程序员可以为iOS编写令人惊叹的多核感知(multicore-aware)之多线程应用。<br/>
 
+在「Chapter 1」中，我们学习了如何使用块对象。如果你没有读过那一章，我强烈建议你直接读一遍，因为GCD非常依赖块对象及其动态特性。在本章中，我们将了解程序员在iOS和Mac OS X中使用GCD可以实现的真正好玩和有趣的事情。<br/>
 ## 2.1 Short Introduction to Grand Central Dispatch
+GCD的核心是调度队列(dispatch queues)。正如我们将在「2.2 Different Types of Dispatch Queues」看到的，调度队列是由主机操作系统上的GCD管理之**线程池**，当然了，此主机OS可以是iOS也可以是Mac OS X。你不会直接使用这些线程。你只需使用调用队列：将任务分派到这些队列，并要求队列调用你的任务。GCD为运行任务提供了多种选项：同步，异步，一定时间的延迟，等等。<br/>
+
+为开始在你的应用程序中使用GCD，却不必在项目中导入任何特殊的库。Apple已经将GCD整合进了各种框架，包括Core Foundation和Cocoa/Cocoa Touch。GCD中所有可用的方法和数据类型均以`dispatch_`关键字开头。例如，`dispatch_async`允许你在队列中以「异步」执行的方式调度一项任务，而`dispatch_after`则允许你在给定的延迟后运行一段代码块。<br/>
+
+传统上，程序员必须创建自己的线程来并行执行任务。例如，iOS开发人员会创建一个类似这样的线程来执行某个操作1000次：<br/>
+<img src="/images/posts/2019-01-24/ch2_doCalculation_0.png"> <br/>
+<img src="/images/posts/2019-01-24/ch2_doCalculation_1.png"> <br/>
+程序员必须手动启动线程，然后为线程创建所需的结构(入口点、自动释放池和线程的主循环).当我们用GCD编写相同功能的代码时，就不必这么繁琐了：<br/>
+<img src="/images/posts/2019-01-24/ch2_numberOfIterations_GCD.png"> <br/>
+在本章中，您将了解关于GCD的所有知识，以及如何使用它为iOS和Mac OS X编写现代多线程应用程序，这些应用程序将在诸如iPad 2等多核设备上实现卓越的性能。<br/>
 
 ## 2.2 Different Types of Dispatch Queues
+正如在「2.1 Short Introduction to Grand Central Dispatch」提到的，「调度队列」是由GCD管理的线程池。我们将大量使用「调度队列」，因此请确保你已完全理解它们背后之概念。「调度队列」🈶️三种类型：<br/>
+- **Main Queue**：此队列在应用程序主线程上执行它的所有任务，这是Cocoa和Cocoa Touch要求程序员调用所有UI相关方法的地方。使用`dispatch_get_main_queue`函数「拿到」主队列的句柄。「Returns the serial dispatch queue associated with the application’s **main thread**.」<br/>
+- **Concurrent Queues**:这些队列可以从GCD中检索到，以便执行异步或同步任务。多个并发队列可以并行执行多个任务，而无需费力。没有更多的线程管理工作，耶！使用`dispatch_get_global_queue`函数「拿到」并发队列的句柄。从获取函数的名称就可理解「它为何又叫global dispatch queue」，可以并发地执行多个任务，但执行完成顺序是随机的。「Returns a system-defined global concurrent queue with the specified quality-of-service class.」 <br/>
+- **Serial Queues**:无论你向这些队列提交同步任务还是异步任务，它们将始终以「先进先出」的方式执行自己的任务，这也意味着它们一次只能执行一项任务。然而，它们**不运行于主线程**，因此便非常适合一系列必须严格按顺序执行而不阻塞主线程的任务。使用`dispatch_queue_create`函数创建「串行队列」。一旦用完队列后，必须使用`dispatch_release`函数释放它。<br/>
+
+在应用程序生命周期的任意时刻，你都可以同时使用多个「调度」队列。你的**系统**只有一个主队列，但你可以创建任意数量的「串行调度队列」，当然，这也是合理的，无论你的应用程序需要什么功能。你还可以检索多个并发队列并将任务分派给它们。任务可以以两种形式传递给「调度队列」：块对象或C函数，正如我们将在「2.3 Dispatching Tasks to Grand Central Dispatch」看到的。<br/>
 
 ## 2.3 Dispatching Tasks to Grand Central Dispatch
+向「调度队列」提交任务🈶️两种方式：<br/>
+- 块对象，见「Chapter 1」
+- C函数
+
+虽然，块对象是利用GCD及其巨大威力的最佳方式。但是，某些GCD函数已经被扩展来允许程序员使用C函数来替代块对象。然而，事实是只有有限的一组GCD函数允许程序员使用C函数，故在继续本章之前，请务必阅读关于块对象的「Chapter 1」。<br/>
+
+必须提供给各种GCD函数的C函数应该是`dispatch_function_t`类型，在Apple库中定义如下：<br/>
+<img src="/images/posts/2019-01-24/ch2_typedef_dispatch_function_t.png"> <br/>
+因此，如果我们想创建一个名为，例如，myGCDFunction的函数，我们应该以这种方式实现：<br/>
+<img src="/images/posts/2019-01-24/ch2_myGCDFunction.png"> <br/>
+**注**：`paraContext`参数指的是GCD允许程序员在向他们分派任务时传递给他们的C函数的上下文。我们将很快了解到这一点。<br/>
+
+传递给GCD函数的块对象并不总是遵循相同的结构。有些必须接受参数，而有些则不必，但是提交给GCD的块对象均没有返回值。在接下来的3⃣️ 节中，将学习如何将任务提交给GCD执行，无论这任务是以块对象抑或C函数的形式。<br/>
 
 ## 2.4 Performing UI-Related Tasks
+UI相关的任务必须在**主线程**上执行，所以**Main Queue**(即「主队列」)是GCD中UI任务执行的唯一候选。如前说述，我们可以利用`dispatch_get_main_queue`来「拿到」「主调度队列」的句柄。将任务分派到主队列有两种方式。两者都是「异步的」，可在分派的任务尚未执行之情况想让程序继续运行：<br/>
+- dispatch_async函数：在「调度队列」上执行块对象。
+- dispatch_async_f函数：在「调度队列」上执行一个C函数。
+
+**注**：不能在主队列上调用`dispatch_sync`方法，因为它会无限期地阻塞线程，并导致应用程序死锁。所有经由GCD提交到主队列的任务都必须异步提交。<br/>
+
+让我们来看看使用`dispatch_async`函数。它接受两个参数:<br/>
+- Dispatch queue handle: 必须在其上执行任务的调度队列。
+- 块对象：要发送到调度队列以「异步」执行的块对象。
+
+下面举个例子。此代码将在iOS中使用主队列向用户显示一个警告提示:<br/>
+<img src="/images/posts/2019-01-24/ch2_UIAlertView_alloc_GCD_iOS.png"> <br/>
+**注**：正如你注意到的，`dispatch_async`GCD函数没有参数或返回值。提交给此函数的块对象必须收集自己的数据，以完成其任务。在我们刚看到的代码片段中，警告视图拥有完成任务所需的所有值。然而，情况可能并非总是如此。在这种情况下，你必须确保提交给GCD的块对象在其范围内可以访问它需要的所有值。<br/>
+
+在iOS模拟器中运行这个应用程序，用户将获得类似于Figure 2-1所示的结果。<br/>
+<img src="/images/posts/2019-01-24/Figure_2-1.png"> <br/>
+这可能没那么令人有深刻印象。实际上，想想也确实没什么印象。那么是什么让主队列真正有趣呢？答案很简单：当你从GCD中获得最大性能来对并发或串行线程进行一些繁重的计算时，您可能希望向用户显示结果或在屏幕上移动组件。为此，您必须使用主队列，因为它是与UI相关的工作。本节中显示的函数是在利用GCD更新用户界面的同时脱离串行或并发队列的唯一方法，因此你可以想象它有多重要！<br/>
+
+除了提交一个块对象到主队列上运行，你可以向其提交一个C函数对象。将在GCD中执行的所有UI相关的C函数提交给`dispatch_async_f`函数。用C函数代替块对象，再对代码做些调整，我们可以得到与Figure 2-1相同的结果。<br/>
+
+如前说述，利用`dispatch_async_f`函数，我们可以提交一个指向应用程序定义的上下文的指针，然后被调用的C函数可以使用此指针。现在，计划是这样的：让我们创建一个保存值的结构，例如警告视图的标题、消息、及取消按钮的标题。当我们的应用程序启动时，我们把所有的值放进此结构中，并将其传递给我们的C函数以显示。以下是我们如何定义我们的结构:<br/>
+<img src="/images/posts/2019-01-24/ch2_AlertViewData.png"> <br/>
+现在让我们去实现一个稍后用GCD调用的C函数。这个函数应该有一个`void *`类型的参数，然后我们将它强制转换为`AlertViewData *`。换句话说，我们希望该函数的调用者向我们传递对警告视图数据的reference(「引用」)，该数据都被封装在AlertViewData结构体中:<br/>
+
+<img src="/images/posts/2019-01-24/ch2_displayAlertView.png"> <br/>
+**注**：我们之所以在这里而不是在调用者那里「释放」(freeing)传递给我们的上下文，是因为调用者将异步执行这个函数，并且不知道我们的函数什么时候会完成执行。因此，调用者必须为警告视图数据上下文分配足够的空间，并且我们的`displayAlertView`C函数必须释放这些空间。<br/>
+
+现在，让我们在主队列上调用`displayAlertView`函数，并将上下文(保存警告视图数据之结构体)传递给它：<br/>
+<img src="/images/posts/2019-01-24/ch2_invoking_displayAlertView.png">
+如果你调用`NSThread`类的`currentThread`类方法，你会发现分派给**主队列**的块对象或C函数确实在**主线程**上运行:<br/>
+<img src="/images/posts/2019-01-24/ch2_NSThread_currentThread.png"> <br/>
+该代码的输出类似于这里所示:<br/>
+<img src="/images/posts/2019-01-24/ch2_NSThread_currentThread_result.png"> <br/>
+现在你已经知道了如何使用GCD执行与UI相关的任务，现在是转移到其他主题的时候了，例如使用**并发**队列**并行**执行任务(见「2.5 Performing Non-UI-Related Tasks Synchronously」及「2.6 Performing Non-UI-Related Tasks Asynchronously」),并且如果需要的话，可将我们的代码与UI相关的代码混合在一起。<br/>
 
 ## 2.5 Performing Non-UI-Related Tasks Synchronously
+有时，你希望执行与用户界面(UI)无关的任务，有时是与用户界面交互的任务，又或者执行占用大量时间的其他任务。例如，你可能希望下载一幅图像，并在下载完成后将其显示给用户。其下载过程和UI绝🈚️任何关系。<br/>
+
+对于任何不涉及用户界面的任务，您可以在GCD中使用全局并发队列(global concurrent queues)。这些队列既允许同步运行，也可以异步运行。但是，同步执行并不意味着你的程序在继续之前等待代码完成。「**synchronous execution does not mean your program waits for the code to finish before continuing.** 」这只是意味着并发队列将一直等到你的任务完成，然后才继续执行队列中的下一个代码块。当你将一个块对象放在一个**并发**队列中时，你自己的程序总是立即继续而不用等待队列执行块中之代码。(其实，这也侧面印证了前文所述之「并发队列可以并发地执行多个任务，但执行完成顺序是随机的」)。顾名思义，这是因为并发队列在主线程之外的线程上运行它们的代码。值得注意的是，这🈶️一个例外：当使用`dispatch_sync`函数将任务提交给并发或串行队列时，iOS将在当前线程(也可能是**主线程**)上运行任务，这取决于代码路径当前的位置。这是一项已经在GCD上编程的优化，我们很快就会看到。<br/>
+
+如果你将一项任务同步提交到某并发队列，同时将另一项同步任务提交到另一个并发队列，结果是，这两项同步任务将相对于彼此异步运行，因为它们运行在两个不同的并发队列。理解这一点很重要！因为有时，正如我们将看到的，你希望确保任务A在任务B开始之前完成。为了确保这一点，请将它们**同步**提交到**同一个队列**。<br/>
+
+你可以使用`dispatch_sync`函数在调度队列上执行**同步任务**。你所要做的就是为它提供运行任务的队列句柄和在该队列上执行的代码块。<br/>
+
+我们来看一个例子。它打印整数1到1000两次，一个接一个完整的序列，不阻塞主线程。我们可以创建一个为我们计数的块对象，并同步调用同一个块对象两次：<br/>
+<img src="/images/posts/2019-01-24/ch2_printFrom1To1000_block.png"> <br/>
+现在让我们使用GCD来调用这个块对象:<br/>
+
+<img src="/images/posts/2019-01-24/ch2_invoking_printFrom1To1000_block.png"> <br/>
+如果你运行这段代码，虽然你已经请求一个并发队列来执行任务，但是你可能会注意到计数发生在**主线程**上。这原本是GCD做的一项优化。`dispatch_sync`函数将尽可能使用当前线程——调度任务时使用的线程——作为已编程到GCD中的优化之一部分。一下是Apple公司对此的评价：<br/>
+
+<img src="/images/posts/2019-01-24/ch2_As_an_optimization_GCD_Reference.png">  <br/>
+要在调度队列上同步执行C函数而不是块对象，请使用`dispatch_sync_f`函数。让我们简单地将我们为`printFrom1To1000`块对象编写的代码翻译成它的等效C函数，如下所示：<br/>
+
+<img src="/images/posts/2019-01-24/ch2_printFrom1To1000_func.png">
+现在，我们可以使用`dispatch_sync_f`函数在并发队列上执行`printFrom1To1000`函数，如下所示：<br/>
+<img src="/images/posts/2019-01-24/ch2_invoking_printFrom1To1000_func.png"> <br/>
+
+`dispatch_get_global_queue`的第一个参数指定了GCD必须为程序员「拿到」的并发队列之优先级。优先级越高，为在该队列上执行的代码提供的CPU时间片就越多。你🉑️将以下任意值用作`dispatch_get_global_queue`函数的第一个参数：<br/>
+- **DISPATCH_QUEUE_PRIORITY_LOW** 应用于该级别任务的时间片比普通任务少。
+- **DISPATCH_QUEUE_PRIORITY_DEFAULT** 代码执行的默认系统优先级将应用于你的任务。
+- **DISPATCH_QUEUE_PRIORITY_HIGH** 与普通任务相比，该级别的任务能获得更多的时间片。
+
+**注**：`dispatch_get_global_queue`函数的第二个参数是保留的，你始终将值0传递给它便可。<br/>
+
+在本节中，您看到了如何将任务分派到**并发**队列中进行**同步**执行。下一节展示了在并发队列上的**异步**执行,而「2.10 Constructing Your Own Dispatch Queues」将展示如何在你为应用程序创建的**串行**队列上**同步**和**异步**地执行任务。<br/>
 
 ## 2.6 Performing Non-UI-Related Tasks Asynchronously
 
