@@ -264,8 +264,76 @@ UI相关的任务必须在**主线程**上执行，所以**Main Queue**(即「�
 在本节中，您看到了如何将任务分派到**并发**队列中进行**同步**执行。下一节展示了在并发队列上的**异步**执行,而「2.10 Constructing Your Own Dispatch Queues」将展示如何在你为应用程序创建的**串行**队列上**同步**和**异步**地执行任务。<br/>
 
 ## 2.6 Performing Non-UI-Related Tasks Asynchronously
+这就是GCD可以展示其真正威力的地方:在主队列、串行队列或并发队列上异步执行代码块。我保证，到本节结束时，你将完全相信GCD是多线程应用的未来，会完全取代现代应用中的线程(thread)。<br/>
+
+为了在「调度队列」上执行异步任务，你必须使用以下函数之一:<br/>
+- `dispatch_async` 将块对象提交到调度队列(两者皆由参数指定)，以便异步执行。
+- `dispatch_async_f` 向调度队列提交一个C函数，以及一个上下文引用(所有三个均由参数指定)，用于异步执行。
+
+我们来看一个真实的例子。我们将编写一个能够从互联网网址下载图像的iOS应用程序。下载完成后，应用程序应该向用户显示图像。以下是我们的计划，以及我们将如何利用迄今为止学到的关于GCD的知识来实现它:<br/>
+- 1.我们将在**并发队列**上**异步**启动一个块对象。
+- 2.一旦进入这个块，我们将使用`dispatch_sync`函数同步启动另一个块对象，从一个URL下载图像。从异步代码块同步下载URL只会占用运行该**同步函数**的队列，而非**主线程**。从主线程的角度看，整个操作仍是**异步的**。我们所关心的是：在下载我们的图像时，我们没有阻塞主线程。
+- 3.在下载图像之后，我们将在主队列(main queue)同步执行一个块对象以便在用户界面上向用户显示图像。(可参见「2.4 Performing UI-Related Tasks」)
+
+我们计划的框架很简单：<br/>
+<img src="/images/posts/2019-01-24/ch2_download_image_skeleton.png"> <br/>
+显示图像的第二个`dispatch_sync`调用将在下载我们的图像之第一个同步调用之后的队列中执行。这正是我们想要的，因为我们必须等到图像完全下载后才能向用户显示。因此，在下载图像后，我们才执行第二个块对象，但这次是在主队列(main queue)上。<br/>
+
+现在让我们下载图像并显示给用户。我们将在iPhone应用程序中显示的视图控制器之`viewDidAppear:`实例方法中进行此项操作：<br/>
+<img src="/images/posts/2019-01-24/ch2_download_image_viewDidAppear_0.png">
+<img src="/images/posts/2019-01-24/ch2_download_image_viewDidAppear_1.png">
+<img src="/images/posts/2019-01-24/ch2_download_image_viewDidAppear_2.png"> 
+
+正如你可以在Figure 2-2中看到的那样，我们已经成功地下载了我们想要的图像，并且还创建了一个图像视图以在用户界面(UI)上向用户显示该图像。<br/>
+<img src="/images/posts/2019-01-24/Figure_2-2.png">
+
+让我们继续另一个例子。假设我们🈶️一个由10000个随机数组成的数组，这些随机数存储在硬盘上的一个文件中。我们想将这个数组加载到内存中，以升序方式对这些数字进行排序(「最小的数字首先出现在列表中」)，然后向用户显示该列表。用于显示目的之控件取决于是为iOS(理想情况下，应该使用一个UITableView的实例)还是Mac OS X(NSTableView则是一个很好的候选项)编写代码。既然我们没有数组，为什么不先创建数组，然后加载，最后显示呢？ <br/>
+
+这里🈶️两个方法，用于帮助我们找到在设备硬盘上保存10000个随机数的位置：<br/>
+<img src="/images/posts/2019-01-24/ch2_fileLocation_0.png">
+<img src="/images/posts/2019-01-24/ch2_fileLocation_1.png">
+
+现在最重要的部分是：我们希望在硬盘上保存一个由10000个随机数组成的数组，而前提是我们以前没有在硬盘上创建过该数组。如果🈶️，我们将立即从硬盘加载该数组。如果我们以前未在硬盘上创建此数组，我们将首先创建它，然后继续从硬盘加载它。最后，如果从硬盘成功读取了数组，我们将以升序方式对数组元素进行排序，并最终在用户界面上向用户显示结果。我会让你自行决定是否显示结果：<br/>
+
+<img src="/images/posts/2019-01-24/ch2_sort_array_0.png">
+<img src="/images/posts/2019-01-24/ch2_sort_array_1.png">
+<img src="/images/posts/2019-01-24/ch2_sort_array_2.png">
+
+代码较长，我们可以删掉具体实现的大部分代码，留下框架就比较容易读了：<br/>
+<img src="/images/posts/2019-01-24/ch2_sort_array_skeleton.png">
+**GCD**不仅仅是「同步和异步」块或函数执行。在「2.9 Running a Group of Tasks Together」一节🀄️，你将学习如何将块对象组合在一起，并将其交付在「调度队列」中执行。我还建议你翻一翻「2.7 Performing Tasks After a Delay」及「2.8 Performing a Task at Most Once」以了解GCD能够为程序员提供的其他功能。<br/>
 
 ## 2.7 Performing Tasks After a Delay
+配合Core Foundation，使用NSObject类的`performSelector:withObject:afterDelay:`方法，你可以在给定的一段时间后再调用对象中的选择器(selector)。这里有一个例子：<br/>
+<img src="/images/posts/2019-01-24/ch2_printString.png"> <br/>
+在这个例子中，我们要求运行时系统在延迟3秒钟后调用`printString:`方法。我们可以在GCD中使用`dispatch_after`和`dispatch_after_f`函数完成同样的功能。<br/>
+
+`dispatch_after` 在以纳秒为单位指定的给定时间段后，将块对象派发到「调度队列」。以下是该功能所需的参数:<br/>
+- 延迟纳秒数(delay in nanoseconds) GCD在执行给定的块对象(由第3个参数指定)之前，必须等待给定调度队列(由第2个参数指定)的纳秒数。 
+- 调度队列(dispatch queue) 在给定延迟(由第1个参数指定)后，必须在其上执行块对象(由第3个参数指定)的调度队列。 
+- 块对象(block object) 在给定「调度队列」上的指定纳秒数后要调用之块对象。这个块对象应该没有返回值，并且不接受任何参数(参考「1.2 Constructing Block Objects and Their Syntax」)。
+
+`dispatch_after_f` 将一个C函数调度到GCD，以便在以纳秒为单位的给定时间段后执行。该函数接受四个参数：<br/>
+- 延迟纳秒数(delay in nanoseconds) GCD在执行给定函数(由第4个参数指定)之前，必须等待给定「调度队列」(由第2个参数指定）的纳秒数。 
+- 调度队列(dispatch queue) 在给定延迟后，必须在其上执行C函数的调度队列。
+- 上下文(context) 堆中要传递给C函数的值之内存地址(例如，「2.4 Performing UI-Related Tasks」)。
+- **C**函数(C function) 在给定的调度队列中，经过一段时间后必须执行的C函数之地址。
+
+<img src="/images/posts/2019-01-24/Apple_Developer_dispatch_after.png">
+**注**虽然延迟以纳秒为单位，但由iOS系统决定调度延迟的粒度，并且当你指定以纳秒为单位的值时，得到的延迟可能没有你希望的那么精确。<br/>
+
+我们先来看一下`dispatch_after`的一个例子：<br/>
+<img src="/images/posts/2019-01-24/ch2_delayInSeconds.png">
+如你所见，`dispatch_after`和`dispatch_after_f`函数的纳秒延迟参数必须是`dispatch_time_t`类型，此为绝对时间值的抽象表示。要获🉐️该参数的值，可以使用示例代码中`dispatch_time`函数。以下是可以传递给`dispatch_time`函数的参数:<br/>
+- 基准时间(base time) 如果该值用B表示，增量参数用D表示,则该函数产生的时间将等于B+D。可以将该参数的值设置为`DISPATCH_TIME_NOW`以将「现在」表示为基准时间，然后使用增量参数指定从「现在」开始的增量。
+- 添加到基准时间的增量(delta to add to base time) 此参数是将被添加到基准时间参数以创建此函数结果的纳秒数。 
+
+<img src="/images/posts/2019-01-24/Apple_Developer_dispatch_time.png">
+例如，为了表示3秒后的时间或者从「现在」开始的半秒钟，你可以这样编写代码：<br/>
+<img src="/images/posts/2019-01-24/ch2_dispatch_time_3s.png"> <br/>
+<img src="/images/posts/2019-01-24/ch2_dispatch_time_05s.png"> <br/>
+现在让我们看看如何使用`dispatch_after_f`函数：<br/>
+<img src="/images/posts/2019-01-24/ch2_processSomething.png">
 
 ## 2.8 Performing a Task at Most Once最多执行一次任务
 
