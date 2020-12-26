@@ -319,7 +319,6 @@ UI相关的任务必须在**主线程**上执行，所以**Main Queue**(即「�
 - 上下文(context) 堆中要传递给C函数的值之内存地址(例如，「2.4 Performing UI-Related Tasks」)。
 - **C**函数(C function) 在给定的调度队列中，经过一段时间后必须执行的C函数之地址。
 
-<img src="/images/posts/2019-01-24/Apple_Developer_dispatch_after.png">
 **注**虽然延迟以纳秒为单位，但由iOS系统决定调度延迟的粒度，并且当你指定以纳秒为单位的值时，得到的延迟可能没有你希望的那么精确。<br/>
 
 我们先来看一下`dispatch_after`的一个例子：<br/>
@@ -328,7 +327,6 @@ UI相关的任务必须在**主线程**上执行，所以**Main Queue**(即「�
 - 基准时间(base time) 如果该值用B表示，增量参数用D表示,则该函数产生的时间将等于B+D。可以将该参数的值设置为`DISPATCH_TIME_NOW`以将「现在」表示为基准时间，然后使用增量参数指定从「现在」开始的增量。
 - 添加到基准时间的增量(delta to add to base time) 此参数是将被添加到基准时间参数以创建此函数结果的纳秒数。 
 
-<img src="/images/posts/2019-01-24/Apple_Developer_dispatch_time.png">
 例如，为了表示3秒后的时间或者从「现在」开始的半秒钟，你可以这样编写代码：<br/>
 <img src="/images/posts/2019-01-24/ch2_dispatch_time_3s.png"> <br/>
 <img src="/images/posts/2019-01-24/ch2_dispatch_time_05s.png"> <br/>
@@ -336,12 +334,88 @@ UI相关的任务必须在**主线程**上执行，所以**Main Queue**(即「�
 <img src="/images/posts/2019-01-24/ch2_processSomething.png">
 
 ## 2.8 Performing a Task at Most Once最多执行一次任务
+分配和初始化单例是应用程序生命周期中必须发生一次的任务之一。我相信你知道其他场景，在这些场景中，你必须确保一段代码在应用程序的生命周期中只执行一次。<br/>
+
+GCD允许你在试图执行代码时为代码段指定一个标识符。如果GCD检测到这个标识符以前已经被传递给框架了，它就不会再执行那个代码块了。允许你这样做的函数是`dispatch_once`，它接受两个参数：<br/>
+- Token 一种类型为`dispatch_once_t`的token保存第一次执行代码块时由GCD生成的token。如果你希望一段代码最多被执行一次，则每当在应用程序中调用该方法时，你都必须为此方法指定相同的token。我们很快就会看到这样的例子。
+- 块对象(block object) 最多执行一次的块对象。此块对象没有返回值，也不接受任何参数。
+
+**注**：`dispatch_once`总是在发出调用的代码所使用的当前队列上执行其任务，不管此队列是串行队列、并发队列抑或主队列。<br/>
+
+下面🈶️一个例子：<br/>
+<img src="/images/posts/2019-01-24/ch2_executedOnlyOnce_0.png">
+<img src="/images/posts/2019-01-24/ch2_executedOnlyOnce_1.png">
+
+如你所见，虽然我们试图使用`dispatch_once`函数调用两次`executedOnlyOnce`块对象，但实际上GCD只执行该块对象一次，因为两次传递给`dispatch_once`的标识符都是相同的。<br/>
+
+Apple公司在其[Cocoa Fundamentals Guide](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/CocoaFundamentals/CocoaObjects/CocoaObjects.html#//apple_ref/doc/uid/TP40002974-CH4-SW32)之「Creating a Singleton Instance」中展示了程序员如何创建一个单例。但是，我们可以改变这个模型以使用GCD和`dispatch_once`函数来初始化一个对象的共享实例，如下所示：<br/>
+
+<img src="/images/posts/2019-01-24/ch2_MySingleton_0.png">
+<img src="/images/posts/2019-01-24/ch2_MySingleton_1.png">
 
 ## 2.9 Running a Group of Tasks Together
+GCD允许我们创建「组」；组则允许你将所有任务放于一处，运行它们并在最后从GCD处获得通知。此特点🈶️许多有价值之应用。例如，假设你🈶️一款基于用户界面的应用程序，并希望在你的用户界面上重新加载组件。在用户界面中，你有一个表格视图、一个滚动视图和一个图像视图。你希望使用如下方法重新加载这些组件的内容：<br/>
+
+<img src="/images/posts/2019-01-24/ch2_reload.png">
+目前，这些方法都是空的，但是以后你可以把相关的UI代码放进去。现在我们想依次调用这三个方法，并且我们还想知道GCD什么时候调用完这些方法，以便我们可以向用户显示一条消息。为此，我们应该使用一个组。在GCD中使用「组」时，你应当了解4个函数：<br/>
+- `dispatch_group_create` 创建组之句柄。一旦你使用完了这个句柄，应该利用`dispatch_release`函数把它处理掉。
+- `dispatch_group_async` 提交在组中执行的代码块。你必须指定代码库须于其上执行的「调度队列」以及该代码块所属的组。 
+- `dispatch_group_notify` 一旦添加到要执行的组中之所有任务都完成了它们的工作，还干嘛呢？此处允许您提交一个块对象，继续要做的事就是「执行该对象」。此功能还允许您指定必须在其上执行该块对象的调度队列。
+- `dispatch_release` 使用此函数可以处理由`dispatch_group_create`函数创建的任意调度组。
+
+我们来看一个例子。如前所释，我们希望依次调用`reloadTableView`、`reloadScrollView`和`reloadImageView`方法，然后在完成后向用户显示一条信息。我们可以利用GCD强大的分组工具来实现这一目标:<br/>
+<img src="/images/posts/2019-01-24/ch2_reload_taskGroup_0.png">
+<img src="/images/posts/2019-01-24/ch2_reload_taskGroup_1.png">
+除了`dispatch_group_async`之外，当然还可以使用`dispatch_group_async_f`函数将异步C函数派发到「调度组」。**注**：GCDAppDelegate就是这个实例的类名。我们必须使用这个类名来对上下文对象进行类型转换，以便编译器能够理解我们的命令。像这样：<br/>
+
+<img src="/images/posts/2019-01-24/ch2_reloadAllComponents_0.png">
+<img src="/images/posts/2019-01-24/ch2_reloadAllComponents_1.png">
+<img src="/images/posts/2019-01-24/ch2_reloadAllComponents_2.png">
+
+由于`dispatch_group_async_f`函数接受一个C函数作为要执行的代码块，所以C函数必须有一个对「自身」(**self**)的引用，以便能够调用实现C函数的当前对象之实例方法。这就是在`dispatch_group_async_f`函数中传递**self**作为上下文指针的原因。有关上下文和C函数的更多信息，可参考「2.4 Performing UI-Related Tasks」。<br/>
+
+一旦所有给定的任务完成，用户将看到类似于Figure 2-3所示的结果。<br/>
+<img src="/images/posts/2019-01-24/Figure_2-3.png">
 
 ## 2.10 Constructing Your Own Dispatch Queues
+利用GCD，你可以创建自己的串行调度队列(🈶️关串行队列，可参考「2.2 Different Types of Dispatch Queues」)。串行调度队列以先进先出(**FIFO**)的方式运行任务。然而，串行队列的上的**异步**任务不会在**主线程**上执行，这使得串行队列非常适合并发的先进先出(**FIFO**)任务。<br/>
+
+提交到串行队列的所有**同步**任务将尽可能在提交任务的代码所使用之**当前线程**上执行。(「提交任务的代码」在线程1，则「要完成的同步任务」也在线程1上执行) 但是提交到串行队列的**异步**任务将总是在主线程之外的线程上执行。<br/>
+
+我们将使用`dispatch_queue_create`函数来创建串行队列。该函数中第一个参数是一个C字符串`char *`，它将唯一地标识**系统**中的串行队列。我强调系统的原因是因为这个标识符是一个**系统范围**的标识符，这意味着：如果你的应用程序创建了一个以serialQueue1为标识符的新串行队列，而其他人的应用程序也有相同的操作，那么创建一个同名的新串行队列之结果是GCD**未定义**的。因此，Apple公司强烈建议「你对标识符使用反向**DNS**格式」。反向DNS系统标识符通常是这样构造的：com.COMPANY.PRODUCT.IDENTIFIER。例如，我可以创建两个串行队列，并将这些名称分配给它们:<br/>
+
+<img src="/images/posts/2019-01-24/ch2_two_serial_queues.png">
+创建完串行队列后，你可以使用本书中所学的各种GCD函数向该队列分派任务。一旦用完刚刚创建的串行调度队列后，必须使用`dispatch_release`函数来处置它。你想看一个例子吗？我想是的！<br/>
+
+<img src="/images/posts/2019-01-24/ch2_two_serial_queues_example_0.png">
+<img src="/images/posts/2019-01-24/ch2_two_serial_queues_example_1.png">
+
+如果你运行此代码并查看打印到控制台窗口的输出，你将看到类似以下内容的结果:<br/>
+<img src="/images/posts/2019-01-24/ch2_two_serial_queues_example_output.png">
+
+很明显，尽管我们将块对象**异步**派发到了串行队列，但队列还是以先进先出(**FIFO**)的方式执行它们的代码。我们可以修改相同的示例代码，使用`dispatch_async_f`函数替代`dispatch_async`，如下所示：<br/>
+
+<img src="/images/posts/2019-01-24/ch2_game_over_0.png">
+<img src="/images/posts/2019-01-24/ch2_game_over_1.png">
+
+<-----  本书完   ---->
 
 <img src="/images/posts/2019-01-24/Concurrent_Programming_Mac_OS_X_iOS_Amazon.png">
-从图中的🌟可看出「评价不太好」,因为它只是一本小册子。给差评的顾客认为「No publisher should be able to get away with printing a 50 page pamphlet. This is not a book, its a brief pamphlet on **Grand Central Dispatch. I can find more information by spending 30 seconds on Google.** There is much more content available to write a more thorough and useful book, and there is no excuse to stop at 50 pages.」；但是，只以页数作为评判标准，可能也有失偏颇，O'Reilly Media也出版过许多其它的小册子，比如《The Software Paradox : The Rise and Fall of the Commericial Software Market》(Stephen O'Grady)，也不到60页。一本书能展现作者欲表达之意，能给读者「有所得」之感，就可以了。针对本书，从内容组织及阐释要点来看，快速读完，还是有所得！Amazon也有顾客针对其内容做了比较中肯的评价，<br/>
+本书副标题为Unleash Multicore Performance With Grand Central Dispatch，即介绍如何利用GCD来编写多线程应用。虽说可以很顺当地读完，但是就其中GCD具体函数之「参数介绍」倒不如直接参考Apple官方文档 来得更快些，比如「2.7 Performing Tasks After a Delay」提到的`void dispatch_after(dispatch_time_t when, dispatch_queue_t queue, dispatch_block_t block);`。如果吃不准文中内容之准确性的话(或曰文中内容表达不清的话)，更要参考官方文档了，例如对Dispatch Queues的种类区分有疑惑，可读[Concurrency Programming Guide](https://developer.apple.com/library/archive/documentation/General/Conceptual/ConcurrencyProgrammingGuide/OperationQueues/OperationQueues.html)之「Dispatch Queues」一节或developer.apple.com之[Documentation-Dispatch-Dispatch Queue](https://developer.apple.com/documentation/dispatch/dispatch_queue?language=objc)部分。读罢，仍有不解之惑，非要把此内容查个底儿掉，去查源代码便可！<br/>
+
+我们在「2.6 Performing Non-UI-Related Tasks Asynchronously」🈶️一句「你将完全相信GCD是多线程应用的未来，会完全取代现代应用中的线程(thread)」，那么这个「未来」仅存在于iOS及Mac OS X等Apple自家操作系统吗？非也！要知道Apple将Grand Central Dispatch代码库开源了，基于此，FreeBSD团队将其移植到了自家平台上，且支持libdispatch所需的内核扩展最早出现在FreeBSD 8.1中。在FreeBSD中就算以gcc编译，libdispatch仍能运行良好；但是若要使用C Blocks，则需以`clang -fblocks`来构建程序。wiki.freebsd.org上还给出了一段非常简单的示例代码块，特别眼熟：<br/>
+
+<img src="/images/posts/2019-01-24/GCD_on_FreeBSD_Block.png">
+<img src="/images/posts/2019-01-24/GCD_on_FreeBSD_Function.png">
+
+说回本书，从图中的🌟可看出「评价不太好」,因为它只是一本小册子。给差评的顾客认为「No publisher should be able to get away with printing a 50 page pamphlet. This is not a book, its a brief pamphlet on **Grand Central Dispatch. I can find more information by spending 30 seconds on Google.** There is much more content available to write a more thorough and useful book, and there is no excuse to stop at 50 pages.」；但是，只以页数作为评判标准，可能也有失偏颇，O'Reilly Media也出版过许多其它的小册子，比如《The Software Paradox : The Rise and Fall of the Commericial Software Market》(Stephen O'Grady)，也不到60页。一本书能展现作者欲表达之意，能给读者「有所得」之感，就可以了。针对本书，从内容组织及阐释要点来看，快速读完，还是有所得！Amazon也有顾客针对其内容做了比较中肯的评价，<br/>
 
 <img src="/images/posts/2019-01-24/Amazon_Customer_reviews.png">
+
+## 深入阅读
+- [Cocoa Fundamentals Guide](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/CocoaFundamentals/CocoaObjects/CocoaObjects.html#//apple_ref/doc/uid/TP40002974-CH4-SW32)
+- [Concurrency Programming Guide](https://developer.apple.com/library/archive/documentation/General/Conceptual/ConcurrencyProgrammingGuide/OperationQueues/OperationQueues.html)
+- [Blocks and Grand Central Dispatch in Practice](https://developer.apple.com/videos/play/wwdc2011/308/)
+- [Building Responsive and Efficient Apps with GCD](https://developer.apple.com/videos/play/wwdc2015/718/)
+- [Grand Central Dispatch (GCD) on FreeBSD](https://wiki.freebsd.org/action/show/GrandCentralDispatch?action=show&redirect=GCD)
+- ......
