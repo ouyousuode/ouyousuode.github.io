@@ -11,4 +11,4 @@ David Heinemeier Hansson是Ruby on Rails之父，是Basecamp的联合创始人�
 
 <img src="/images/posts/2020-10-03/Building_Software_with_David_Heinemeier_Hansson.png">
 
-<img src="/images/posts/2020-10-03/no_one_is_that_enthusiastic_during_a_standup_meeting.jpeg">
+
