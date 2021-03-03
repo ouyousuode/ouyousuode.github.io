@@ -32,7 +32,9 @@ title: 单源最短路径之Dijkstra算法
 
 其实，计算机科学家Edsger Wybe Dijkstra早在1959年就提出了解决从一个顶点到其余各顶点的最短路径的算法以解决有向图中最短路径问题。因此，此算法也被称为Dijkstra's Algorithm。
 
-<img src="/images/posts/2018-10-10/dijkstraAlgorithm_05.jpg">
+<img src="/images/posts/2018-10-10/Dijkstra_Algorithm.png"> <br/>
+<img src="/images/posts/2018-10-10/Initialize-Single-Source.png"> <br/>
+<img src="/images/posts/2018-10-10/Relax.png"> <br/>
 
 Dijkstra算法中设置了一个顶点集合S，从源点s到集合中的顶点的最终最短路径的权值均已确定。算法反复选择具有最短路径估计的顶点u ∈ V-S，并将u加入S，对u的所有出边进行松弛。
 
@@ -49,25 +51,11 @@ Dijkstra算法中设置了一个顶点集合S，从源点s到集合中的顶点�
     
 <img src="/images/posts/2018-10-10/dijkstraAlgorithm_06_Full.jpg">
 
-然后，写代码处理这些数据：
+然后，写代码处理这些数据：<br/>
 
-<img src="/images/posts/2018-10-10/code_00.jpg">
-<img src="/images/posts/2018-10-10/code_01.jpg">
+<img src="/images/posts/2018-10-10/Dijkstra_Algorithm_code.png"> <br/>
 
-当然，此代码只是直译了算法思想，肯定确有改进处，所以只可远观。另外，王垠推荐了一个对Dijkstra的采访视频，
+当然，此代码只是直译了算法思想，肯定确有改进处，所以只可远观。另外，王垠推荐了一个对Edsger W.Dijkstra博士的采访视频，<br/>
+<img src="/images/posts/2018-10-10/Dijkstra.jpg"> <br/>
 
-<img src="/images/posts/2018-10-10/Dijkstra_Small.jpg">
-
-翻译了作者的几个观点，挺有意思的，比如“研究物理的人如果遇到不理解的事情，总是可以责怪上帝，世界这么复杂不是你的错。但是如果你的程序有问题，那就找不到替罪羊了。0就是0，1就是1，就是你把它搞砸了。” 以及“为什么这么少的人追求优雅？这就是现实。如果说优雅也有缺点的话，那就是你需要艰巨的工作才能得到它，需要良好的教育才能欣赏它。”等等......
-
-## 参考
-- 《Introduction to Algorithms》
-- 《Algorithms Unplugged》
-
-
-
-
-
-
-
-
+翻译了作者的几个观点，挺有意思的，比如“研究物理的人如果遇到不理解的事情，总是可以责怪上帝，世界这么复杂不是你的错。但是如果你的程序有问题，那就找不到替罪羊了。0就是0，1就是1，就是你把它搞砸了。” 以及“为什么这么少的人追求优雅？这就是现实。如果说优雅也有缺点的话，那就是你需要艰巨的工作才能得到它，需要良好的教育才能欣赏它。”等等......<br/>
