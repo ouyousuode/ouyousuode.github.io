@@ -13,14 +13,14 @@ block在GCC和Clang中都是随OS X v10.6 Xcode开发者工具一起提供的。
 
 你应当阅读此文档以了解什么是block对象、以及如何从C、C++或Objective-C角度来使用它们。<br/>
 
-本文档包含以下章节：<br/>
+本文档包含以下章节：
 - Getting Started with Blocks(块入门)提供了一个快速、实用的块简介。
 - Conceptual Overview(整体概念)提供了块的概念性介绍。
 - Declaring and Creating Blocks(声明及创建块)展示了如何声明块变量以及如何实现块。
 - Blocks and Variables(块和变量)描述了块和变量之间的交互，并定义`__block`存储类型修饰符。
 - Using Blocks(使用块)演示了各种使用模式。
 
-
+<br/>
 ## 一、Getting Started with Blocks
 下面章节利用实际用例帮你入门block(块)。<br/>
 
@@ -33,3 +33,43 @@ block在GCC和Clang中都是随OS X v10.6 Xcode开发者工具一起提供的。
 
 注意，block可以使用自定义它的相同范围内的变量。如果将block声明为变量，则可以像使用函数一样使用它：<br/>
 <img src="/images/posts/2021-05-17/1_2.png">
+
+### 1.2 直接使用块
+在很多情况下，你无需声明block变量；相反，在需要将其作为参数的地方内联编写一个block字面量，即可。以下示例使用了`qsort_b`函数。`qsort_b`类似于标准的`qsort_r`函数，但以一个block作为其最后一个参数。<br/>
+<img src="/images/posts/2021-05-17/1_3.png">
+
+### 1.3 Cocoa中的块
+Cocoa frameworks中的一些方法以block为参数，通常对对象集合执行操作，或者在操作完成后用于「回调」。下面示例展示了如何将block与`NSArray`方法[sortedArrayUsingComparator:](https://developer.apple.com/documentation/foundation/nsarray/1411195-sortedarrayusingcomparator?language=objc)一起使用。该方法只有一个block参数。举例来讲，此场景下，block被定义一个`NSComparator`类型局部变量：<br/>
+<img src="/images/posts/2021-05-17/1_4.png">
+
+### 1.4 `__block`变量
+block的一个强大特性是它们可以修改相同词法作用域内的变量。给变量加上`__block`存储类型符即意味着你可以在block内修改此变量。利用「1.3 Cocoa中的块」之示例，你可以使用block变量来计算如下示例中🈶️多少字符串是相等的。举例来讲，此场景下，直接使用block并在block内使用了`currentLocale`作为只读变量：<br/>
+<img src="/images/posts/2021-05-17/1_5.png">
+
+## 二、Conceptual Overview
+block对象为你提供了一种在C语言及其派生语言(如Objective-C和C++)中创建特殊函数体作为表达式的方法。在其它编程语言和环境中，block对象有时也被称为「闭包」(closure)。在这里，除非和标准C语言术语的一段(block)代码混淆之情况下，一般通俗地称其为「块」(block)。<br/>
+
+### 2.1 块功能
+block就是一段匿名的内联代码段：
+- 像函数一样有一个类型化的参数列表。
+- 有可推断或直接声明的返回值类型。
+- 可以从定义状态的词法范围中捕获状态。
+- 可以选择性地修改词法作用域的状态。
+- 可以和相同词法范围内定义的其它块共享修改状态。
+- 在词法作用域(「栈帧」stack frame)被破坏后，可以继续共享并修改词法作用域内定义之状态。
+
+<br/>
+你可以复制一个block，甚至可以将其传递给其它线程以供延迟执行(也或者，在其自己线程内，传递给一个runloop)。编译器和運行時会安排引自该block的所有变量在该block的所有副本之生命周期内得以保留(换言之，保留至声明周期后)。虽然block对纯C和C++语言是可用的，但是block也始终是一个Objective-C对象。<br/>
+
+### 2.2 用法
+block一般是小段的、自成体系的代码段。因此，它特别适用于作为封装可能并发执行之工作单元的一种方式，或者作为集合中的项，也或者作为另一个操作完成时的「回调」(callback)。<br/>
+
+block作为传统回调函数的实用替代，主要有两大原因：
+- 它们允许你把具体实现之代码写在调用处。因此，block通常是框架(framework)方法的参数。
+- 它们允许访问局部变量。回调函数需要包含执行操作所需的所有上下文信息之数据结构，而你可以不需使用回调函数，而是直接访问局部变量。
+
+
+
+
+## 文档修订历史
+<img src="/images/posts/2021-05-17/Document_Revision_History.png">
