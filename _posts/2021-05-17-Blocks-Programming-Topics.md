@@ -151,7 +151,7 @@ block作为变量提供了对Objective-C和C++对象、以及其它block的支�
 - 如果你有一个`__block`存储类本来是一个基于栈(stack)的C++对象，那么通常使用`copy`构造函数。
 - 如果在块中使用任何其他基于栈的C++对象，它必须有一个`const copy`构造函数。然后使用该构造函数复制C++对象。
 
-
+<br/>
 #### 4.3.3 块
 当你复制一个block时，如果需要，将复制该block中对其它block的任意引用——可以(从顶部)复制整棵树。如果你有block变量并且从此block中引用了另一个block，那么后者这个block就会被复制。<br/>
 
@@ -197,7 +197,7 @@ Cocoa提供了许多使用block的方法。将block作为方法参数以传递�
 你可以设置「断点」并单步执行block。你可以使用`invoke-block`在GDB会话中调用block，如下例所示：<br/>
 <img src="/images/posts/2021-05-17/5_9.png">
 
-如果想传入一个C字符串，则必须引用它。例如，要将某字符串传递给doSomethingWithString块，可以这样写，<br/>
+如果想传入一个C字符串，则必须引用它。例如，要将字符串`this string`传递给`doSomethingWithString`块，可以这样写，<br/>
 <img src="/images/posts/2021-05-17/5_10.png">
 
 
