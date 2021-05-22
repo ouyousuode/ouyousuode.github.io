@@ -70,7 +70,7 @@ block作为传统回调函数的实用替代，主要有两大原因：
 
 <br/>
 ## 三、Declaring and Creating Blocks
-<br/>
+
 ### 3.1 声明块引用
 block变量包含对块的引用。你可以使用类似于声明函数指针的语法来声明它们，区别在于使用^而非`*`。block类型同C语言类型系统的其余部分完全相通。以下是所有有效的block变量声明：<br/>
 <img src="/images/posts/2021-05-17/3_1.png">
@@ -150,9 +150,57 @@ block作为变量提供了对Objective-C和C++对象、以及其它block的支�
 通常，你可以在block中使用C++对象。在「成员函数」中，对「成员变量」和函数的引用是通过隐式导入`this`指针来实现的。因此，看起来是可变的。如果一个block被复制，有两个注意事项：
 - 如果你有一个`__block`存储类本来是一个基于栈(stack)的C++对象，那么通常使用`copy`构造函数。
 - 如果在块中使用任何其他基于栈的C++对象，它必须有一个`const copy`构造函数。然后使用该构造函数复制C++对象。
-<br/>
+
+
 #### 4.3.3 块
 当你复制一个block时，如果需要，将复制该block中对其它block的任意引用——可以(从顶部)复制整棵树。如果你有block变量并且从此block中引用了另一个block，那么后者这个block就会被复制。<br/>
+
+## 五、Using Blocks
+
+### 5.1 调用块
+如果你把block声明为变量，你可以像使用函数一样使用它，如下两个例子所示：<br/>
+<img src="/images/posts/2021-05-17/5_1.png">
+
+然而，你经常将block作为参数传递给函数或方法。在这些情况下，你通常会创建一个「内联」block。<br/>
+
+### 5.2 使用块作为函数参数
+可以将block作为函数参数传递，就像传递任何其它参数一样。然而，在许多情况下，你不需要声明block；相反，只需在需要它们作为参数处「内联」实现它们即可。下面的示例使用`qsort_b`函数。`qsort_b`函数类似于标准的`qsort_r`函数，但将block作为其最后一个参数。<br/>
+<img src="/images/posts/2021-05-17/5_2.png">
+
+注意，block包含在函数的参数列表中。<br/>
+下一个例子展示了如何在`dispatch_apply`函数中使用block。`dispatch_apply`声明如下：<br/>
+<img src="/images/posts/2021-05-17/5_3.png">
+
+该函数将block提交给「调度队列」以執行多次调用。它有三个参数：第1个指定要执行的迭代次数；第2个指定block被提交到的队列；第3个是block本身，它接受一个参数——迭代的当前索引。你可以简单地使用`dispatch_apply`来打印迭代索引，如下所示：<br/>
+<img src="/images/posts/2021-05-17/5_4.png">
+
+### 5.3 使用块作为方法参数
+Cocoa提供了许多使用block的方法。将block作为方法参数以传递，就像传递其它任何参数一样。下面的示例determines the indexes of any of the first five elements in an array that appear in a given filter set(确定出现在给定「筛选器集」中的数组的前5个元素中的任何一个之索引)。<br/>
+<img src="/images/posts/2021-05-17/5_5.png">
+
+下面的示例确定一个`NSSet`对象是否包含一个由局部变量指定的单词，并将另一个局部变量(found)的值设置为YES(若存在，则停止搜索)。注意，found也被声明为`__block`变量，并且block为「内联」定义的：<br/>
+<img src="/images/posts/2021-05-17/5_6.png">
+
+### 5.4 拷贝块
+通常，你不需要复制(或保留)一个block。只有当你希望在销毁声明block的作用域后仍使用该block时，才需要创建一个副本。复制将block移动到堆(heap)中。<br/>
+
+你可以使用C函数来复制和释放block：<br/>
+<img src="/images/posts/2021-05-17/5_7.png">
+
+为避免内存泄漏，你必须保证`Block_copy()`和`Block_release()`成对出现。<br/>
+
+### 5.5 应避免的模式
+一个block字面量(即，`^{ ... }`)是表示block的局部栈(stack-local)数据结构之地址。因此，局部栈(stack-local)数据结构的作用域是封闭的复合语句，因此，应避免以下示例中显示的模式：<br/>
+<img src="/images/posts/2021-05-17/5_8.png">
+
+### 5.6 调试
+你可以设置「断点」并单步执行block。你可以使用`invoke-block`在GDB会话中调用block，如下例所示：<br/>
+<img src="/images/posts/2021-05-17/5_9.png">
+
+如果想传入一个C字符串，则必须引用它。例如，要将某字符串传递给doSomethingWithString块，可以这样写，<br/>
+<img src="/images/posts/2021-05-17/5_10.png">
+
+
 
 ## 文档修订历史
 <img src="/images/posts/2021-05-17/Document_Revision_History.png">
