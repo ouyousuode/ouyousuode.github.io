@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 理解Objective-C Runtime
+title: 「译」理解Objective-C Runtime
 ---
 {{page.title}}
 =================================
@@ -9,26 +9,22 @@ title: 理解Objective-C Runtime
 
 本文译自Colin Wheeler于01/20/2010写就的[Understanding the Objective-C Runtime](https://cocoasamurai.blogspot.com/2010/01/understanding-objective-c-runtime.html)篇(原文在「墙」外)。<br/>
 
-当人们谈到Cocoa/Objective-C时，Objective-C Runtime是Objective-C最常被忽视的功能之一。究其原因，尽管Objective-C仅在几个小时内便可轻松掌握，但学习Cocoa的新手们往往是在Cocoa框架及如何使用它们上下工夫。然而，除了知道像`[target doMethodWith:var];`这样的代码被编译器翻译为`objc_msgSend(target,@selector(doMethodWith:),var1);`之外，Runtime如何工作的一些细节是每一名Objective-C学习者应了解的。了解Objective-C运行时的工作原理将有助于加深理解Objective-C语言本身以及你的应用程序是如何运行的。窃以为，无论您的Mac/iPhone开发经验水平如何，均能从本文中收获一二。<br/>
+当人们谈到Cocoa/Objective-C时，最常忽略的功能之一便是Objective-C Runtime。究其原因，虽然花几个小时便可轻松掌握Objective-C這門語言，但学习Cocoa的新手们往往是在Cocoa框架及其使用方面下工夫。然而，除了知道像`[target doMethodWith:var];`这样的代码会被编译器翻译为`objc_msgSend(target,@selector(doMethodWith:),var1);`之外，Runtime工作的一些细节也理应为每一位Objective-C学习者所了解。了解Objective-C运行时的工作原理将有助于加深理解Objective-C编程语言以及你的应用程序是如何运行的。窃以为，无论您的Mac/iPhone开发经验水平如何，均能从本文中收获一二。<br/>
 
-## Objective-C Runtime是开源项目
-
+## 一、Objective-C Runtime是开源项目
 Objective-C Runtime是开源的，并可随时通过[http://opensource.apple.com](https://opensource.apple.com)获得。事实上，除了Apple公司公布的相关文档之外，阅读Runtime源代码是我探究其工作方式的第一种方法。你可以通过[objc4-437.1.tar.gz](http://opensource.apple.com/tarballs/objc4/objc4-437.1.tar.gz)下载适用于Mac OS X 10.6.2的当前Runtime版本(截至本文撰写)。<br/>
 
-## 动态语言vs静态语言
-
+## 二、动态语言vs静态语言
 Objective-C是一门面向運行時的语言，这意味着应由哪个对象执行哪条消息，是在经编译、链接之后，直至運行時才确定下来。这便为你提供了很大的灵活性，你可以根据需要将消息重定向給适当的对象，甚至可以有意地交换方法实现等等。这需要充分利用運行時系統，该運行時可以自省对象以查看它们响应与否，并恰当地分派方法。如果我们把它同C语言進行对比，在C語言之語境中，你从`main()`方法开始，然后从此处起，这是一个自上而下的设计，遵循着你已写就的代码之逻辑并执行代码中的函数。C结构不能将执行函数的请求转发给其它目标。比如，你有如下的一段C语言代码，编译器将解析、优化之，然后将优化后的代码转换成一段汇编代码，最后将其与库链接在一起并生成一个可执行文件。<br/>
 <img src="/images/posts/2019-06-01/helloWorld_c.png">
 <img src="/images/posts/2019-06-01/helloWorld_s.png">
 
 这与Objective-C的不同之处在于，尽管过程类似，但编译器生成的代码取决于Objective-C運行時库之存在。最初接触Objective-C时，我们被告知(在一个最简单层面上)Ojbective-C之括号代码类似于`[self doSomethingWithVar;var1];`被翻译`objc_msgSend(self,@selector(doSomethingWithVar:),var1);`但是，除此之外，我们对运行时的工作机制一无所知。<br/>
 
-## 何为Objective-C Runtime ？
-
+## 三、何为Objective-C Runtime ？
 Objective-C Runtime是一个主要以C和Assembler编写的運行時库，向C添加了面向对象功能(以创建Objective-C)。这意味着它将加载类信息，执行所有的方法分派及转发等等。Objective-C运行时创建了使Objective-C面向对象编程成为可能的所有支持结构！<br/>
 
-## Objective-C Runtime相关术语
-
+## 四、Objective-C Runtime相关术语
 因此，在我们继续深入之前，让我们共同梳理一下相关术语，以便我们能在同一维度讨论问题！Mac及iPhone开发者关心的两个运行时：现代运行时(Modern Runtime)和传统运行时(Legacy Runtime)。现代运行时涵盖了所有64位Mac OS X及iPhone应用；传统运行时则包括余下之所有32位Mac OS X应用。<br/>
 
 有两种基本类型的方法：**实例方法**，像`-(void)doFoo;`一样以「-」开头，并操作于对象实例；**类方法**，似`+(id)alloc`这般以「+」开头，当然只能对类自身进行操作。方法看起来和C函数很像，其内部为执行一项小任务的一组代码，像下面这样：<br/>
@@ -52,15 +48,13 @@ Objective-C中的选择器实质上是一种C数据结构，用于标识你希�
 
 我们可以看到类引用了它的父类、它的名称、实例变量、方法、缓存和它声称要遵守的协议。在响应向类或实例发出的消息时，运行时需要这些信息。<br/>
 
-## 类定义对象抑或自身是对象？如何实现？
-
+## 五、类定义对象抑或自身是对象？如何实现？
 是的，我之前说过，在Objective-C中，类自身也是对象，并且運行時系統通过创建元类来处理它。当你发送类似`[NSObject alloc]`消息时，实际上是在向类对象发送消息，并且该类对象为元类(Meta Class)的实例，而元类本身又是根元类的实例。当你说继承自`NSObject`时，你的类将指向`NSObject`作为其父类。然而，所有元类皆指向根元类作为它们的父类。所有的元类仅具有响应消息的方法列表之类方法。因此，当你向一个类对象发送`[NSObject alloc]`这样一条消息时，`objc_msgSend()`实际上会浏览元类以查看其响应，然后，若找到了方法，便对类对象进行操作。<br/>
 
-## 为什么我们要继承Apple的类库？
-
+## 六、为什么我们要继承Apple的类库？
 因此，最初开始Cocoa开发时，教程说的都是，继承`NSObject`类，然后开始编写某些代码，你只需要继承Apple类库便可享受到很多好处。你甚至都没有意识到的一件事是，此时便设置好了你的对象以使用Objective-C运行时。当我们分配类的一个实例时，是这样做的：`MyObject *object = [[MyObject alloc] init];`。第一条得以执行的消息是`+alloc`。如果你查看[文档](https://developer.apple.com/documentation/objectivec/nsobject?language=objc)，它会说「新实例的isa实例变量会初始化为描述该类的数据结构；所有其它实例变量的内存(内容)设置为0。」因此，通过继承Apple类库，我们不仅继承了一些很棒的属性，而且继承了在内存中轻松分配和创建对象的能力，该对象同運行時系統期望的结构相匹配(带有指向我们类的「isa指针」)。<br/>
 
-## 何为类缓存(Class Cache)
+## 七、何为类缓存(Class Cache)
 
 当Objective-C運行時系統通过追踪对象的「isa指针」检查对象时，它可以找到实现许多方法的对象。但是呢，你可能只调用其中的一小部分，并且每次查找时并没有必要在类「分发表」中执行对全部选择器的搜索！故，该类实现了一个缓存；每当你搜索一个类的分配表并找到相应的选择器时，它就会将其放入缓存内。因此，当`objc_msgSend()`在类中查找选择器时，将首先在类缓存中进行搜索。此举是基于理论：如果你在某个类上调用了一条消息，则稍后你可能会再次于此类上调用同一条消息。因此，如果考虑到这一点，它意味着如果我们有一个名为`MyObject`的`NSObject`子类，并运行了以下代码：<br/>
 <img src="/images/posts/2019-06-01/MyObject_setVarA.png">
@@ -72,8 +66,7 @@ Objective-C中的选择器实质上是一种C数据结构，用于标识你希�
 <img src="/images/posts/2019-06-01/assumed_result_of_MyObject_Class_Cache.png">
 <img src="/images/posts/2019-06-01/result_of_MyObject_Class_Cache.png">
 
-## `objc_msgSend`中会发生什么呢？
-
+## 八、`objc_msgSend`中会发生什么呢？
 实际上，`objc_msgSend()`中发生了很多事！比如，我们有代码：<br/>
 <img src="/images/posts/2019-06-01/printMessageWithString.png">
 
@@ -83,9 +76,9 @@ Objective-C中的选择器实质上是一种C数据结构，用于标识你希�
 然后，Objective-C運行時系統通过调用指向那些方法的函数指针来调用你的方法。现在，我说你不能直接调用这些转换后的方法，但是，Cocoa Framework确实提供了一种获取指针的方法...<br/>
 <img src="/images/posts/2019-06-01/declare_C_function_pointer.png">
 
-如此，如果你确实需要确保执行特定的方法，则可以直接访问该函数并在运行时直接调用之，甚至可以使用它来规避運行時系統的动态性。这与Objective-C运行时调用方法的方式相同，但是其使用的是`objc_msgSend()`。
+如此，如果你确实需要确保执行特定的方法，则可以直接访问该函数并在运行时直接调用之，甚至可以使用它来规避運行時系統的动态性。这与Objective-C运行时调用方法的方式相同，但是其使用的是`objc_msgSend()`。<br/>
 
-## Objective-C消息转发
+## 九、Objective-C消息转发
 在Objective-C，将消息转发到它们不知道如何响应的对象是非常合法的(甚至可能是故意的设计决策)。Apple在其文档内提供此功能的一个原因是模拟Objective-C生来就不支持的多重继承，或者你可能只能抽象化设计并在处理消息的幕后隐藏另一个对象/类。这是运行时非常必要的一方面。它像这样工作(1)运行时在你的类及所有父类的缓存和类分发表内进行搜索，但是未找到指定的方法。(2)Objective-C运行时将于你的类上调用`+(BOOL)resolveInstanceMethod:(SEL)aSEL`方法。这将使你有机会提供一种方法实现，并告诉运行时你已经处理了该方法；如果应该开始做搜索了，它将立即找到该方法。你可以似(如下)这般完成此操作...定义一个函数...<br/>
 <img src="/images/posts/2019-06-01/fooMethod_resolveInstanceMethod.png">
 
@@ -97,7 +90,7 @@ Objective-C中的选择器实质上是一种C数据结构，用于标识你希�
 
 默认情况下，如果你继承自**NSObject**，它的`-(void)forwardInvocation:(NSInvocation *)anInvocation`实现仅调用`-doesNotRecognizeSelector:`；如果你想抓住最后的机会做些什么，可以重写它！<br/>
 
-## 健壮的实例变量(Modern运行时)
+## 十、健壮的实例变量(Modern运行时)
 在Runtime的现代版本中，最大的特点就是健壮的实例变量(Non Fragile ivars)。在编译类时，编译器将创建一个ivar布局，该布局显示了访问类中之ivars的位置。这也是以下操作的底层细节：获取对象的指针，查看ivar相对于对象所指向之字节起始处的偏移量，以及要读取的变量类型大小之字节数。因此，你的ivar布局看起来可能像这样，其中左列中的数字为字节偏移量，<br/>
 <img src="/images/posts/2019-06-01/MyObject_0.png">
 
@@ -109,15 +102,14 @@ Objective-C中的选择器实质上是一种C数据结构，用于标识你希�
 
 在健壮实例变量情形下，编译器将生成与脆弱ivar相同的实例变量布局。但是，当运行时检测到重叠的父类时，它会调整你对类新添加的实例变量之偏移量，从而将你在子类中新添加的成员保留下来。<br/>
 
-## Objective-C关联对象
+## 十一、Objective-C关联对象
 Mac OS X 10.6 Snow Leopard最近引入了一项称为「关联引用」(Associated Reference)的特征。与其它对此有原生支持的语言不同，Objective-C不支持动态地将变量添加给对象。因此，到目前为止，你不得不花很多精力来构建基础结构，以假装正在向类中添加变量。现在，到了Mac OS X 10.6，Objective-C運行時系統对此有了原生支持。如果我们想为每个已存在的类添加一个变量，比如说**NSView**，我们可以这样做，<br/>
 <img src="/images/posts/2019-06-01/NSView_Custom_Additions.png">
 
 你可以在[runtime.h](https://opensource.apple.com/source/objc4/objc4-437/runtime/runtime.h.auto.html)中發現关於传递给`objc_setAssociatedObject()`的值之选项。这些选项与你可以在@property语法中传递的选项相匹配。<br/>
 <img src="/images/posts/2019-06-01/Associated_Object_support_437.png">
 
-## 混合vTable分发
-
+## 十二、混合vTable分发
 如果你浏览现代运行时代码([objc-runtime-new.m](https://opensource.apple.com/source/objc4/objc4-437/runtime/objc-runtime-new.m)),将会发现<br/>
 <img src="/images/posts/2019-06-01/vtable_dispatch.png">
 
