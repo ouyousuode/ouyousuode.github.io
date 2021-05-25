@@ -26,26 +26,25 @@ block在GCC和Clang中都是随OS X v10.6 Xcode开发者工具一起提供的。
 
 ### 1.1 声明和使用块
 你可以使用^运算符来声明一个block变量，并指示一个block字面量的开始。block本身的主体包含在`{}`中，正如本例所示(形如C语言，`;`标示着语句的结束)：<br/>
-<img src="/images/posts/2021-05-17/1_1.png">
+<img src="/images/posts/2021-05-17/1-1.png">
 
 如图解释了该示例:<br/>
 <img src="/images/posts/2021-05-17/blocks.jpg">
 
 注意，block可以使用自定义它的相同范围内的变量。如果将block声明为变量，则可以像使用函数一样使用它：<br/>
-<img src="/images/posts/2021-05-17/1_2.png">
+<img src="/images/posts/2021-05-17/1-2.png">
 
 ### 1.2 直接使用块
 在很多情况下，你无需声明block变量；相反，在需要将其作为参数的地方内联编写一个block字面量，即可。以下示例使用了`qsort_b`函数。`qsort_b`类似于标准的`qsort_r`函数，但以一个block作为其最后一个参数。<br/>
-<img src="/images/posts/2021-05-17/1_3.png">
+<img src="/images/posts/2021-05-17/1-3.png">
 
 ### 1.3 Cocoa中的块
 Cocoa frameworks中的一些方法以block为参数，通常对对象集合执行操作，或者在操作完成后用于「回调」。下面示例展示了如何将block与NSArray方法[sortedArrayUsingComparator:](https://developer.apple.com/documentation/foundation/nsarray/1411195-sortedarrayusingcomparator?language=objc)一起使用。该方法只有一个block参数。举例来讲，此场景下，block被定义一个`NSComparator`类型的局部变量：<br/>
-<img src="/images/posts/2021-05-17/1_4.png">
+<img src="/images/posts/2021-05-17/1-4.png">
 
 ### 1.4 `__block`变量
 block的一个强大特性是它们可以修改相同词法作用域内的变量。给变量加上`__block`存储类型符即意味着你可以在block内修改此变量。利用「1.3 Cocoa中的块」之示例，你可以使用block变量来计算如下示例中🈶️多少字符串是相等的。举例来讲，此场景下，直接使用block并在block内使用了`currentLocale`作为只读变量：<br/>
-<img src="/images/posts/2021-05-17/1_5_0.png">
-<img src="/images/posts/2021-05-17/1_5_1.png">
+<img src="/images/posts/2021-05-17/1-5.png">
 
 ## 二、Conceptual Overview
 block对象为你提供了一种在C语言及其派生语言(如Objective-C和C++)中创建特殊函数体作为表达式的方法。在其它编程语言和环境中，block对象有时也被称为「闭包」(closure)。在这里，除非和标准C语言术语的一段(block)代码混淆之情况下，一般通俗地称其为「块」(block)。<br/>
@@ -73,20 +72,20 @@ block作为传统回调函数的实用替代，主要有两大原因：
 
 ### 3.1 声明块引用
 block变量包含对块的引用。你可以使用类似于声明函数指针的语法来声明它们，区别在于使用^而非`*`。block类型同C语言类型系统的其余部分完全相通。以下是所有有效的block变量声明：<br/>
-<img src="/images/posts/2021-05-17/3_1.png">
+<img src="/images/posts/2021-05-17/3-1.png">
 
 block也支持可变参数(...)。不带参数的block必须在参数列表中制定`void`。通过给编译器一整套元数据以验证block的使用、传递给block之参数以及返回值的赋值這三者之有效性，block得以被设计为完全类型安全的。你可以将block引用强制转换为任意类型的指针，反之亦然。但是呢，你不能像对指针以`*`來取消引用操作那樣對block進行解引用(dereference)操作，因此不能在編譯時計算block的大小。你可以为block创建类型——当你在多个位置使用具有给定签名的block时，此做法通常被认为是最佳实践：<br/>
-<img src="/images/posts/2021-05-17/3_2.png">
+<img src="/images/posts/2021-05-17/3-2.png">
 
 ### 3.2 创建块
 你可以使用^运算符来指示block字面表达式的开始。它后面可能跟着一个包含在`( )`中的参数列表。block的主体包含在`{ }`中。下面的示例定义了一个简单的block，并将其赋值给之前定义的变量(oneFrom)——同以C语言中结束语句的常规`;`来结束。<br/>
-<img src="/images/posts/2021-05-17/3_3.png">
+<img src="/images/posts/2021-05-17/3-3.png">
 
 若你没有明确声明block表达式的返回值，它可从block的内容中自动推断出来。如果返回值类型是推断的，并且参数列表为`void`，则你也可以省略参数列表。当有多个返回语句时，它们必须是类型一致的(必要时，进行强制转换)。<br/>
 
 ### 3.3 全局块
 在「文件」层面上，你可以将block用作全局字面量：<br/>
-<img src="/images/posts/2021-05-17/3_4.png">
+<img src="/images/posts/2021-05-17/3-4.png">
 
 ## 四、Blocks and Variables
 本文描述了block和变量之间的交互，包括内存管理。<br/>
@@ -111,10 +110,10 @@ block还支持其它两种类型的变量：
 - 5.在block的词法作用域内声明的局部变量，其行为与函数中的局部变量完全相同。对该block的每次调用都会提供此变量的一个新副本。这些变量又可以作为`const`变量或引用变量在包含于block中的block内使用。
 
 下面的例子说明了局部非静态变量的使用：<br/>
-<img src="/images/posts/2021-05-17/4_1.png">
+<img src="/images/posts/2021-05-17/4-1.png">
 
 如前所述，试图在block内给x赋🆕值会导致错误：<br/>
-<img src="/images/posts/2021-05-17/4_2.png">
+<img src="/images/posts/2021-05-17/4-2.png">
 
 若要实现在block内更改变量之目的，可以使用`__block`存储类型修饰符。<br/>
 
@@ -128,10 +127,10 @@ block还支持其它两种类型的变量：
 对于`__block`变量还有两個進一步的限制：它们不能是变长数组；不能是包含C99变长数组的结构。<br/>
 
 如下示例演示了`__block`变量的使用：<br/>
-<img src="/images/posts/2021-05-17/4_3.png">
+<img src="/images/posts/2021-05-17/4-3.png">
 
 下面的这个例子则展示了block同几种类型变量之交互：<br/>
-<img src="/images/posts/2021-05-17/4_4.png">
+<img src="/images/posts/2021-05-17/4-4.png">
 
 ### 4.3 对象和块变量
 block作为变量提供了对Objective-C和C++对象、以及其它block的支持。<br/>
@@ -142,7 +141,7 @@ block作为变量提供了对Objective-C和C++对象、以及其它block的支�
 - 如果按值访问实例变量，则对该变量进行「强引用」。
 
 如下示例说明了这两种不同的情况：<br/>
-<img src="/images/posts/2021-05-17/4_5.png">
+<img src="/images/posts/2021-05-17/4-5.png">
 
 要覆盖特定对象变量的此行为，可以使用`__block`存储类型修饰符对其进行标记。<br/>
 
@@ -159,48 +158,46 @@ block作为变量提供了对Objective-C和C++对象、以及其它block的支�
 
 ### 5.1 调用块
 如果你把block声明为变量，你可以像使用函数一样使用它，如下两个例子所示：<br/>
-<img src="/images/posts/2021-05-17/5_1.png">
+<img src="/images/posts/2021-05-17/5-1.png">
 
 然而，你经常将block作为参数传递给函数或方法。在这些情况下，你通常会创建一个「内联」block。<br/>
 
 ### 5.2 使用块作为函数参数
 可以将block作为函数参数传递，就像传递任何其它参数一样。然而，在许多情况下，你不需要声明block；相反，只需在需要它们作为参数处「内联」实现它们即可。下面的示例使用`qsort_b`函数。`qsort_b`函数类似于标准的`qsort_r`函数，但将block作为其最后一个参数。<br/>
-<img src="/images/posts/2021-05-17/5_2.png">
+<img src="/images/posts/2021-05-17/5-2.png">
 
 注意，block包含在函数的参数列表中。<br/>
 下一个例子展示了如何在`dispatch_apply`函数中使用block。`dispatch_apply`声明如下：<br/>
-<img src="/images/posts/2021-05-17/5_3.png">
+<img src="/images/posts/2021-05-17/5-3.png">
 
 该函数将block提交给「调度队列」以執行多次调用。它有三个参数：第1个指定要执行的迭代次数；第2个指定block被提交到的队列；第3个是block本身，它接受一个参数——迭代的当前索引。你可以简单地使用`dispatch_apply`来打印迭代索引，如下所示：<br/>
-<img src="/images/posts/2021-05-17/5_4.png">
+<img src="/images/posts/2021-05-17/5-4.png">
 
 ### 5.3 使用块作为方法参数
 Cocoa提供了许多使用block的方法。将block作为方法参数以传递，就像传递其它任何参数一样。下面的示例determines the indexes of any of the first five elements in an array that appear in a given filter set(确定出现在给定「筛选器集」中的数组的前5个元素中的任何一个之索引)。<br/>
-<img src="/images/posts/2021-05-17/5_5.png">
+<img src="/images/posts/2021-05-17/5-5.png">
 
 下面的示例确定一个`NSSet`对象是否包含一个由局部变量指定的单词，并将另一个局部变量(found)的值设置为YES(若存在，则停止搜索)。注意，found也被声明为`__block`变量，并且block为「内联」定义的：<br/>
-<img src="/images/posts/2021-05-17/5_6.png">
+<img src="/images/posts/2021-05-17/5-6.png">
 
 ### 5.4 拷贝块
 通常，你不需要复制(或保留)一个block。只有当你希望在销毁声明block的作用域后仍使用该block时，才需要创建一个副本。复制将block移动到堆(heap)中。<br/>
 
 你可以使用C函数来复制和释放block：<br/>
-<img src="/images/posts/2021-05-17/5_7.png">
+<img src="/images/posts/2021-05-17/5-7.png">
 
 为避免内存泄漏，你必须保证`Block_copy()`和`Block_release()`成对出现。<br/>
 
 ### 5.5 应避免的模式
 一个block字面量(即，`^{ ... }`)是表示block的局部栈(stack-local)数据结构之地址。因此，局部栈(stack-local)数据结构的作用域是封闭的复合语句，因此，应避免以下示例中显示的模式：<br/>
-<img src="/images/posts/2021-05-17/5_8.png">
+<img src="/images/posts/2021-05-17/5-8.png">
 
 ### 5.6 调试
 你可以设置「断点」并单步执行block。你可以使用`invoke-block`在GDB会话中调用block，如下例所示：<br/>
-<img src="/images/posts/2021-05-17/5_9.png">
+<img src="/images/posts/2021-05-17/5-9.png">
 
 如果想传入一个C字符串，则必须引用它。例如，要将字符串`this string`传递给`doSomethingWithString`块，可以这样写，<br/>
-<img src="/images/posts/2021-05-17/5_10.png">
-
-
+<img src="/images/posts/2021-05-17/5-10.png">
 
 ## 文档修订历史
 <img src="/images/posts/2021-05-17/Document_Revision_History.png">
