@@ -4,8 +4,8 @@ title: 「译」预知
 ---
 {{page.title}}
 =========================
-<img src="/images/posts/2021-06-20/Precognition.png"> <br/>
-看到一篇需耗时2分钟方可读罢的[博文](https://jasoncrawford.org/precognition)，并且读完第一段便确认此为「真文章」。「All you have to do is see the present before everyone else does.」不免联想到网上流传的一则段子：张三和李四在森林里遇到了一只大老虎，张三赶紧从背包里取出一双更轻便的运动鞋换上。李四急死了，骂道「你干吗呢？穿再好的鞋也跑不过老虎啊！」张三回应，「我只要跑得比你快就好了！」虽然厚黑，然确实是「物竞天择以生存」之法则。<br/>
+<img src="/images/posts/2021-06-20/Precognition_with_author.png"> <br/>
+看到一篇仅耗时2分钟便可读罢的[博文](https://jasoncrawford.org/precognition)，然读完第一段便确认此为「真文章」。「All you have to do is see the present before everyone else does.」不免联想到网上流传的一则段子：张三和李四在森林里遇到了一只大老虎，张三赶紧从背包里取出一双更轻便的运动鞋换上。李四急死了，骂道「你干吗呢？穿再好的鞋也跑不过老虎啊！」张三回应，「我只要跑得比你快就好了！」虽然厚黑，然确实是「物竞天择以生存」之法则。<br/>
 
 作者的博客未被屏蔽于「高墙」之外，可直接(也最好直接)阅读其英文原文。但是，自己想练练语感，遂略译来。<开始：><br/>
 
